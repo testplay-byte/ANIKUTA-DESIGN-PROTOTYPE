@@ -279,6 +279,7 @@
       width: 150px;
       height: 300px;
       flex: 0 0 auto;
+      position: relative;
       margin: 0 auto;
       background: linear-gradient(160deg, var(--secondary), var(--accent));
       border: 8px solid var(--primary);
