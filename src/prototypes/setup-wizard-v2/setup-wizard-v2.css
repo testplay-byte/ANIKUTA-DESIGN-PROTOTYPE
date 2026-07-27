@@ -733,6 +733,41 @@
   from { width: 0%; }
 }
 
+/* ================================================================
+   PAGE TITLE — big bold headings
+   ================================================================ */
+
+.wv-title--page {
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.15;
+  text-align: left;
+  animation: wvSlideUp 0.45s var(--ease-emphasized-decel) backwards;
+}
+
+/* ================================================================
+   SEARCH BAR
+   ================================================================ */
+
+.wv-search-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: 12px;
+  background: var(--color-surface-variant-alpha-50);
+  border: 1px solid var(--color-outline-variant);
+  width: 100%;
+  transition: border-color 0.2s var(--ease-emphasized);
+}
+
+.wv-search-bar:focus-within {
+  border-color: var(--color-primary);
+}
+
 /* Stagger helpers */
 .wv-stagger-1 { animation-delay: 0.08s; }
 .wv-stagger-2 { animation-delay: 0.16s; }

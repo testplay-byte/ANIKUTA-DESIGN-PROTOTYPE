@@ -228,7 +228,7 @@ export default function Page() {
                 </li>
                 <li
                   className="bar"
-                  title="Setup Wizard v2: Welcome, Theme, Permissions, Storage, Restore, Restore Summary, Processing, Linking Summary, Finish — 9 screens"
+                  title="Setup Wizard v2: Welcome, Theme, Storage, Permissions, Restore, Format Error, Linking, Manual Linking, Restore Summary, Finish — 10 screens"
                 >
                   <span className="bar__icon">
                     <svg
@@ -243,7 +243,7 @@ export default function Page() {
                       <path d="m9 12 2 2 4-4" />
                     </svg>
                   </span>
-                  <span className="bar__label">Wizard v2 (9)</span>
+                  <span className="bar__label">Wizard v2 (10)</span>
                   <span className="bar__track">
                     <span
                       className="bar__fill"
@@ -813,12 +813,12 @@ export default function Page() {
                 </div>
                 <h3 className="gridcard__name">Setup Wizard v2</h3>
                 <p className="gridcard__desc">
-                  A 9-step onboarding wizard built with the ANIKUTA design language. Custom M3-inspired design with Anikuta palette (#B1F256), 5-level surface tiers, linking animations, and smooth transitions.
+                  A 10-step onboarding wizard built with the ANIKUTA design language. Custom M3-inspired design with Anikuta palette (#B1F256), 5-level surface tiers, linking animations, and smooth transitions.
                 </p>
                 <div className="tags">
                   <span className="tag">ANIKUTA</span>
                   <span className="tag">Design Language</span>
-                  <span className="tag">9 steps</span>
+                  <span className="tag">10 steps</span>
                 </div>
                 <div className="gridcard__stats">
                   <div className="mini-bars">

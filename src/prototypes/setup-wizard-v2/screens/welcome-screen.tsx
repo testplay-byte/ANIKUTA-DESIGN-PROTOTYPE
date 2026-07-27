@@ -1,10 +1,5 @@
 "use client";
 
-/**
- * WelcomeScreen — Redesigned welcome with animated illustration,
- * version badge, feature highlights, and a prominent CTA.
- */
-
 import { useEffect, useState } from "react";
 import type { ThemePalette } from "../lib/themes";
 
@@ -15,13 +10,25 @@ interface WelcomeScreenProps {
 }
 
 const FEATURES = [
-  { icon: "📺", label: "Stream & Download" },
-  { icon: "📚", label: "Library Management" },
-  { icon: "🔄", label: "Backup & Restore" },
-  { icon: "🎨", label: "Custom Themes" },
+  {
+    title: "Stream & Download",
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="5 3 19 12 5 21 5 3" /><line x1="12" y1="3" x2="12" y2="21" /></svg>,
+  },
+  {
+    title: "Library Management",
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" /></svg>,
+  },
+  {
+    title: "Backup & Restore",
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="1 4 1 10 7 10" /><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" /></svg>,
+  },
+  {
+    title: "Custom Themes",
+    icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="13.5" cy="6.5" r="2.5" /><circle cx="17.5" cy="10.5" r="2.5" /><circle cx="8.5" cy="7.5" r="2.5" /><circle cx="6.5" cy="12.5" r="2.5" /><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z" /></svg>,
+  },
 ];
 
-export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
+export function WelcomeScreen({ active, onNext }: WelcomeScreenProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -33,59 +40,17 @@ export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
     }
   }, [active]);
 
-  const primary = palette.primary;
-  const secondary = palette.secondary;
-
   return (
     <div className={`wv-step ${active ? "wv-step--active" : ""}`} style={{ overflow: "hidden" }}>
-      {/* Decorative gradient background */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: `radial-gradient(ellipse at 50% 30%, ${primary}10 0%, transparent 60%)`,
-          pointerEvents: "none",
-        }}
-      />
+      {/* Background radial glow */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, bottom: 0,
+        background: "radial-gradient(ellipse at 50% 35%, var(--color-primary-alpha-12) 0%, transparent 60%)",
+        pointerEvents: "none",
+      }} />
 
-      {/* Floating orbs */}
-      <div
-        style={{
-          position: "absolute",
-          top: "8%",
-          left: "-12%",
-          width: 180,
-          height: 180,
-          borderRadius: "50%",
-          background: primary,
-          opacity: 0.06,
-          filter: "blur(70px)",
-          pointerEvents: "none",
-          animation: mounted ? "wvFloatSlow 8s ease-in-out infinite" : "none",
-        }}
-      />
-      <div
-        style={{
-          position: "absolute",
-          bottom: "20%",
-          right: "-8%",
-          width: 140,
-          height: 140,
-          borderRadius: "50%",
-          background: secondary,
-          opacity: 0.06,
-          filter: "blur(60px)",
-          pointerEvents: "none",
-          animation: mounted ? "wvFloatSlow 10s ease-in-out infinite 2s" : "none",
-        }}
-      />
-
-      {/* Main content */}
       <div className="wv-content" style={{ position: "relative", zIndex: 1, gap: "var(--sp-4)", paddingTop: "var(--sp-8)" }}>
-        {/* Animated logo illustration */}
+        {/* Custom animated illustration — concentric pulsing rings + orbiting dots + sparkles */}
         <div
           className="wv-illustration wv-illustration--lg"
           style={{
@@ -96,122 +61,81 @@ export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
         >
           <svg viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <linearGradient id="w-bg-grad" x1="0" y1="0" x2="220" y2="220">
-                <stop offset="0%" stopColor={primary} stopOpacity="0.15" />
-                <stop offset="100%" stopColor={primary} stopOpacity="0.03" />
-              </linearGradient>
-              <linearGradient id="w-accent-grad" x1="60" y1="40" x2="160" y2="180">
-                <stop offset="0%" stopColor={primary} />
-                <stop offset="100%" stopColor="#8BD930" />
-              </linearGradient>
-              <radialGradient id="w-glow" cx="50%" cy="45%" r="40%">
-                <stop offset="0%" stopColor={primary} stopOpacity="0.25" />
-                <stop offset="100%" stopColor={primary} stopOpacity="0" />
+              <radialGradient id="wc-glow" cx="50%" cy="50%" r="40%">
+                <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.2" />
+                <stop offset="100%" stopColor="var(--color-primary)" stopOpacity="0" />
               </radialGradient>
             </defs>
 
             {/* Glow */}
-            <circle cx="110" cy="100" r="80" fill="url(#w-glow)" />
+            <circle cx="110" cy="110" r="70" fill="url(#wc-glow)" />
 
-            {/* Background circle */}
-            <circle cx="110" cy="110" r="90" fill="url(#w-bg-grad)" />
+            {/* 4 concentric pulsing rings */}
+            {[90, 72, 54, 36].map((r, i) => (
+              <circle key={r} cx="110" cy="110" r={r} fill="none" stroke="var(--color-primary)"
+                strokeWidth={1.5 + i * 0.3} opacity={0.2 + i * 0.12}
+                style={{
+                  transformBox: "fill-box", transformOrigin: "center",
+                  animation: `wvPulse 3s ease-in-out infinite ${i * 0.4}s`,
+                }}
+              />
+            ))}
 
-            {/* Decorative rings */}
-            <circle cx="110" cy="110" r="100" stroke={primary} strokeWidth="0.5" opacity="0.15" strokeDasharray="3 6" />
-            <circle cx="110" cy="110" r="85" stroke={primary} strokeWidth="0.3" opacity="0.1" />
+            {/* Inner orbit — 3 dots, clockwise */}
+            <g style={{ transformBox: "fill-box", transformOrigin: "110px 110px", animation: mounted ? "wvRotate 8s linear infinite" : "none" }}>
+              <circle cx="110" cy="48" r="5" fill="var(--color-primary)" />
+              <circle cx="155" cy="130" r="4" fill="var(--color-tertiary)" />
+              <circle cx="65" cy="130" r="4" fill="var(--color-secondary)" />
+            </g>
 
-            {/* Phone device frame */}
-            <rect x="70" y="48" width="80" height="130" rx="14" fill="var(--color-surface-2)" stroke={primary} strokeWidth="1.5" opacity="0.8" />
-            <rect x="76" y="58" width="68" height="106" rx="4" fill="var(--color-bg)" />
+            {/* Outer orbit — 4 dots, counter-clockwise */}
+            <g style={{ transformBox: "fill-box", transformOrigin: "110px 110px", animation: mounted ? "wvRotate 12s linear infinite reverse" : "none" }}>
+              <circle cx="110" cy="28" r="3" fill="var(--color-secondary)" opacity="0.7" />
+              <circle cx="178" cy="110" r="3" fill="var(--color-primary)" opacity="0.7" />
+              <circle cx="110" cy="178" r="3" fill="var(--color-tertiary)" opacity="0.7" />
+              <circle cx="42" cy="110" r="3" fill="var(--color-primary)" opacity="0.5" />
+            </g>
 
-            {/* Play button inside phone */}
-            <circle cx="110" cy="95" r="22" fill="url(#w-accent-grad)" opacity="0.9" style={{ filter: "drop-shadow(0 2px 12px rgba(177, 242, 86, 0.4))" }}>
-              <animate attributeName="r" values="22;23;22" dur="2.5s" repeatCount="indefinite" />
-            </circle>
-            <path d="M104 88 L104 102 L117 95 Z" fill="var(--color-primary-fg)" opacity="0.95" />
+            {/* Ambient sparkles */}
+            {[[36, 55], [175, 65], [38, 155], [170, 150], [110, 22], [110, 195]].map(([cx, cy], i) => (
+              <circle key={i} cx={cx} cy={cy} r={2 + (i % 2) * 0.5} fill="var(--color-primary)"
+                opacity="0.3" style={{
+                  transformBox: "fill-box", transformOrigin: "center",
+                  animation: `wvPulse 2s ease-in-out infinite ${i * 0.35}s`,
+                }}
+              />
+            ))}
 
-            {/* Signal bars at bottom of phone */}
-            <rect x="88" y="145" width="6" height="10" rx="1" fill={primary} opacity="0.5" />
-            <rect x="98" y="141" width="6" height="14" rx="1" fill={primary} opacity="0.6" />
-            <rect x="108" y="137" width="6" height="18" rx="1" fill={primary} opacity="0.7" />
-            <rect x="118" y="133" width="6" height="22" rx="1" fill={primary} opacity="0.8" />
-
-            {/* Orbiting energy dots */}
-            <circle cx="175" cy="55" r="4" fill={primary} opacity="0.6">
-              <animate attributeName="opacity" values="0.3;0.8;0.3" dur="2.5s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="185" cy="90" r="3" fill={primary} opacity="0.4">
-              <animate attributeName="opacity" values="0.2;0.6;0.2" dur="3s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="50" cy="55" r="3" fill={primary} opacity="0.35">
-              <animate attributeName="opacity" values="0.15;0.5;0.15" dur="2.2s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="38" cy="140" r="2.5" fill={secondary} opacity="0.3">
-              <animate attributeName="opacity" values="0.1;0.4;0.1" dur="2.8s" repeatCount="indefinite" />
-            </circle>
-
-            {/* Stars */}
-            <polygon points="170,38 173,32 176,38 173,44" fill={primary} opacity="0.45">
-              <animate attributeName="opacity" values="0.2;0.6;0.2" dur="3.2s" repeatCount="indefinite" />
-            </polygon>
-            <polygon points="42,72 44,68 46,72 44,76" fill={primary} opacity="0.35">
-              <animate attributeName="opacity" values="0.15;0.5;0.15" dur="2.6s" repeatCount="indefinite" />
-            </polygon>
-
-            {/* Rotating arc */}
-            <path
-              d="M 110 20 A 90 90 0 0 1 200 110"
-              stroke={primary}
-              strokeWidth="1.2"
-              strokeLinecap="round"
-              fill="none"
-              opacity="0.2"
-              strokeDasharray="4 8"
-            >
-              <animateTransform attributeName="transform" type="rotate" from="0 110 110" to="360 110 110" dur="20s" repeatCount="indefinite" />
-            </path>
+            {/* Star diamonds */}
+            <polygon points="170,42 173,36 176,42 173,48" fill="var(--color-primary)" opacity="0.4"
+              style={{ animation: "wvPulse 2.8s ease-in-out infinite 0.5s" }} />
+            <polygon points="44,68 46,63 48,68 46,73" fill="var(--color-secondary)" opacity="0.3"
+              style={{ animation: "wvPulse 3.2s ease-in-out infinite 1s" }} />
           </svg>
-        </div>
-
-        {/* Version badge */}
-        <div
-          style={{
-            animation: mounted ? "wvSlideUp 0.45s cubic-bezier(0.05, 0.7, 0.1, 1) 0.3s backwards" : "none",
-          }}
-        >
-          <span className="wv-badge">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
-            v2.0 — NEW
-          </span>
         </div>
 
         {/* Title */}
         <h1
           className="wv-title wv-title--xl"
           style={{
-            animation: mounted
-              ? "wvSlideUp 0.5s cubic-bezier(0.05, 0.7, 0.1, 1) 0.4s backwards"
-              : "none",
+            animation: mounted ? "wvSlideUp 0.5s cubic-bezier(0.05, 0.7, 0.1, 1) 0.35s backwards" : "none",
+            whiteSpace: "pre-line",
           }}
         >
-          Welcome to{"\n"}ANIKUTA
+          {"Welcome to\nANIKUTA"}
         </h1>
 
         {/* Subtitle */}
         <p
           className="wv-subtitle"
           style={{
-            animation: mounted
-              ? "wvSlideUp 0.5s cubic-bezier(0.05, 0.7, 0.1, 1) 0.5s backwards"
-              : "none",
+            animation: mounted ? "wvSlideUp 0.5s cubic-bezier(0.05, 0.7, 0.1, 1) 0.45s backwards" : "none",
           }}
         >
-          Your ultimate anime streaming &amp; library companion. Let&apos;s set things up.
+          Your ultimate anime streaming companion. Let&apos;s set things up.
         </p>
 
-        {/* Feature highlights */}
+        {/* Feature highlights — NO emojis, SVG icons */}
         <div
           style={{
             display: "grid",
@@ -219,14 +143,12 @@ export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
             gap: "var(--sp-2)",
             width: "100%",
             maxWidth: 280,
-            animation: mounted
-              ? "wvSlideUp 0.5s cubic-bezier(0.05, 0.7, 0.1, 1) 0.6s backwards"
-              : "none",
+            animation: mounted ? "wvSlideUp 0.5s cubic-bezier(0.05, 0.7, 0.1, 1) 0.55s backwards" : "none",
           }}
         >
           {FEATURES.map((f, i) => (
             <div
-              key={f.label}
+              key={f.title}
               style={{
                 display: "flex",
                 alignItems: "center",
@@ -236,31 +158,28 @@ export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
                 background: "var(--color-surface-variant-alpha-40)",
                 border: "1px solid var(--color-outline-variant)",
                 animation: mounted
-                  ? `wvFadeInUp 0.35s cubic-bezier(0.05, 0.7, 0.1, 1) ${0.65 + i * 0.06}s backwards`
+                  ? `wvFadeInUp 0.35s cubic-bezier(0.05, 0.7, 0.1, 1) ${0.6 + i * 0.06}s backwards`
                   : "none",
               }}
             >
-              <span style={{ fontSize: 16, lineHeight: 1 }}>{f.icon}</span>
-              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--color-text-muted)" }}>{f.label}</span>
+              <span style={{ display: "flex", alignItems: "center" }}>{f.icon}</span>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--color-text-muted)" }}>{f.title}</span>
             </div>
           ))}
         </div>
 
-        {/* CTA */}
+        {/* Get Started button */}
         <div
           className="wv-actions"
           style={{
             justifyContent: "center",
-            animation: mounted
-              ? "wvSlideUp 0.5s cubic-bezier(0.05, 0.7, 0.1, 1) 0.85s backwards"
-              : "none",
+            animation: mounted ? "wvSlideUp 0.5s cubic-bezier(0.05, 0.7, 0.1, 1) 0.8s backwards" : "none",
           }}
         >
-          <button className="wv-btn wv-btn--primary" onClick={onNext} style={{ maxWidth: 280, width: "100%" }}>
+          <button className="wv-btn wv-btn--outline" onClick={onNext} style={{ maxWidth: 280, width: "100%" }}>
             Get Started
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 12h14" />
-              <path d="m12 5 7 7-7 7" />
+              <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
             </svg>
           </button>
         </div>
