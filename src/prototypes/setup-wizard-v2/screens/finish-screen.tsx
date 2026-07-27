@@ -26,8 +26,8 @@ export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) 
       color: colors[i % colors.length],
       left: `${Math.random() * 100}%`,
       delay: `${Math.random() * 1s}s`,
-      size: 3 + Math.random() * 4,
-      duration: 2 + Math.random(),
+      size: (3 + Math.random() * 4),
+      duration: (2 + Math.random()),
     }));
   }, [palette]);
 
