@@ -3,19 +3,16 @@
 /**
  * setup-wizard-v2 / page — ANIKUTA Design Language setup wizard.
  *
- * A 6-step animated setup wizard following the ANIKUTA design language:
+ * A 9-step animated setup wizard following the ANIKUTA design language:
  *   0. Welcome — Brand introduction with animated illustration
  *   1. Theme — Mode selection (Dark/Light/AMOLED) + Palette picker
- *   2. Permissions — Grant app permissions (notifications, storage, etc.)
+ *   2. Permissions — Grant app permissions
  *   3. Storage — Select anime file folder
- *   4. Backup & Restore — Create backup or restore from file
- *   5. Finish — Celebration + start exploring
- *
- * Design language references:
- * - DESIGN_LANGUAGE/01-principles/core-principles.md
- * - DESIGN_LANGUAGE/02-components/components.md
- * - DESIGN_LANGUAGE/03-themes/anikuta-palette.md
- * - DESIGN_LANGUAGE/03-themes/themes-and-colors.md
+ *   4. Backup & Restore — Restore from file only
+ *   5. Restore Summary — Stats + manga disclaimer
+ *   6. Processing/Linking — Animated linking screen
+ *   7. Linking Summary — What was linked
+ *   8. Finish — Celebration + start exploring
  */
 
 import { useEffect } from "react";
@@ -36,6 +33,9 @@ import { ThemeScreen } from "../../../src/prototypes/setup-wizard-v2/screens/the
 import { PermissionsScreen } from "../../../src/prototypes/setup-wizard-v2/screens/permissions-screen";
 import { StorageScreen } from "../../../src/prototypes/setup-wizard-v2/screens/storage-screen";
 import { BackupRestoreScreen } from "../../../src/prototypes/setup-wizard-v2/screens/backup-restore-screen";
+import { RestoreSummaryScreen } from "../../../src/prototypes/setup-wizard-v2/screens/restore-summary-screen";
+import { ProcessingScreen } from "../../../src/prototypes/setup-wizard-v2/screens/processing-screen";
+import { LinkingSummaryScreen } from "../../../src/prototypes/setup-wizard-v2/screens/linking-summary-screen";
 import { FinishScreen } from "../../../src/prototypes/setup-wizard-v2/screens/finish-screen";
 import { WizardProgress } from "../../../src/prototypes/setup-wizard-v2/components/wizard-progress";
 
@@ -48,16 +48,13 @@ export default function Page() {
     const device = document.querySelector(".device") as HTMLElement | null;
     if (!device) return;
 
-    // Apply theme mode data attribute
     device.setAttribute("data-theme", themeMode.id === "light" ? "light" : "dark");
 
-    // Apply all CSS custom properties from the design language palette
     const vars = getThemeCSSVars(themeMode, palette);
     Object.entries(vars).forEach(([prop, value]) => {
       device.style.setProperty(prop, value);
     });
 
-    // Stage background
     const root = document.documentElement;
     root.style.setProperty("--stage-bg", vars["--stage-bg"] ?? "#14111F");
   }, [themeMode, palette]);
@@ -73,7 +70,7 @@ export default function Page() {
             <PanelBadge>prototype v2</PanelBadge>
             <PanelTitle>Setup Wizard</PanelTitle>
             <PanelDesc>
-              A 6-step onboarding wizard built with the ANIKUTA design language.
+              A 9-step onboarding wizard built with the ANIKUTA design language.
               Custom M3-inspired design with the Anikuta palette (#B1F256),
               5-level surface tiers, segmented toggles, and smooth animations.
             </PanelDesc>
@@ -142,7 +139,6 @@ export default function Page() {
           {/* Progress bar */}
           <WizardProgress currentStep={step} totalSteps={TOTAL_STEPS} palette={palette} />
           <Screen>
-            {/* All screens always mounted, visibility via wv-step--active */}
             <WelcomeScreen
               active={step === 0}
               onNext={wizard.next}
@@ -177,13 +173,27 @@ export default function Page() {
               onNext={wizard.next}
               onBack={wizard.back}
               onSkip={wizard.skipToFinish}
-              backupSelected={wizard.backupSelected}
+              restoreInitiated={wizard.restoreInitiated}
               restoreComplete={wizard.restoreComplete}
-              setBackupSelected={wizard.setBackupSelected}
+              setRestoreInitiated={wizard.setRestoreInitiated}
               setRestoreComplete={wizard.setRestoreComplete}
             />
-            <FinishScreen
+            <RestoreSummaryScreen
               active={step === 5}
+              onNext={wizard.next}
+              onBack={wizard.back}
+            />
+            <ProcessingScreen
+              active={step === 6}
+              onNext={wizard.next}
+            />
+            <LinkingSummaryScreen
+              active={step === 7}
+              onNext={wizard.next}
+              onBack={wizard.back}
+            />
+            <FinishScreen
+              active={step === 8}
               onRestart={wizard.reset}
               palette={palette}
             />

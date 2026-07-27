@@ -2,7 +2,8 @@
 
 /**
  * PermissionsScreen — Request critical Android permissions.
- * Four permission rows with inline SVG icons and toggle switches.
+ * Enhanced with staggered entry animations, enable-all toggle,
+ * and smooth transitions when toggling individual permissions.
  */
 
 import { useEffect, useState } from "react";
@@ -60,7 +61,7 @@ const PERMISSIONS_LIST: PermissionItem[] = [
   },
   {
     key: "installApps",
-    title: "Install Apps",
+    title: "Install Packages",
     description: "Install video player and extension packages",
     icon: (
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -90,6 +91,16 @@ export function PermissionsScreen({
     }
   }, [active]);
 
+  const allGranted = Object.values(permissions).every(Boolean);
+
+  const handleEnableAll = () => {
+    const allOn = Object.values(permissions).every(Boolean);
+    if (allOn) return;
+    (Object.keys(permissions) as Array<keyof PermissionsState>).forEach((key) => {
+      if (!permissions[key]) togglePermission(key);
+    });
+  };
+
   return (
     <div className={`wv-step ${active ? "wv-step--active" : ""}`}>
       <div className="wv-scroll">
@@ -116,12 +127,39 @@ export function PermissionsScreen({
           </p>
         </div>
 
+        {/* Enable All chip */}
+        <div
+          style={{
+            animation: mounted
+              ? "wvFadeInUp 0.4s cubic-bezier(0.05, 0.7, 0.1, 1) 0.12s backwards"
+              : "none",
+          }}
+        >
+          <button
+            type="button"
+            className="wv-enable-all"
+            onClick={handleEnableAll}
+            disabled={allGranted}
+            style={{ opacity: allGranted ? 0.5 : 1 }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            {allGranted ? "All Permissions Granted" : "Enable All Permissions"}
+            {allGranted && (
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+            )}
+          </button>
+        </div>
+
         {/* Permissions card */}
         <div
           className="wv-card"
           style={{
             animation: mounted
-              ? "wvFadeInUp 0.4s cubic-bezier(0.05, 0.7, 0.1, 1) 0.16s backwards"
+              ? "wvFadeInUp 0.4s cubic-bezier(0.05, 0.7, 0.1, 1) 0.18s backwards"
               : "none",
           }}
         >
@@ -131,11 +169,17 @@ export function PermissionsScreen({
               className="wv-perm"
               style={{
                 animation: mounted
-                  ? `wvFadeInUp 0.35s cubic-bezier(0.05, 0.7, 0.1, 1) ${0.22 + i * 0.07}s backwards`
+                  ? `wvFadeInUp 0.35s cubic-bezier(0.05, 0.7, 0.1, 1) ${0.24 + i * 0.08}s backwards`
                   : "none",
               }}
             >
-              <div className="wv-perm__icon">{perm.icon}</div>
+              <div className="wv-perm__icon" style={{
+                transition: "background 0.3s var(--ease-emphasized), box-shadow 0.3s var(--ease-emphasized)",
+                background: permissions[perm.key] ? "var(--color-primary-alpha-12)" : "var(--color-surface-variant-alpha-40)",
+                boxShadow: permissions[perm.key] ? "0 0 12px var(--color-primary-alpha-16)" : "none",
+              }}>
+                {perm.icon}
+              </div>
               <div className="wv-perm__info">
                 <p className="wv-perm__title">{perm.title}</p>
                 <p className="wv-perm__desc">{perm.description}</p>
@@ -150,6 +194,42 @@ export function PermissionsScreen({
               />
             </div>
           ))}
+        </div>
+
+        {/* Permission status summary */}
+        <div
+          className="wv-perm-summary"
+          style={{
+            animation: mounted
+              ? `wvFadeInUp 0.35s cubic-bezier(0.05, 0.7, 0.1, 1) 0.60s backwards`
+              : "none",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "var(--sp-2)" }}>
+            <div style={{
+              width: 28,
+              height: 28,
+              borderRadius: "50%",
+              background: allGranted ? "var(--color-primary-alpha-12)" : "var(--color-surface-variant-alpha-40)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "background 0.3s var(--ease-emphasized)",
+            }}>
+              {allGranted ? (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="20 6 9 17 4 12" />
+                </svg>
+              ) : (
+                <span style={{ fontSize: 12, fontWeight: 800, color: "var(--color-text-muted)" }}>
+                  {Object.values(permissions).filter(Boolean).length}
+                </span>
+              )}
+            </div>
+            <span style={{ fontSize: 12, color: "var(--color-text-muted)", fontWeight: 500 }}>
+              {allGranted ? "All permissions enabled" : `${Object.values(permissions).filter(Boolean).length} of ${Object.keys(permissions).length} permissions granted`}
+            </span>
+          </div>
         </div>
       </div>
 

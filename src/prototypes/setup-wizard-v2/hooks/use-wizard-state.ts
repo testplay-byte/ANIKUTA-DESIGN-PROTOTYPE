@@ -1,14 +1,16 @@
 /**
  * use-wizard-state.ts — State management for the ANIKUTA setup wizard v2.
  *
- * Manages:
- * - Current wizard step (0-5)
- * - Theme mode selection (dark/light/amoled)
- * - Palette selection (6 curated palettes)
- * - Permissions granted state
- * - Folder selection state
- * - Backup/restore choices
- * - Navigation (next, back, skip)
+ * 9-step flow:
+ *   0. Welcome — Brand intro, version, features
+ *   1. Theme — Mode (Dark/Light/AMOLED) + Palette picker
+ *   2. Permissions — Grant app permissions
+ *   3. Storage — Select anime file folder
+ *   4. Backup & Restore — Restore from file only
+ *   5. Restore Summary — Stats + categories + manga disclaimer
+ *   6. Processing/Linking — Animated linking screen
+ *   7. Linking Summary — What was linked/processed
+ *   8. Finish — Celebration
  */
 
 import { useState, useCallback } from "react";
@@ -16,21 +18,18 @@ import type { ThemeMode, ThemePalette } from "../lib/themes";
 import { DARK_MODE, ANIKUTA_PALETTE } from "../lib/themes";
 
 // ─── Wizard Steps ─────────────────────────────────────────────────
-// 0. Welcome
-// 1. Theme (mode + palette)
-// 2. Permissions
-// 3. Storage (folder)
-// 4. Backup & Restore
-// 5. Finish
 
-export const TOTAL_STEPS = 6;
+export const TOTAL_STEPS = 9;
 
 export const STEP_NAMES = [
   "Welcome",
   "Theme",
   "Permissions",
   "Storage",
-  "Backup & Restore",
+  "Restore",
+  "Restore Summary",
+  "Processing",
+  "Linking Summary",
   "All Done",
 ] as const;
 
@@ -39,7 +38,10 @@ export const STEP_DESCRIPTIONS = [
   "Choose your preferred theme and color palette.",
   "Grant permissions for the best experience.",
   "Select where your anime files are stored.",
-  "Restore a backup or start fresh.",
+  "Restore a previous ANIKUTA backup.",
+  "Review restored data and manga disclaimer.",
+  "Linking and processing your library...",
+  "Summary of linked anime entries.",
   "Setup complete! Start exploring.",
 ] as const;
 
@@ -85,10 +87,40 @@ export const MOCK_BACKUP: BackupData = {
   ],
 };
 
+// ─── Mock linking data ──────────────────────────────────────────
+
+export interface LinkingData {
+  totalAnime: number;
+  linked: number;
+  unlinked: number;
+  entries: {
+    title: string;
+    episodes: number;
+    status: "linked" | "unlinked";
+    source: string;
+  }[];
+}
+
+export const MOCK_LINKING: LinkingData = {
+  totalAnime: 234,
+  linked: 218,
+  unlinked: 16,
+  entries: [
+    { title: "Attack on Titan", episodes: 87, status: "linked", source: "AniList" },
+    { title: "Jujutsu Kaisen", episodes: 48, status: "linked", source: "AniList" },
+    { title: "Demon Slayer", episodes: 55, status: "linked", source: "AniList" },
+    { title: "One Piece", episodes: 1100, status: "linked", source: "AniList" },
+    { title: "My Hero Academia", episodes: 138, status: "linked", source: "AniList" },
+    { title: "Chainsaw Man", episodes: 12, status: "linked", source: "AniList" },
+    { title: "Spy x Family", episodes: 37, status: "linked", source: "AniList" },
+    { title: "Unknown Anime 1", episodes: 0, status: "unlinked", source: "—" },
+    { title: "Unknown Anime 2", episodes: 0, status: "unlinked", source: "—" },
+  ],
+};
+
 // ─── Hook ────────────────────────────────────────────────────────
 
 export interface WizardState {
-  // Current step
   step: number;
 
   // Theme
@@ -106,11 +138,11 @@ export interface WizardState {
   folderPath: string;
   setFolderSelected: (selected: boolean) => void;
 
-  // Backup
-  backupSelected: boolean;
+  // Restore
+  restoreInitiated: boolean;
   restoreComplete: boolean;
-  setBackupSelected: (selected: boolean) => void;
-  setRestoreComplete: (complete: boolean) => void;
+  setRestoreInitiated: (s: boolean) => void;
+  setRestoreComplete: (c: boolean) => void;
 
   // Navigation
   next: () => void;
@@ -127,7 +159,7 @@ export function useWizardState(): WizardState {
   const [permissions, setPermissions] = useState<PermissionsState>(DEFAULT_PERMISSIONS);
   const [folderSelected, setFolderSelected] = useState(false);
   const [folderPath] = useState("/storage/emulated/0/Anime");
-  const [backupSelected, setBackupSelected] = useState(false);
+  const [restoreInitiated, setRestoreInitiated] = useState(false);
   const [restoreComplete, setRestoreComplete] = useState(false);
 
   const next = useCallback(() => {
@@ -152,7 +184,7 @@ export function useWizardState(): WizardState {
     setPaletteState(ANIKUTA_PALETTE);
     setPermissions(DEFAULT_PERMISSIONS);
     setFolderSelected(false);
-    setBackupSelected(false);
+    setRestoreInitiated(false);
     setRestoreComplete(false);
   }, []);
 
@@ -182,9 +214,9 @@ export function useWizardState(): WizardState {
     folderSelected,
     folderPath,
     setFolderSelected,
-    backupSelected,
+    restoreInitiated,
     restoreComplete,
-    setBackupSelected,
+    setRestoreInitiated,
     setRestoreComplete,
     next,
     back,

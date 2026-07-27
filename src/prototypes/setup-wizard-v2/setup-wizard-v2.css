@@ -712,6 +712,27 @@
   50% { opacity: 0.7; transform: scale(1.08); }
 }
 
+@keyframes wvFloatSlow {
+  0%, 100% { transform: translate(0, 0); }
+  25% { transform: translate(8px, -12px); }
+  50% { transform: translate(-5px, -8px); }
+  75% { transform: translate(10px, 4px); }
+}
+
+@keyframes wvParticleFade {
+  0%, 100% { opacity: 0.15; transform: scale(0.8); }
+  50% { opacity: 0.7; transform: scale(1.2); }
+}
+
+@keyframes wvOrbit {
+  0% { transform: rotate(0deg) translateX(70px) rotate(0deg); }
+  100% { transform: rotate(360deg) translateX(70px) rotate(-360deg); }
+}
+
+@keyframes wvBarGrow {
+  from { width: 0%; }
+}
+
 /* Stagger helpers */
 .wv-stagger-1 { animation-delay: 0.08s; }
 .wv-stagger-2 { animation-delay: 0.16s; }
@@ -870,6 +891,75 @@
   );
   background-size: 200% 100%;
   animation: wvShimmer 1.5s infinite;
+}
+
+/* ================================================================
+   REDUCED MOTION
+   ================================================================ */
+
+/* ================================================================
+   ENABLE ALL CHIP — permissions screen
+   ================================================================ */
+
+.wv-enable-all {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--color-primary-alpha-12);
+  border: 1px solid var(--color-primary-alpha-16);
+  color: var(--color-primary);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.2s var(--ease-standard),
+              transform 0.15s var(--ease-emphasized);
+}
+
+.wv-enable-all:hover:not(:disabled) { transform: translateY(-1px); }
+.wv-enable-all:active:not(:disabled) { transform: scale(0.97); }
+
+/* ================================================================
+   PERMISSION SUMMARY — permissions screen
+   ================================================================ */
+
+.wv-perm-summary {
+  display: flex;
+  align-items: center;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: 12px;
+  background: var(--color-surface-variant-alpha-40);
+}
+
+/* ================================================================
+   MANGA DISCLAIMER / WARNING CARD
+   ================================================================ */
+
+.wv-manga-disclaimer {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: 14px;
+  background: #E6912C08;
+  border: 1px solid #E6912C20;
+  width: 100%;
+}
+
+/* ================================================================
+   PALETTE SWATCH PREVIEW — improved swatches
+   ================================================================ */
+
+.wv-palette-swatch {
+  position: relative;
+}
+
+.wv-palette-swatch__preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
 }
 
 /* ================================================================
