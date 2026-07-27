@@ -86,7 +86,7 @@ export default function Page() {
                 <span className="stat__label">Prototypes</span>
               </div>
               <div className="stat__value">
-                <span className="stat__num">2</span>
+                <span className="stat__num">3</span>
                 <span className="stat__hint">active</span>
               </div>
             </div>
@@ -110,7 +110,7 @@ export default function Page() {
                 <span className="stat__label">Screens</span>
               </div>
               <div className="stat__value">
-                <span className="stat__num">20</span>
+                <span className="stat__num">26</span>
                 <span className="stat__hint">total</span>
               </div>
             </div>
@@ -135,7 +135,7 @@ export default function Page() {
                 <span className="stat__label">Components</span>
               </div>
               <div className="stat__value">
-                <span className="stat__num">12</span>
+                <span className="stat__num">16</span>
                 <span className="stat__hint">reusable</span>
               </div>
             </div>
@@ -171,7 +171,7 @@ export default function Page() {
             <div className="panel">
               <div className="panel__head">
                 <h2 className="panel__title">Screens per prototype</h2>
-                <span className="panel__hint">20 total · hover for detail</span>
+                <span className="panel__hint">26 total · hover for detail</span>
               </div>
               <ul className="bars">
                 <li
@@ -226,6 +226,32 @@ export default function Page() {
                   </span>
                   <span className="bar__count">13</span>
                 </li>
+                <li
+                  className="bar"
+                  title="Setup Wizard v2: Welcome, Theme, Permissions, Storage, Backup & Restore, Finish — 6 screens"
+                >
+                  <span className="bar__icon">
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <path d="m9 12 2 2 4-4" />
+                    </svg>
+                  </span>
+                  <span className="bar__label">Wizard v2</span>
+                  <span className="bar__track">
+                    <span
+                      className="bar__fill"
+                      style={{ width: "46%", background: "var(--chart-3)" }}
+                    />
+                  </span>
+                  <span className="bar__count">6</span>
+                </li>
               </ul>
             </div>
 
@@ -233,7 +259,7 @@ export default function Page() {
             <div className="panel">
               <div className="panel__head">
                 <h2 className="panel__title">Repository overview</h2>
-                <span className="panel__hint">2 prototypes · 2 Android apps</span>
+                <span className="panel__hint">3 prototypes · 2 Android apps</span>
               </div>
               <div className="donut-wrap">
                 <div className="donut" role="img" aria-label="Repository distribution">
@@ -675,6 +701,163 @@ export default function Page() {
                       <line x1="12" x2="12" y1="15" y2="3" />
                     </svg>
                     Download APK
+                  </a>
+                </div>
+              </div>
+            </article>
+
+            {/* ===== Setup Wizard v2 (ANIKUTA Design Language) ===== */}
+            <article className="gridcard">
+              <a
+                className="gridcard__phone"
+                href="prototypes/setup-wizard-v2/"
+                aria-label="Open Setup Wizard v2 prototype"
+                style={{
+                  borderColor: "#3D3656",
+                  background: "linear-gradient(160deg, #14111F, #221E33)",
+                }}
+              >
+                <span
+                  className="phone__screen"
+                  style={{ background: "#14111F" }}
+                >
+                  <span
+                    className="phone__statusbar"
+                    style={{ color: "#ECE6F5" }}
+                  >
+                    <span>9:41</span>
+                    <span className="phone__punchhole" />
+                    <span>87%</span>
+                  </span>
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: 6,
+                      height: 52,
+                      borderRadius: 8,
+                      background: "linear-gradient(135deg, #B1F256, #4A6B1A)",
+                      margin: "0 8px",
+                    }}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1A2E00" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polygon points="5 3 19 12 5 21 5 3" />
+                    </svg>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: "#1A2E00", letterSpacing: 1 }}>ANIKUTA</span>
+                  </span>
+                  <span
+                    style={{
+                      height: 3,
+                      borderRadius: 2,
+                      margin: "6px 8px",
+                      background: "#3D3656",
+                      overflow: "hidden",
+                    }}
+                  >
+                    <span style={{ display: "block", width: "35%", height: "100%", borderRadius: 2, background: "#B1F256" }} />
+                  </span>
+                  <span
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 4,
+                      margin: "0 8px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        aspectRatio: "4/3",
+                        borderRadius: 6,
+                        background: "#2A2540",
+                      }}
+                    />
+                    <span
+                      style={{
+                        aspectRatio: "4/3",
+                        borderRadius: 6,
+                        background: "#2A2540",
+                      }}
+                    />
+                    <span
+                      style={{
+                        aspectRatio: "4/3",
+                        borderRadius: 6,
+                        background: "#2A2540",
+                      }}
+                    />
+                    <span
+                      style={{
+                        aspectRatio: "4/3",
+                        borderRadius: 6,
+                        background: "#2A2540",
+                      }}
+                    />
+                  </span>
+                  <span
+                    className="phone__nav"
+                    style={{
+                      borderTopColor: "#1B1729",
+                      background: "#1B1729",
+                    }}
+                  >
+                    <span style={{ background: "#B1F256" }} />
+                    <span style={{ background: "#332D4C" }} />
+                    <span style={{ background: "#332D4C" }} />
+                  </span>
+                </span>
+              </a>
+              <div className="gridcard__body">
+                <div className="gridcard__tags">
+                  <span className="tag tag--status" style={{ background: "#B1F256", color: "#1A2E00" }}>new</span>
+                </div>
+                <h3 className="gridcard__name">Setup Wizard v2</h3>
+                <p className="gridcard__desc">
+                  A 6-step onboarding wizard built with the ANIKUTA design language. Custom M3-inspired design with Anikuta palette (#B1F256), 5-level surface tiers, segmented toggles, and smooth animations.
+                </p>
+                <div className="tags">
+                  <span className="tag">ANIKUTA</span>
+                  <span className="tag">Design Language</span>
+                  <span className="tag">6 steps</span>
+                </div>
+                <div className="gridcard__stats">
+                  <div className="mini-bars">
+                    <div className="mini-bar-row">
+                      <span className="mini-bar-label">Steps</span>
+                      <div className="mini-bar-track">
+                        <div
+                          className="mini-bar-fill"
+                          style={{ width: "46%", background: "var(--chart-1)" }}
+                        />
+                      </div>
+                    </div>
+                    <div className="mini-bar-row">
+                      <span className="mini-bar-label">Palettes</span>
+                      <div className="mini-bar-track">
+                        <div
+                          className="mini-bar-fill"
+                          style={{ width: "85%", background: "var(--chart-3)" }}
+                        />
+                      </div>
+                    </div>
+                    <div className="mini-bar-row">
+                      <span className="mini-bar-label">Modes</span>
+                      <div className="mini-bar-track">
+                        <div
+                          className="mini-bar-fill"
+                          style={{ width: "50%", background: "var(--chart-2)" }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="gridcard__actions">
+                  <a className="gridcard__open" href="prototypes/setup-wizard-v2/">
+                    Open prototype
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M5 12h14" />
+                      <path d="m12 5 7 7-7 7" />
+                    </svg>
                   </a>
                 </div>
               </div>
