@@ -28,7 +28,7 @@ export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) 
         id: i,
         color: colors[i % colors.length],
         left: `${Math.random() * 100}%`,
-        delay: `${Math.random() * 1s}s`,
+        delay: `${Math.random()}s`,
         size: sz,
         duration: dur,
       };
@@ -93,6 +93,7 @@ export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) 
               <path d="M110 80 L114 100 L135 100 L118 115 L125 135 L110 122 L95 135 L102 115 L85 100 L106 100 Z"
                 fill="var(--color-primary)" opacity="0.6"
                 style={{ filter: "drop-shadow(0 0 12px var(--color-primary-alpha-40))" }}
+              />
             </g>
 
             {/* Ambient sparkles */}

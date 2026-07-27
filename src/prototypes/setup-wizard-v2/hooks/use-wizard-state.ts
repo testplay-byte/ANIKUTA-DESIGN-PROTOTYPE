@@ -97,6 +97,13 @@ export const MOCK_LINKING_ENTRIES: LinkingEntry[] = [
   { title: "Unknown Anime 4", episodes: 0, status: "unlinked", source: "—", coverGradient: ["#636E72", "#DFE6E9"] },
 ];
 
+export const MOCK_LINKING = {
+  totalAnime: MOCK_LINKING_ENTRIES.length,
+  linked: MOCK_LINKING_ENTRIES.filter((e) => e.status === "linked").length,
+  unlinked: MOCK_LINKING_ENTRIES.filter((e) => e.status === "unlinked").length,
+  entries: MOCK_LINKING_ENTRIES,
+};
+
 export interface WizardState {
   step: number;
   themeMode: ThemeMode;
