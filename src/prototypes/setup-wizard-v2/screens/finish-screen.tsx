@@ -21,14 +21,18 @@ export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) 
 
   const confetti = useMemo(() => {
     const colors = [palette.primary, palette.secondary, palette.tertiary, "#FFFFFF"];
-    return Array.from({ length: 20 }, (_, i) => ({
-      id: i,
-      color: colors[i % colors.length],
-      left: `${Math.random() * 100}%`,
-      delay: `${Math.random() * 1s}s`,
-      size: (3 + Math.random() * 4),
-      duration: (2 + Math.random()),
-    }));
+    return Array.from({ length: 20 }, (_, i) => {
+      const sz = 3 + Math.random() * 4;
+      const dur = 2 + Math.random();
+      return {
+        id: i,
+        color: colors[i % colors.length],
+        left: `${Math.random() * 100}%`,
+        delay: `${Math.random() * 1s}s`,
+        size: sz,
+        duration: dur,
+      };
+    });
   }, [palette]);
 
   return (
