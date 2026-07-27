@@ -9,7 +9,7 @@
 
 ### Top navigation
 - **Two disconnected pill containers** — NOT a full-width bar.
-- Left pill: brand logo + "ANDROID-PROTOTYPE" name + subtitle.
+- Left pill: brand logo + "ANIKUTA-DESIGN-PROTOTYPE" name + subtitle.
 - Right pill: Repo button + theme toggle.
 - Each pill has: `border-radius: 12px`, `border: 1px solid border`, `background: card/90`, `backdrop-filter: blur(12px)`, `box-shadow: shadow-sm`, `padding`.
 - Nothing connects the two pills — page background flows between them.
@@ -165,7 +165,7 @@ Both are the user's own creations — copy freely.
 
 ## 6. Material 3 Expressive design (for prototypes that use M3)
 
-When a prototype uses Material 3 (like the search-page), follow these rules:
+When a prototype uses Material 3 (like the anime-app), follow these rules:
 
 ### Elevation = tonal surfaces, NOT heavy shadows
 - M3 dark theme uses **surface color tiers** for elevation: `surface-1` → `surface-2` → `surface-3` → `surface-4` → `surface-5`.
@@ -320,4 +320,4 @@ The user has explicitly praised the following workflow. **Follow it every time:*
 
 ---
 
-*Last updated: after search-page v4 (settings page, improved recent searches, removed home indicator, staggered animations, M3 tonal elevation, workflow documentation).*
+*Last updated: Repository renamed to ANIKUTA-DESIGN-PROTOTYPE. Reference prototype is now anime-app.*

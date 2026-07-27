@@ -8,7 +8,7 @@
 ## Full tree
 
 ```
-ANDROID-PROTOTYPE/
+ANIKUTA-DESIGN-PROTOTYPE/
 │
 ├── STARTUP.md                  ← READ FIRST. Master context for any agent.
 ├── README.md                   ← Public GitHub landing page.
@@ -16,7 +16,7 @@ ANDROID-PROTOTYPE/
 ├── CHANGELOG.md                ← Running log of all changes (newest first).
 ├── package.json                ← Next.js 16 + React 19 + TypeScript 5 deps.
 ├── package-lock.json           ← Pinned deps — MUST be committed (CI uses npm ci).
-├── next.config.ts              ← output:'export', basePath:'/ANDROID-PROTOTYPE', trailingSlash.
+├── next.config.ts              ← output:'export', basePath:'/ANIKUTA-DESIGN-PROTOTYPE', trailingSlash.
 ├── tsconfig.json               ← TS config (@/*→src/*, @app/*→app/*).
 ├── next-env.d.ts               ← Next.js TypeScript ambient decls (auto-generated).
 ├── .gitignore                  ← Ignores node_modules, out, .next.
@@ -26,10 +26,7 @@ ANDROID-PROTOTYPE/
 │   ├── page.tsx                ← Dashboard / prototypes gallery (Pages root).
 │   ├── globals.css             ← Minimal global reset.
 │   └── prototypes/             ← One route folder per prototype.
-│       ├── search-page/        ← Reference prototype.
-│       │   ├── layout.tsx      ← Imports tokens.css + prototype CSS; pass-through.
-│       │   └── page.tsx        ← Client. Shell + hash router → renders screens.
-│       └── anime-app/          ← 6-screen M3 Expressive anime app.
+│       └── anime-app/          ← Reference prototype (6 screens, M3 Expressive).
 │           ├── layout.tsx
 │           └── page.tsx
 │
@@ -55,19 +52,14 @@ ANDROID-PROTOTYPE/
 │   │       ├── theme-provider.tsx
 │   │       └── types.ts
 │   └── prototypes/             ← Prototype screens/components/hooks/lib (one file per screen).
-│       ├── search-page/        ← Reference prototype source.
-│       │   ├── search-page.css ← Prototype-wide token overrides + globals.
-│       │   ├── screens/        ← One file per screen (.tsx + .module.css).
-│       │   ├── components/     ← Prototype-specific UI pieces.
-│       │   ├── hooks/          ← Prototype-specific hooks (e.g. use-anilist).
-│       │   └── lib/            ← Prototype-specific logic (anilist, filters, types).
-│       └── anime-app/          ← 6-screen prototype source (same structure).
+│       └── anime-app/          ← Reference prototype source (same structure).
+│           ├── anime-app.css   ← Prototype-wide token overrides + globals.
+│           ├── screens/        ← One file per screen (.tsx + .module.css).
+│           ├── components/     ← Prototype-specific UI pieces.
+│           ├── hooks/          ← Prototype-specific hooks (e.g. use-anilist).
+│           └── lib/            ← Prototype-specific logic (anilist, filters, types).
 │
 ├── public/                     ← Static files served verbatim by Next.js.
-│   ├── prototypes/             ← Legacy static prototypes (preserved during migration).
-│   │   ├── navigation.md
-│   │   └── _template/          ← OLD static template (legacy reference, NOT the starting point).
-│   │       ├── index.html, styles.css, script.js, navigation.md, README.md
 │   └── assets/                 ← Shared static assets (icons, fonts, images).
 │       └── navigation.md
 │
@@ -113,7 +105,7 @@ ANDROID-PROTOTYPE/
 |---|---|
 | The master context | `STARTUP.md` |
 | The dashboard / gallery (live) | `app/page.tsx` → built to `out/index.html` |
-| The reference prototype | `app/prototypes/search-page/` + `src/prototypes/search-page/` |
+| The reference prototype | `app/prototypes/anime-app/` + `src/prototypes/anime-app/` |
 | The 6-screen anime prototype | `app/prototypes/anime-app/` + `src/prototypes/anime-app/` |
 | The shared design system | `src/proto-kit/` (DeviceFrame, StatusBar, BottomNav, Stage, tokens, DeviceThemeProvider) |
 | The shared tokens | `src/proto-kit/tokens/tokens.css` |
@@ -125,7 +117,6 @@ ANDROID-PROTOTYPE/
 | The deploy workflow | `.github/workflows/deploy.yml` |
 | The Next.js config | `next.config.ts` |
 | Old static site (backup) | `archive/` (zip + `legacy/`) |
-| Old static template (legacy) | `public/prototypes/_template/` (NOT the starting point — use `search-page`) |
 | What changed recently | `CHANGELOG.md` |
 | Reusable UI fragments | `templates/` |
 | Shared icons/images | `public/assets/` |
@@ -177,7 +168,6 @@ ANDROID-PROTOTYPE/
 ### `public/` — static files served verbatim
 | Path | Role |
 |---|---|
-| `prototypes/_template/` | Legacy static HTML template (preserved for reference, NOT the primary starting point) |
 | `assets/` | Shared icons/fonts/images (currently sparse — add when needed) |
 
 ### `archive/` — backup of the pre-Next.js site
@@ -208,10 +198,8 @@ STARTUP.md
        │    └→ (individual doc files)
        ├→ src/proto-kit/   (no navigation.md yet — see index.ts barrel)
        ├→ src/prototypes/<name>/  (no navigation.md yet — see the prototype's own docs)
-       ├→ public/prototypes/navigation.md
-       │    └→ public/prototypes/_template/navigation.md
-       ├→ templates/navigation.md
        ├→ public/assets/navigation.md
+       ├→ templates/navigation.md
        ├→ archive/STATIC-V1-MANIFEST.md
        └→ .github/navigation.md
 ```
@@ -220,4 +208,4 @@ STARTUP.md
 
 ---
 
-*Last updated: Next.js migration (Phase 4) — project converted from static HTML to Next.js 16 static export. Old static files preserved under `archive/` and `public/prototypes/_template/`. Keep this map accurate — it's how agents find things.*
+*Last updated: Repository renamed to ANIKUTA-DESIGN-PROTOTYPE. Search-page and _template removed. 2 prototypes remain (anime-app, setup-wizard). Dashboard now uses grid layout.*

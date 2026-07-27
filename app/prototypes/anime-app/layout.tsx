@@ -3,7 +3,7 @@ import "../../../src/proto-kit/tokens/tokens.css";
 import "../../../src/prototypes/anime-app/anime-app.css";
 
 export const metadata: Metadata = {
-  title: "Anime App — ANDROID-PROTOTYPE",
+  title: "Anime App — ANIKUTA-DESIGN-PROTOTYPE",
 };
 
 /**

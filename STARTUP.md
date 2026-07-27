@@ -7,7 +7,7 @@
 
 ## 1. What Is This Project?
 
-This repository — **`ANDROID-PROTOTYPE`** — is a **mobile UI prototyping workspace**.
+This repository — **`ANIKUTA-DESIGN-PROTOTYPE`** — is a **mobile UI prototyping workspace**.
 
 We design **mobile app UI interfaces** (Android-style, but viewable in any modern web browser) and deploy them as **live, interactive prototypes** via **GitHub Pages**. Each prototype is a real, clickable, fully functional web UI — not a static screenshot.
 
@@ -26,13 +26,13 @@ The goal is to validate look-and-feel on the web *before* committing to a native
 ## 3. Repository Layout (High Level)
 
 ```
-ANDROID-PROTOTYPE/
+ANIKUTA-DESIGN-PROTOTYPE/
 ├── STARTUP.md              ← YOU ARE HERE. Master context. Read first.
 ├── README.md               ← Public landing page for GitHub.
 ├── navigation.md           ← Root navigation map (every folder + what's in it).
 ├── CHANGELOG.md            ← Running log of notable changes.
 ├── package.json            ← Next.js 16 + React 19 + TypeScript.
-├── next.config.ts          ← Static export (output:'export'), basePath '/ANDROID-PROTOTYPE'.
+├── next.config.ts          ← Static export (output:'export'), basePath '/ANIKUTA-DESIGN-PROTOTYPE'.
 ├── tsconfig.json           ← TypeScript config (@/* → src/*, @app/* → app/*).
 ├── app/                    ← Next.js App Router (routes = thin).
 │   ├── layout.tsx          ← Root layout (fonts, metadata, <html>).
@@ -103,16 +103,16 @@ The project is a **Next.js 16 (App Router) static export** deployed to GitHub Pa
 | State        | React state + localStorage (Zustand optional for complex)    |
 | Routing      | Hash routing (`#home`, `#search`) — preserves in-app feel    |
 
-**Why Next.js static export?** Component model + hot reload + type safety during dev, but the output is identical static HTML to before — GitHub Pages serves it the same way. The `basePath: '/ANDROID-PROTOTYPE'` keeps the URL unchanged.
+**Why Next.js static export?** Component model + hot reload + type safety during dev, but the output is identical static HTML to before — GitHub Pages serves it the same way. The `basePath: '/ANIKUTA-DESIGN-PROTOTYPE'` keeps the URL unchanged.
 
 **Build & preview locally:**
 ```bash
 npm install
 npm run build          # static export → ./out
 # Preview with correct basePath:
-mkdir -p /tmp/preview/ANDROID-PROTOTYPE && cp -r out/* /tmp/preview/ANDROID-PROTOTYPE/
+mkdir -p /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE && cp -r out/* /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/
 cd /tmp/preview && python3 -m http.server 3001
-# → open http://localhost:3001/ANDROID-PROTOTYPE/
+# → open http://localhost:3001/ANIKUTA-DESIGN-PROTOTYPE/
 ```
 
 See `docs/tech-stack.md` for the full rationale.
@@ -129,14 +129,14 @@ See `docs/tech-stack.md` for the full rationale.
 6. **Fill in** the prototype's own `navigation.md` and `README.md`.
 7. **Register** the new prototype in the prototypes index.
 8. **Add a card** to the dashboard gallery (`app/page.tsx`).
-9. **Build & verify** locally: `npm run build` + preview at `/ANDROID-PROTOTYPE/prototypes/<name>/`.
+9. **Build & verify** locally: `npm run build` + preview at `/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<name>/`.
 10. **Commit & push** to `main`. GitHub Actions builds + deploys to Pages.
 11. **Verify** the live URL (see [`docs/github-pages.md`](./docs/github-pages.md)).
 12. **Notify** the user via ntfy.sh (see §7 below).
 
 Naming convention: `kebab-case`, descriptive. Example: `app/prototypes/food-delivery-checkout/`.
 
-**Reference implementation:** `app/prototypes/search-page/` (the first ported prototype). Study its layout + page + screens structure as the pattern to follow.
+**Reference implementation:** `app/prototypes/anime-app/` (the reference prototype). Study its layout + page + screens structure as the pattern to follow.
 
 ---
 
@@ -208,11 +208,11 @@ A future agent should be able to understand the entire project by reading `START
 ```
 🟩🟩🟩🟩🟩🟩🟩🟩
 
-Task complete: Set up the ANDROID-PROTOTYPE repository structure.
+Task complete: Set up the ANIKUTA-DESIGN-PROTOTYPE repository structure.
 - Created folder layout with navigation.md in every directory
 - Configured GitHub Pages auto-deploy
 - Pushed initial commit to main
-Live URL: https://testplay-byte.github.io/ANDROID-PROTOTYPE/
+Live URL: https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/
 Next: awaiting your first prototype brief.
 ```
 
@@ -261,7 +261,7 @@ Reply with A or B to continue.
 | **See the full repo map**              | [`docs/repo-map.md`](./docs/repo-map.md) |
 | See all prototypes                     | `prototypes/navigation.md`             |
 | **Build a new prototype (detailed)**   | [`docs/prototype-blueprint.md`](./docs/prototype-blueprint.md) |
-| Start a new prototype (high-level)     | `prototypes/_template/` + `docs/workflow.md` |
+| Start a new prototype (high-level)     | `app/prototypes/anime-app/` + `docs/workflow.md` |
 | Learn the tech stack                   | `docs/tech-stack.md`                   |
 | Learn UI/UX standards                  | `docs/design-standards.md`             |
 | Read the prototype template rules      | `docs/template-rules.md`               |

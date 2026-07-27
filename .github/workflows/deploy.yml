@@ -1,6 +1,6 @@
 # .github/workflows/deploy.yml
 # Builds the Next.js static export and deploys to GitHub Pages.
-# Output: https://testplay-byte.github.io/ANDROID-PROTOTYPE/
+# Output: https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/
 #
 # The static export (./out) contains:
 #   - The dashboard (app/page.tsx → out/index.html)
