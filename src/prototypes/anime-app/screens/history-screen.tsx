@@ -23,7 +23,7 @@ interface HistoryScreenProps {
 
 export function HistoryScreen({ active, onOpenAnime }: HistoryScreenProps) {
   const { items } = useHistory();
-  const { contentRef, collapsed } = useCollapsingHeader();
+  const { contentRef, topbarRef, collapsed } = useCollapsingHeader();
 
   return (
     <section
@@ -32,8 +32,9 @@ export function HistoryScreen({ active, onOpenAnime }: HistoryScreenProps) {
       aria-label="History"
       aria-hidden={!active}
     >
-      <div className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
+      <div ref={topbarRef} className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
         <h1 className={styles.topbarTitle}>History</h1>
+        <div className="topbarBlur" aria-hidden="true" />
       </div>
       <div ref={contentRef} className={styles.content}>
         {/* Continue Watching — horizontal row with progress */}

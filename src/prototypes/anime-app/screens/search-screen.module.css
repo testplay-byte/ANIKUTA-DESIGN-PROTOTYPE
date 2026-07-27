@@ -5,6 +5,7 @@
    the parent module can target them when the topbar collapses. */
 
 .topbar {
+  position: relative;
   padding: var(--sp-2) var(--sp-3) var(--sp-1);
   display: flex;
   flex-direction: column;
@@ -17,6 +18,14 @@
     max-height var(--dur-3) var(--ease-emphasized);
   max-height: 220px;
   overflow: hidden;
+  z-index: 2;
+}
+
+/* Wrapper for the topbar + blur gradient (needed because topbar has
+   overflow:hidden for its collapse animation, which would clip the blur). */
+.topbarWrap {
+  position: relative;
+  z-index: 2;
 }
 
 .topbarRow {

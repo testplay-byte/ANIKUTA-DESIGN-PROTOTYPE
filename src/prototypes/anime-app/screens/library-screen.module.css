@@ -4,6 +4,8 @@
    selection mode: Cancel, Status, Delete. */
 
 .topbar {
+  position: relative;
+  overflow: visible;
   padding: var(--sp-2) var(--sp-3) var(--sp-1);
   flex: 0 0 auto;
   background: var(--color-bg);
@@ -12,6 +14,7 @@
   justify-content: space-between;
   gap: var(--sp-2);
   transition: padding var(--dur-3) var(--ease-emphasized);
+  z-index: 2;
 }
 
 .topbarTitle {

@@ -54,7 +54,7 @@ export function LibraryScreen({ active, onOpenAnime }: LibraryScreenProps) {
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
-  const { contentRef, collapsed } = useCollapsingHeader();
+  const { contentRef, topbarRef, collapsed } = useCollapsingHeader();
 
   const visible = filter === "all" ? items : items.filter((x) => x.status === filter);
 
@@ -137,10 +137,11 @@ export function LibraryScreen({ active, onOpenAnime }: LibraryScreenProps) {
       aria-label="Library"
       aria-hidden={!active}
     >
-      <div className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
+      <div ref={topbarRef} className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
         <h1 className={styles.topbarTitle}>
           {selectMode ? `${selectedCount} selected` : "Library"}
         </h1>
+        <div className="topbarBlur" aria-hidden="true" />
         {!selectMode && (
           <button
             type="button"

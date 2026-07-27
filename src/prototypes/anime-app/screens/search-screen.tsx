@@ -53,6 +53,7 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [blurOpacity, setBlurOpacity] = useState(0);
 
   const { recents, add, remove, clear } = useRecentSearches();
   const { media, loading, error } = useAniListSearch({
@@ -77,6 +78,8 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
     const st = e.currentTarget.scrollTop;
     if (st > 20 && !collapsed) setCollapsed(true);
     else if (st <= 20 && collapsed) setCollapsed(false);
+    // Blur opacity ramps from 0 → 1 over 0–48 px
+    setBlurOpacity(Math.min(st / 48, 1));
   }
 
   // Close the sort dropdown on any outside click.
@@ -191,20 +194,23 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
       aria-label="Search"
       aria-hidden={!active}
     >
-      {/* Top bar — collapses on scroll */}
-      <div
-        className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}
-      >
-        <div className={styles.topbarRow}>
-          <h1 className={styles.topbarTitle}>Search</h1>
-          <SourceToggle source={source} onChange={handleSourceChange} />
-          <SearchBar
-            value={query}
-            onChange={handleQueryChange}
-            onClear={handleClearQuery}
-            inputRef={inputRef}
-          />
+      {/* Top bar — collapses on scroll, with gradient blur */}
+      <div className={styles.topbarWrap}>
+        <div
+          className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}
+        >
+          <div className={styles.topbarRow}>
+            <h1 className={styles.topbarTitle}>Search</h1>
+            <SourceToggle source={source} onChange={handleSourceChange} />
+            <SearchBar
+              value={query}
+              onChange={handleQueryChange}
+              onClear={handleClearQuery}
+              inputRef={inputRef}
+            />
+          </div>
         </div>
+        <div className="topbarBlur" style={{ opacity: blurOpacity }} aria-hidden="true" />
       </div>
 
       {/* Active filter chips */}

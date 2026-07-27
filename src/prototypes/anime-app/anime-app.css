@@ -152,6 +152,33 @@ button {
   }
 }
 
+/* ---- Scroll gradient blur (shared across all screen topbars) ----
+   A gradient overlay at the bottom edge of the topbar that fades from
+   the background colour to transparent + blurs the scrolling content
+   underneath. Opacity is driven by --blur-opacity (set via
+   useCollapsingHeader). The topbar must have position: relative and
+   overflow: visible for this to extend below it. */
+.topbarBlur {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  transform: translateY(100%);
+  background: linear-gradient(
+    to bottom,
+    var(--color-bg) 0%,
+    color-mix(in srgb, var(--color-bg) 60%, transparent) 40%,
+    transparent 100%
+  );
+  backdrop-filter: blur(12px) saturate(1.4);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  opacity: var(--blur-opacity, 0);
+  transition: opacity var(--dur-3) var(--ease-standard);
+  pointer-events: none;
+  z-index: 1;
+}
+
 /* ---- Animation speed overrides (applied via .device[data-anim-speed]) ----
    These multiply the --dur-* tokens so EVERY transition in the app
    scales with the user's chosen speed. */
