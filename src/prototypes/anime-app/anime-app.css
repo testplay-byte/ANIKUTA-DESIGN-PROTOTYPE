@@ -152,56 +152,65 @@ button {
   }
 }
 
-/* ---- Scroll gradient blur (shared across all screen topbars) ----
-   A two-layer overlay at the bottom edge of the topbar that creates a
-   frosted-glass effect when content is scrolled underneath.
+/* ---- Scroll glow + blur (shared across all screen topbars) ----
+   A frosted-glass overlay at the bottom edge of the topbar that creates
+   a smooth blend when content is scrolled underneath.
+   
+   DESIGN:
+   The blur element has ROUNDED TOP-LEFT and TOP-RIGHT corners
+   (border-radius: 32px 32px 0 0) that match the phone device frame's
+   corner radius. This gives the "curved screen" feel — the top-left
+   and top-right edges curve inward like a modern smartphone's corners.
+   
+   THREE EFFECTS:
+   1. Glow — box-shadow on the parent follows the curved border-radius,
+      creating a soft glow that curves around the top corners. Inset shadow
+      adds an inward glow from the top edge downward.
+   2. Backdrop blur (::before) — blurs the scrolling content underneath
+      for a frosted-glass look.
+   3. Gradient fade (::after) — solid bg color at the top (the "line")
+      that smoothly fades to transparent at the bottom (the "glow").
+      Strong near the line, weak far from it.
    
    Opacity is driven by --blur-opacity (set via useCollapsingHeader with
-   a smoothstep curve for imperceptible onset — no visible breaking point).
+   a smoothstep curve for imperceptible onset).
    
-   TWO LAYERS (via pseudo-elements):
-     ::before — backdrop-filter blur layer (behind, blurs content)
-     ::after  — gradient darkening layer (in front, fades bg → transparent)
+   A 2px overlap (translateY(calc(100% - 2px))) prevents any seam
+   between topbar and blur.
    
-   Both layers share the same dimensions and curved bottom corners.
-   The elliptical border-radius (50% horizontal / 24px vertical) creates
-   a "curved device screen" feel at the bottom-left and bottom-right.
-   
-   A 2px overlap (translateY(calc(100% - 2px))) prevents any sub-pixel
-   gap between the topbar and the blur overlay.
-   
-   The topbar must have position: relative and overflow: visible for
-   this to extend below it. */
+   The topbar must have position: relative and overflow: visible. */
 .topbarBlur {
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 28px;
+  height: 32px;
   transform: translateY(calc(100% - 2px));
-  border-radius: 0 0 50% 50% / 0 0 24px 24px;
+  border-radius: 32px 32px 0 0;
   pointer-events: none;
   z-index: 1;
   opacity: var(--blur-opacity, 0);
   transition: opacity 0.25s ease-out;
+  /* Outer glow follows the curved top corners */
+  box-shadow:
+    0 0 18px 5px color-mix(in srgb, var(--color-bg) 40%, transparent),
+    inset 0 3px 10px color-mix(in srgb, var(--color-bg) 35%, transparent);
 }
 
-/* Layer 1 (behind): Backdrop blur — softens the scrolling content
-   underneath. No background colour so it's a pure blur effect. */
+/* Backdrop blur — softens scrolling content underneath (frosted glass) */
 .topbarBlur::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  backdrop-filter: blur(20px) saturate(1.3);
-  -webkit-backdrop-filter: blur(20px) saturate(1.3);
-  z-index: 0;
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
 }
 
-/* Layer 2 (in front): Gradient darkening — fades from the background
-   colour (fully opaque) at the top to fully transparent at the bottom.
-   8 stops with a held-solid region at the very top prevent any seam
-   with the topbar above. */
+/* Gradient fade — the "glowing line" effect.
+   Solid at the top (the line), smoothly fading to transparent (the glow).
+   Strong near the line, weak further away. The solid top region
+   (0-6%) seamlessly connects with the topbar above. */
 .topbarBlur::after {
   content: "";
   position: absolute;
@@ -210,12 +219,12 @@ button {
   background: linear-gradient(
     to bottom,
     var(--color-bg) 0%,
-    var(--color-bg) 8%,
-    color-mix(in srgb, var(--color-bg) 94%, transparent) 18%,
-    color-mix(in srgb, var(--color-bg) 82%, transparent) 32%,
-    color-mix(in srgb, var(--color-bg) 62%, transparent) 48%,
-    color-mix(in srgb, var(--color-bg) 38%, transparent) 64%,
-    color-mix(in srgb, var(--color-bg) 16%, transparent) 82%,
+    var(--color-bg) 6%,
+    color-mix(in srgb, var(--color-bg) 92%, transparent) 16%,
+    color-mix(in srgb, var(--color-bg) 80%, transparent) 30%,
+    color-mix(in srgb, var(--color-bg) 60%, transparent) 48%,
+    color-mix(in srgb, var(--color-bg) 35%, transparent) 66%,
+    color-mix(in srgb, var(--color-bg) 12%, transparent) 84%,
     transparent 100%
   );
   z-index: 1;
