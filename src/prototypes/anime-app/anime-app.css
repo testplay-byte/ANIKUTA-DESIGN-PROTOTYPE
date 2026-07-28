@@ -157,22 +157,26 @@ button {
    a smooth blend when content is scrolled underneath.
    
    DESIGN:
-   The blur element has ROUNDED BOTTOM-LEFT and BOTTOM-RIGHT corners
-   (border-radius: 0 0 22px 22px) that give the "curved device screen"
-   feel — the left and right edges curve inward at the bottom like a
-   modern smartphone's curved display edge.
+   The blur element has SUBTLE ROUNDED CORNERS ON ALL SIDES:
+   - Top-left / top-right: 14px — gentle curve so the blur naturally
+     softens and blends at the top corners
+   - Bottom-left / bottom-right: 20px — slightly more pronounced curve
+     for the curved device screen edge feel
    
-   The TOP edge is sharp (no radius) so the gradient can fully cover
-   the top-left and top-right areas with the background theme color,
-   ensuring no content leaks through.
+   This rounded-rectangle shape (not a flat bar) means:
+   - The backdrop-filter blur follows the curved edges
+   - At corners, the blur naturally "bleeds" past the curved clip,
+     creating softer, more diffused transitions — the corners feel
+     extra blurred out compared to the center
+   - The gradient also curves along the shape, so the bg→transparent
+     fade wraps organically around the edges
    
    TWO LAYERS:
    1. Backdrop blur (::before) — blurs the scrolling content underneath
-      for a frosted-glass look. Covers the full element including corners.
+      for a frosted-glass look. Covers the full rounded shape.
    2. Gradient fade (::after) — solid bg color at the top that smoothly
-      fades to transparent at the bottom. The solid top region (0-6%)
-      seamlessly connects with the topbar above, while the transparent
-      bottom lets content show through naturally.
+      fades to transparent at the bottom. Follows the rounded corners
+      so the fade wraps around the edges.
    
    Opacity is driven by --blur-opacity (set via useCollapsingHeader with
    a smoothstep curve for imperceptible onset).
@@ -188,27 +192,31 @@ button {
   right: 0;
   height: 32px;
   transform: translateY(calc(100% - 2px));
-  border-radius: 0 0 22px 22px;
+  border-radius: 14px 14px 20px 20px;
   pointer-events: none;
   z-index: 1;
   opacity: var(--blur-opacity, 0);
   transition: opacity 0.25s ease-out;
 }
 
-/* Backdrop blur — softens scrolling content underneath (frosted glass) */
+/* Backdrop blur — softens scrolling content underneath (frosted glass).
+   The blur follows the rounded border-radius of the parent. At corners,
+   the blur naturally extends slightly past the curved clip, making
+   corners feel softer and more diffused than the center. */
 .topbarBlur::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  backdrop-filter: blur(12px) saturate(1.2);
-  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
 }
 
 /* Gradient fade — solid bg at top, smoothly fading to transparent at bottom.
-   The solid top region (0-6%) seamlessly connects with the topbar above.
-   Bottom corners are rounded (inherited), so the gradient naturally curves
-   along the device-edge shape. No box-shadow to avoid any visible line. */
+   Follows the rounded border-radius so the fade wraps organically around
+   the corners. At the rounded edges, the gradient curves away, revealing
+   the blurred backdrop underneath — creating the "more blurred corners"
+   effect naturally. No box-shadow to avoid any visible line. */
 .topbarBlur::after {
   content: "";
   position: absolute;
@@ -217,9 +225,9 @@ button {
   background: linear-gradient(
     to bottom,
     var(--color-bg) 0%,
-    var(--color-bg) 6%,
-    color-mix(in srgb, var(--color-bg) 92%, transparent) 18%,
-    color-mix(in srgb, var(--color-bg) 80%, transparent) 32%,
+    var(--color-bg) 8%,
+    color-mix(in srgb, var(--color-bg) 92%, transparent) 20%,
+    color-mix(in srgb, var(--color-bg) 80%, transparent) 34%,
     color-mix(in srgb, var(--color-bg) 60%, transparent) 50%,
     color-mix(in srgb, var(--color-bg) 35%, transparent) 68%,
     color-mix(in srgb, var(--color-bg) 12%, transparent) 86%,
