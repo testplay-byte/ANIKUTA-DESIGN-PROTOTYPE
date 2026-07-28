@@ -153,13 +153,23 @@ button {
 }
 
 /* ---- Scroll gradient blur (shared across all screen topbars) ----
-   A gradient overlay at the bottom edge of the topbar that fades from
-   the background colour to transparent + blurs the scrolling content
-   underneath. Opacity is driven by --blur-opacity (set via
-   useCollapsingHeader, which uses a smooth cubic ease-out curve).
-
-   The gradient uses many subtle stops so the fade is imperceptible — no
-   sharp breaking point. Rounded bottom corners give it a soft pill shape.
+   A two-layer overlay at the bottom edge of the topbar that creates a
+   frosted-glass effect when content is scrolled underneath.
+   
+   Opacity is driven by --blur-opacity (set via useCollapsingHeader with
+   a smoothstep curve for imperceptible onset — no visible breaking point).
+   
+   TWO LAYERS (via pseudo-elements):
+     ::before — backdrop-filter blur layer (behind, blurs content)
+     ::after  — gradient darkening layer (in front, fades bg → transparent)
+   
+   Both layers share the same dimensions and curved bottom corners.
+   The elliptical border-radius (50% horizontal / 24px vertical) creates
+   a "curved device screen" feel at the bottom-left and bottom-right.
+   
+   A 2px overlap (translateY(calc(100% - 2px))) prevents any sub-pixel
+   gap between the topbar and the blur overlay.
+   
    The topbar must have position: relative and overflow: visible for
    this to extend below it. */
 .topbarBlur {
@@ -167,23 +177,47 @@ button {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 36px;
-  transform: translateY(100%);
-  border-radius: 0 0 18px 18px;
+  height: 28px;
+  transform: translateY(calc(100% - 2px));
+  border-radius: 0 0 50% 50% / 0 0 24px 24px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: var(--blur-opacity, 0);
+  transition: opacity 0.25s ease-out;
+}
+
+/* Layer 1 (behind): Backdrop blur — softens the scrolling content
+   underneath. No background colour so it's a pure blur effect. */
+.topbarBlur::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  backdrop-filter: blur(20px) saturate(1.3);
+  -webkit-backdrop-filter: blur(20px) saturate(1.3);
+  z-index: 0;
+}
+
+/* Layer 2 (in front): Gradient darkening — fades from the background
+   colour (fully opaque) at the top to fully transparent at the bottom.
+   8 stops with a held-solid region at the very top prevent any seam
+   with the topbar above. */
+.topbarBlur::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
   background: linear-gradient(
     to bottom,
     var(--color-bg) 0%,
-    color-mix(in srgb, var(--color-bg) 92%, transparent) 15%,
-    color-mix(in srgb, var(--color-bg) 78%, transparent) 35%,
-    color-mix(in srgb, var(--color-bg) 55%, transparent) 55%,
-    color-mix(in srgb, var(--color-bg) 30%, transparent) 75%,
+    var(--color-bg) 8%,
+    color-mix(in srgb, var(--color-bg) 94%, transparent) 18%,
+    color-mix(in srgb, var(--color-bg) 82%, transparent) 32%,
+    color-mix(in srgb, var(--color-bg) 62%, transparent) 48%,
+    color-mix(in srgb, var(--color-bg) 38%, transparent) 64%,
+    color-mix(in srgb, var(--color-bg) 16%, transparent) 82%,
     transparent 100%
   );
-  backdrop-filter: blur(14px) saturate(1.3);
-  -webkit-backdrop-filter: blur(14px) saturate(1.3);
-  opacity: var(--blur-opacity, 0);
-  transition: opacity 0.15s ease-out;
-  pointer-events: none;
   z-index: 1;
 }
 

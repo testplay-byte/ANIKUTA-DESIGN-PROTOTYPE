@@ -10,14 +10,16 @@ import { useEffect, useRef, useState, useId, useCallback } from "react";
  *   contentRef — attach to the scrollable content element.
  *   topbarRef  — attach to the topbar container (drives the blur CSS var).
  *   collapsed  — true when scrollTop exceeds collapse threshold (20 px).
- *   scrollProgress — 0-1 value for the blur overlay opacity (full at blurMax px).
  *
  * The hook writes `--blur-opacity` directly on the topbar element so that the
  * `.topbarBlur` gradient overlay can read it without extra React state.
  *
- * The scroll progress uses a smooth cubic ease-out curve so the blur fades in
- * gradually rather than appearing abruptly. This avoids the "breaking point"
- * feel that a linear ramp creates.
+ * The scroll progress uses a smoothstep curve for an ultra-smooth fade:
+ *   - Barely visible in the first 20% of scroll (only ~10% opacity)
+ *   - Gradually builds through the middle (50% at halfway)
+ *   - Reaches full opacity smoothly near the end
+ *
+ * This eliminates any visible "breaking point" or "pop" effect.
  *
  * Usage:
  * ```tsx
@@ -29,27 +31,35 @@ import { useEffect, useRef, useState, useId, useCallback } from "react";
  * <div ref={contentRef} className="content">...</div>
  * ```
  */
-export function useCollapsingHeader(collapseThreshold = 20, blurMax = 80) {
+export function useCollapsingHeader(collapseThreshold = 20, blurMax = 100) {
   const contentRef = useRef<HTMLDivElement | null>(null);
   const topbarRef = useRef<HTMLDivElement | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const uid = useId();
 
   /**
-   * Smooth ease-out cubic curve.
+   * Smoothstep easing curve: t² × (3 − 2t)
    * Maps linear t ∈ [0,1] → eased output ∈ [0,1].
-   * The curve starts quickly then decelerates, giving a natural "fade in"
-   * that feels smooth without a visible breaking point.
    *
-   *   t=0.0 → 0.00   (just started scrolling — almost invisible)
-   *   t=0.2 → 0.49   (20% of scroll → already at 49% opacity)
-   *   t=0.4 → 0.78
-   *   t=0.6 → 0.94
-   *   t=0.8 → 0.99
-   *   t=1.0 → 1.00
+   * Unlike easeOutCubic (which reaches 49% at just 20% of scroll — too fast),
+   * smoothstep is symmetrical and very gentle at the extremes:
+   *
+   *   t=0.00 → 0.000   (no scroll — invisible)
+   *   t=0.10 → 0.028   (10% of scroll — barely 3%, imperceptible)
+   *   t=0.20 → 0.104   (20% of scroll — only 10%)
+   *   t=0.30 → 0.216   (30% of scroll — still subtle)
+   *   t=0.40 → 0.352
+   *   t=0.50 → 0.500   (halfway — 50%, the midpoint)
+   *   t=0.60 → 0.648
+   *   t=0.70 → 0.784
+   *   t=0.80 → 0.896
+   *   t=0.90 → 0.972
+   *   t=1.00 → 1.000
+   *
+   * This gives a very smooth, imperceptible onset with no sudden jumps.
    */
-  const easeOutCubic = useCallback((t: number): number => {
-    return 1 - Math.pow(1 - t, 3);
+  const smoothstep = useCallback((t: number): number => {
+    return t * t * (3 - 2 * t);
   }, []);
 
   useEffect(() => {
@@ -60,19 +70,18 @@ export function useCollapsingHeader(collapseThreshold = 20, blurMax = 80) {
     let rafId: number;
 
     const onScroll = () => {
-      // Use rAF so we batch reads + writes together.
       cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(() => {
         const st = el.scrollTop;
 
-        // Collapse toggle (same threshold as before)
+        // Collapse toggle
         if (st > collapseThreshold && !collapsed) setCollapsed(true);
         else if (st <= collapseThreshold && collapsed) setCollapsed(false);
 
         // Blur progress: 0 → 1 over [0, blurMax] px of scroll
-        // Apply smooth easing so the transition feels natural
+        // Apply smoothstep for imperceptible onset
         const linear = Math.min(st / blurMax, 1);
-        const progress = easeOutCubic(linear);
+        const progress = smoothstep(linear);
         topbar.style.setProperty("--blur-opacity", String(progress));
       });
     };
@@ -82,7 +91,7 @@ export function useCollapsingHeader(collapseThreshold = 20, blurMax = 80) {
       el.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(rafId);
     };
-  }, [collapsed, collapseThreshold, blurMax, uid, easeOutCubic]);
+  }, [collapsed, collapseThreshold, blurMax, uid, smoothstep]);
 
   return { contentRef, topbarRef, collapsed };
 }
