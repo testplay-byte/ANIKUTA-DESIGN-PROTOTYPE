@@ -18,6 +18,7 @@
  * instead of being a no-op.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useCollapsingHeader } from "../hooks/use-collapsing-header";
 import { SourceToggle } from "../components/source-toggle";
 import { SearchBar } from "../components/search-bar";
 import { AnimeCard } from "../components/anime-card";
@@ -52,8 +53,7 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
-  const [blurOpacity, setBlurOpacity] = useState(0);
+  const { contentRef, topbarRef, collapsed } = useCollapsingHeader();
 
   const { recents, add, remove, clear } = useRecentSearches();
   const { media, loading, error } = useAniListSearch({
@@ -64,7 +64,6 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
 
   // Add to recents 500ms after the user stops typing.
   useEffect(() => {
@@ -73,14 +72,7 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
     return () => clearTimeout(t);
   }, [query, add]);
 
-  // Collapse the topbar when the content area is scrolled past 20px.
-  function handleScroll(e: React.UIEvent<HTMLDivElement>) {
-    const st = e.currentTarget.scrollTop;
-    if (st > 20 && !collapsed) setCollapsed(true);
-    else if (st <= 20 && collapsed) setCollapsed(false);
-    // Blur opacity ramps from 0 → 1 over 0–48 px
-    setBlurOpacity(Math.min(st / 48, 1));
-  }
+  // Collapsing header + blur is handled by useCollapsingHeader hook.
 
   // Close the sort dropdown on any outside click.
   useEffect(() => {
@@ -195,7 +187,7 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
       aria-hidden={!active}
     >
       {/* Top bar — collapses on scroll, with gradient blur */}
-      <div className={styles.topbarWrap}>
+      <div ref={topbarRef} className={styles.topbarWrap}>
         <div
           className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}
         >
@@ -210,7 +202,7 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
             />
           </div>
         </div>
-        <div className="topbarBlur" style={{ opacity: blurOpacity }} aria-hidden="true" />
+        <div className="topbarBlur" aria-hidden="true" />
       </div>
 
       {/* Active filter chips */}
@@ -304,8 +296,7 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
       {/* Content — scrollable, owns the collapse trigger */}
       <div
         ref={contentRef}
-        className={`${styles.content} ${collapsed ? styles.contentIsCollapsed : ""}`}
-        onScroll={handleScroll}
+        className={styles.content}
       >
         {showRecent && (
           <RecentSearches
