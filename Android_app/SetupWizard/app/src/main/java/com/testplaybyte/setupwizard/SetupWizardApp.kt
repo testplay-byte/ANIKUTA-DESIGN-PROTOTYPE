@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.*
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.unit.dp
 import com.testplaybyte.setupwizard.ui.theme.*
@@ -283,7 +284,7 @@ fun ActionRow(back: (() -> Unit)? = null, next: (() -> Unit)? = null, nextText: 
 }
 
 @Composable
-fun WizardButton(text: String, onClick: () -> Unit, palette: WizardPalette, isPrimary: Boolean, enabled: Boolean, leadingIcon: @Composable (() -> Unit)?, trailingIcon: @Composable (() -> Unit)?, modifier: Modifier) {
+fun WizardButton(text: String, onClick: () -> Unit, palette: WizardPalette, isPrimary: Boolean = true, enabled: Boolean = true, leadingIcon: @Composable (() -> Unit)? = null, trailingIcon: @Composable (() -> Unit)? = null, modifier: Modifier = Modifier) {
     Button(
         onClick = onClick,
         enabled = enabled,

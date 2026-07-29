@@ -7,7 +7,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.*
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.unit.dp
 import com.testplaybyte.setupwizard.ui.theme.WizardPalette
 
@@ -69,17 +71,17 @@ fun FolderVisual(palette: WizardPalette, selected: Boolean = false, modifier: Mo
                 drawLine(palette.primary, Offset(158f, 88f), Offset(158f, 116f), 2f)
                 // Files (short, floating)
                 val file1Y = 56f + bob * 0.5f
-                drawRoundRect(color = palette.surface5, size = Size(28f, 34f), cornerRadius = CornerRadius(3f), topLeft = Offset(56f, file1Y), style = Stroke(1.3f))
+                drawRoundRect(palette.surface5, Offset(56f, file1Y), Size(28f, 34f), CornerRadius(3f), 1f, Stroke(1.3f))
                 drawRoundRect(color = palette.primary.copy(alpha = 0.55f), size = Size(28f, 10f), cornerRadius = CornerRadius(3f), topLeft = Offset(56f, file1Y))
                 val file2Y = 50f + bob * 0.6f
-                drawRoundRect(color = palette.surface4, size = Size(28f, 40f), cornerRadius = CornerRadius(3f), topLeft = Offset(86f, file2Y), style = Stroke(1.3f))
+                drawRoundRect(palette.surface4, Offset(86f, file2Y), Size(28f, 40f), CornerRadius(3f), 1f, Stroke(1.3f))
                 drawRoundRect(color = palette.primary.copy(alpha = 0.5f), size = Size(28f, 10f), cornerRadius = CornerRadius(3f), topLeft = Offset(86f, file2Y))
                 val file3Y = 56f + bob * 0.4f
-                drawRoundRect(color = palette.surface3, size = Size(28f, 34f), cornerRadius = CornerRadius(3f), topLeft = Offset(116f, file3Y), style = Stroke(1.3f))
+                drawRoundRect(palette.surface3, Offset(116f, file3Y), Size(28f, 34f), CornerRadius(3f), 1f, Stroke(1.3f))
                 drawRoundRect(color = palette.primary.copy(alpha = 0.45f), size = Size(28f, 10f), cornerRadius = CornerRadius(3f), topLeft = Offset(116f, file3Y))
                 // Front pocket (gradient via layered rects)
                 drawRoundRect(color = palette.surface3, size = Size(124f, 58f), cornerRadius = CornerRadius(8f), topLeft = Offset(38f, 116f))
-                drawRoundRect(color = palette.surface5, size = Size(124f, 58f), cornerRadius = CornerRadius(8f), topLeft = Offset(38f, 116f), style = Stroke(2.2f))
+                drawRoundRect(palette.surface5, Offset(38f, 116f), Size(124f, 58f), CornerRadius(8f), 1f, Stroke(2.2f))
                 // content lines
                 drawRoundRect(color = palette.primary.copy(alpha = 0.35f), size = Size(92f, 4f), cornerRadius = CornerRadius(2f), topLeft = Offset(54f, 134f))
                 drawRoundRect(color = palette.primary.copy(alpha = 0.25f), size = Size(72f, 4f), cornerRadius = CornerRadius(2f), topLeft = Offset(54f, 148f))
@@ -144,7 +146,7 @@ fun RestoreVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
             }
             // File
             translate(top = bob) {
-                drawRoundRect(color = palette.surface3, size = Size(60f, 80f), cornerRadius = CornerRadius(6f), topLeft = Offset(70f, 60f), style = Stroke(2f))
+                drawRoundRect(palette.surface3, Offset(70f, 60f), Size(60f, 80f), CornerRadius(6f), 1f, Stroke(2f))
                 drawRoundRect(color = palette.primary.copy(alpha = 0.6f), size = Size(40f, 4f), cornerRadius = CornerRadius(2f), topLeft = Offset(80f, 88f))
                 drawRoundRect(color = palette.primary.copy(alpha = 0.4f), size = Size(32f, 4f), cornerRadius = CornerRadius(2f), topLeft = Offset(80f, 98f))
                 drawRoundRect(color = palette.primary.copy(alpha = 0.4f), size = Size(36f, 4f), cornerRadius = CornerRadius(2f), topLeft = Offset(80f, 108f))
@@ -171,7 +173,7 @@ fun WarningVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
         scale(s, pivot = center) {
             glow(Offset(100f, 100f), 64f, warn, 0.18f)
             // File
-            drawRoundRect(color = palette.surface3, size = Size(80f, 104f), cornerRadius = CornerRadius(6f), topLeft = Offset(60f, 52f), style = Stroke(2f, color = warn))
+            drawRoundRect(warn, Offset(60f, 52f), Size(80f, 104f), CornerRadius(6f), 1f, Stroke(2f))
             drawRoundRect(color = warn.copy(alpha = 0.5f), size = Size(52f, 4f), cornerRadius = CornerRadius(2f), topLeft = Offset(74f, 88f))
             drawRoundRect(color = warn.copy(alpha = 0.4f), size = Size(40f, 4f), cornerRadius = CornerRadius(2f), topLeft = Offset(74f, 100f))
             // Warning badge
@@ -200,7 +202,7 @@ fun ProcessingVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
             drawCircle(color = palette.primary.copy(alpha = glowA), radius = 60f, center = Offset(100f, 100f))
             rotate(spin, Offset(100f, 100f)) { drawArc(color = palette.primary.copy(alpha = 0.5f), 0f, 300f, false, Stroke(2f), Offset(24f, 24f), Size(152f, 152f)) }
             // File + rows
-            drawRoundRect(color = palette.surface3, size = Size(64f, 56f), cornerRadius = CornerRadius(6f), topLeft = Offset(68f, 76f), style = Stroke(1.5f))
+            drawRoundRect(palette.surface3, Offset(68f, 76f), Size(64f, 56f), CornerRadius(6f), 1f, Stroke(1.5f))
             drawRoundRect(color = palette.primary.copy(alpha = 0.8f), size = Size(48f, 4f), cornerRadius = CornerRadius(2f), topLeft = Offset(76f, 90f))
             drawRoundRect(color = palette.primary.copy(alpha = 0.6f), size = Size(40f, 4f), cornerRadius = CornerRadius(2f), topLeft = Offset(76f, 102f))
             drawRoundRect(color = palette.primary.copy(alpha = 0.6f), size = Size(44f, 4f), cornerRadius = CornerRadius(2f), topLeft = Offset(76f, 114f))
@@ -222,7 +224,7 @@ fun ClipboardVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
         scale(s, pivot = center) {
             glow(Offset(100f, 100f + float), 54f, palette.primary, 0.22f)
             translate(top = float) {
-                drawRoundRect(color = palette.surface3, size = Size(76f, 96f), cornerRadius = CornerRadius(10f), topLeft = Offset(62f, 58f), style = Stroke(2f))
+                drawRoundRect(palette.surface3, Offset(62f, 58f), Size(76f, 96f), CornerRadius(10f), 1f, Stroke(2f))
                 drawRoundRect(color = palette.primary, size = Size(32f, 12f), cornerRadius = CornerRadius(4f), topLeft = Offset(84f, 52f))
                 drawRoundRect(color = palette.primary.copy(alpha = 0.55f), size = Size(24f, 6f), cornerRadius = CornerRadius(3f), topLeft = Offset(74f, 84f))
                 drawRoundRect(color = palette.primary.copy(alpha = 0.35f), size = Size(40f, 6f), cornerRadius = CornerRadius(3f), topLeft = Offset(74f, 98f))
@@ -250,12 +252,12 @@ fun RestoreProcessingVisual(palette: WizardPalette, modifier: Modifier = Modifie
             drawCircle(color = palette.primary.copy(alpha = glowA), radius = 60f, center = Offset(100f, 100f))
             rotate(spin, Offset(100f, 100f)) { drawArc(color = palette.primary.copy(alpha = 0.5f), 0f, 300f, false, Stroke(2f), Offset(24f, 24f), Size(152f, 152f)) }
             // Source card
-            drawRoundRect(color = palette.surface3, size = Size(44f, 60f), cornerRadius = CornerRadius(6f), topLeft = Offset(40f, 50f), style = Stroke(1.5f))
+            drawRoundRect(palette.surface3, Offset(40f, 50f), Size(44f, 60f), CornerRadius(6f), 1f, Stroke(1.5f))
             drawRoundRect(color = palette.primary.copy(alpha = 0.5f), size = Size(32f, 22f), cornerRadius = CornerRadius(3f), topLeft = Offset(46f, 56f))
             // Flowing particles
             repeat(4) { i -> drawCircle(palette.primary, 3f, Offset(60f + i * 12f, 80f)) }
             // Library folder
-            drawRoundRect(color = palette.primaryContainer, size = Size(56f, 44f), cornerRadius = CornerRadius(4f), topLeft = Offset(112f, 100f), style = Stroke(1.5f))
+            drawRoundRect(palette.primaryContainer, Offset(112f, 100f), Size(56f, 44f), CornerRadius(4f), 1f, Stroke(1.5f))
             drawLine(palette.primary, Offset(120f, 132f), Offset(160f, 132f), 3f)
             // Check
             drawCircle(palette.primary, 9f, Offset(158f, 118f))
@@ -273,7 +275,7 @@ fun RestoreProcessingVisual(palette: WizardPalette, modifier: Modifier = Modifie
 fun DatabaseVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
     val transition = rememberInfiniteTransition(label = "db")
     val float by transition.animateFloat(0f, -5f, infiniteRepeatable(tween(3400, easing = FastOutSlowInEasing), RepeatMode.Reverse), label = "float")
-    val checkA by transition.animateFloat(0f, 1f, tween(1200, delayMillis = 1400), label = "check")
+    val checkA by transition.animateFloat(0f, 1f, infiniteRepeatable(tween(2000, delayMillis = 1400), RepeatMode.Restart), label = "check")
     Canvas(modifier.fillMaxSize()) {
         val s = minOf(size.width, size.height) / 200f
         scale(s, pivot = center) {
@@ -322,7 +324,7 @@ fun PoisonBottleVisual(palette: WizardPalette, idx: Int = 0, modifier: Modifier 
             val cx = 50f
             // Bottle body
             drawRoundRect(color = palette.primaryContainer, size = Size(40f, 90f), cornerRadius = CornerRadius(12f), topLeft = Offset(cx - 20f, 30f))
-            drawRoundRect(color = palette.primary, size = Size(40f, 90f), cornerRadius = CornerRadius(12f), topLeft = Offset(cx - 20f, 30f), style = Stroke(2.5f))
+            drawRoundRect(palette.primary, Offset(cx - 20f, 30f), Size(40f, 90f), CornerRadius(12f), 1f, Stroke(2.5f))
             // Neck + cap
             drawRoundRect(color = palette.surface4, size = Size(24f, 18f), cornerRadius = CornerRadius(2f), topLeft = Offset(cx - 12f, 14f))
             drawRoundRect(color = palette.primary, size = Size(28f, 8f), cornerRadius = CornerRadius(2f), topLeft = Offset(cx - 14f, 8f))
@@ -343,7 +345,7 @@ fun PoisonBottleVisual(palette: WizardPalette, idx: Int = 0, modifier: Modifier 
                     val y = 118f - p * 100f
                     val bubbleSize = if (p < 0.72f) 3f else 3f + (p - 0.72f) * 25f
                     val alpha = if (p < 0.1f) p * 9f else if (p < 0.72f) 0.9f else 0.9f - (p - 0.72f) * 8f
-                    val x = when (i) { 0 -> cx - 8f; 1 -> cx + 6f; 2 -> cx - 2f; 3 -> cx + 8f }
+                    val x = when (i) { 0 -> cx - 8f; 1 -> cx + 6f; 2 -> cx - 2f; 3 -> cx + 8f; else -> cx }
                     drawCircle(color = Color.White.copy(alpha = maxOf(0f, alpha)), radius = bubbleSize, center = Offset(x, y))
                 }
             }
