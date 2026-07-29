@@ -1743,8 +1743,9 @@
   pointer-events: none;
 }
 @keyframes poison-bubble-rise {
-  0%   { transform: translateY(0) scale(0.4); opacity: 0; }
-  15%  { opacity: 0.9; }
+  0%   { transform: translateY(0) scale(0.5); opacity: 0.7; }
+  20%  { opacity: 0.95; }
+  80%  { opacity: 0.6; }
   100% { transform: translateY(-70px) scale(1.2); opacity: 0; }
 }
 
