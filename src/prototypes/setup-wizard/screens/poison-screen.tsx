@@ -55,10 +55,10 @@ function PoisonBottle({ delay = "0s", idx = 0 }: { delay?: string; idx?: number 
         <path d="M48 95 L50 97 L52 95" fill="none" stroke="var(--color-bg)" strokeWidth="0.8" strokeLinecap="round" />
       </svg>
       {/* rising bubbles */}
-      <span className="poison-bubble-v2" style={{ width: 7, height: 7, left: "40%", bottom: "28%", animationDelay: "0s" }} />
-      <span className="poison-bubble-v2" style={{ width: 5, height: 5, left: "55%", bottom: "22%", animationDelay: "0.9s" }} />
-      <span className="poison-bubble-v2" style={{ width: 8, height: 8, left: "46%", bottom: "15%", animationDelay: "1.7s" }} />
-      <span className="poison-bubble-v2" style={{ width: 4, height: 4, left: "58%", bottom: "33%", animationDelay: "2.3s" }} />
+      <span className="poison-bubble-v2" style={{ width: 12, height: 12, left: "38%", bottom: "25%", animationDelay: "0s" }} />
+      <span className="poison-bubble-v2" style={{ width: 9, height: 9, left: "52%", bottom: "18%", animationDelay: "0.9s" }} />
+      <span className="poison-bubble-v2" style={{ width: 14, height: 14, left: "42%", bottom: "10%", animationDelay: "1.7s" }} />
+      <span className="poison-bubble-v2" style={{ width: 8, height: 8, left: "55%", bottom: "30%", animationDelay: "2.3s" }} />
     </div>
   );
 }
