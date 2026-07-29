@@ -131,61 +131,55 @@ export function FolderVisual({ selected = false }: { selected?: boolean }) {
   return (
     <svg viewBox="0 0 200 200" width="100%" height="100%" style={{ overflow: "visible" }} aria-hidden="true">
       <style>{`
-        @keyframes fv-${id}-bob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(-0.6deg); } }
-        @keyframes fv-${id}-fileBob1 { 0%,100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-4px) rotate(-5deg); } }
-        @keyframes fv-${id}-fileBob2 { 0%,100% { transform: translateY(0) rotate(2deg); } 50% { transform: translateY(-6px) rotate(4deg); } }
-        @keyframes fv-${id}-fileBob3 { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-3px) rotate(-3deg); } }
+        @keyframes fv-${id}-bob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(-0.5deg); } }
+        @keyframes fv-${id}-fileBob1 { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-5px) rotate(-7deg); } }
+        @keyframes fv-${id}-fileBob2 { 0%,100% { transform: translateY(0) rotate(3deg); } 50% { transform: translateY(-7px) rotate(6deg); } }
+        @keyframes fv-${id}-fileBob3 { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-4px) rotate(-4deg); } }
         @keyframes fv-${id}-pop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.18); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes fv-${id}-twinkle { 0%,100% { opacity: 0.2; } 50% { opacity: 0.8; } }
-        .fv-${id}-folder { transform-origin: 100px 130px; animation: fv-${id}-bob 3.6s ease-in-out infinite; }
-        .fv-${id}-file1 { transform-origin: 70px 78px; animation: fv-${id}-fileBob1 3.2s ease-in-out infinite; }
-        .fv-${id}-file2 { transform-origin: 100px 72px; animation: fv-${id}-fileBob2 3.6s ease-in-out infinite 0.4s; }
-        .fv-${id}-file3 { transform-origin: 130px 78px; animation: fv-${id}-fileBob3 3.4s ease-in-out infinite 0.8s; }
-        .fv-${id}-badge { transform-origin: 150px 88px; animation: fv-${id}-pop 0.5s var(--ease-emphasized-decel, cubic-bezier(.05,.7,.1,1)) both; }
+        .fv-${id}-folder { transform-origin: 100px 140px; animation: fv-${id}-bob 3.6s ease-in-out infinite; }
+        .fv-${id}-file1 { transform-origin: 70px 70px; animation: fv-${id}-fileBob1 3.2s ease-in-out infinite; }
+        .fv-${id}-file2 { transform-origin: 100px 64px; animation: fv-${id}-fileBob2 3.6s ease-in-out infinite 0.4s; }
+        .fv-${id}-file3 { transform-origin: 130px 70px; animation: fv-${id}-fileBob3 3.4s ease-in-out infinite 0.8s; }
+        .fv-${id}-badge { transform-origin: 150px 92px; animation: fv-${id}-pop 0.5s var(--ease-emphasized-decel, cubic-bezier(.05,.7,.1,1)) both; }
         .fv-${id}-spark { animation: fv-${id}-twinkle 2.4s ease-in-out infinite; }
         @media (prefers-reduced-motion: reduce) { .fv-${id}-folder,.fv-${id}-file1,.fv-${id}-file2,.fv-${id}-file3,.fv-${id}-badge,.fv-${id}-spark { animation: none !important; } }
       `}</style>
-      <Glow cx={100} cy={130} r={58} color="var(--color-primary)" opacity={0.22} />
+      <Glow cx={100} cy={140} r={60} color="var(--color-primary)" opacity={0.22} />
 
-      {/* Open folder back panel (the lid, angled open) */}
+      {/* Open folder back panel (the lid, angled open) — taller */}
       <g className={`fv-${id}-folder`}>
-        <path d="M44 104 L44 88 Q44 82 50 82 L86 82 L94 90 L150 90 Q156 90 156 96 L156 104 Z" fill="var(--color-primary)" opacity="0.9" stroke="var(--color-primary)" strokeWidth="2" strokeLinejoin="round" />
+        <path d="M40 116 L40 96 Q40 88 48 88 L86 88 L94 96 L152 96 Q158 96 158 104 L158 116 Z" fill="var(--color-primary)" opacity="0.9" stroke="var(--color-primary)" strokeWidth="2" strokeLinejoin="round" />
 
-        {/* Three files on top — each a different shade/look */}
-        {/* File 1: darkest, with a primary-tinted top stripe */}
+        {/* Three SHORT files floating out the top — each a different shade, only top ~32px visible */}
         <g className={`fv-${id}-file1`}>
-          <rect x="56" y="56" width="28" height="50" rx="3" fill="var(--color-surface-5)" stroke="var(--color-primary)" strokeWidth="1.3" />
+          <rect x="56" y="56" width="28" height="34" rx="3" fill="var(--color-surface-5)" stroke="var(--color-primary)" strokeWidth="1.3" />
           <rect x="56" y="56" width="28" height="10" rx="3" fill="var(--color-primary)" opacity="0.55" />
           <rect x="60" y="72" width="20" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.5" />
-          <rect x="60" y="78" width="16" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
-          <rect x="60" y="84" width="18" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
+          <rect x="60" y="78" width="14" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
         </g>
-        {/* File 2: medium shade, taller, with a tertiary-tinted top stripe */}
         <g className={`fv-${id}-file2`}>
-          <rect x="86" y="48" width="28" height="58" rx="3" fill="var(--color-surface-4)" stroke="var(--color-primary)" strokeWidth="1.3" />
-          <rect x="86" y="48" width="28" height="10" rx="3" fill="var(--color-tertiary, #ccc)" opacity="0.5" />
-          <rect x="90" y="64" width="20" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.5" />
-          <rect x="90" y="70" width="16" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
-          <rect x="90" y="76" width="18" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
-          <rect x="90" y="82" width="14" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
+          <rect x="86" y="50" width="28" height="40" rx="3" fill="var(--color-surface-4)" stroke="var(--color-primary)" strokeWidth="1.3" />
+          <rect x="86" y="50" width="28" height="10" rx="3" fill="var(--color-tertiary, #ccc)" opacity="0.5" />
+          <rect x="90" y="66" width="20" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.5" />
+          <rect x="90" y="72" width="14" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
+          <rect x="90" y="78" width="18" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
         </g>
-        {/* File 3: lightest shade, with a warn-tinted top stripe */}
         <g className={`fv-${id}-file3`}>
-          <rect x="116" y="56" width="28" height="50" rx="3" fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth="1.3" />
+          <rect x="116" y="56" width="28" height="34" rx="3" fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth="1.3" />
           <rect x="116" y="56" width="28" height="10" rx="3" fill="var(--color-warn, #ffcc80)" opacity="0.45" />
           <rect x="120" y="72" width="20" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.5" />
-          <rect x="120" y="78" width="16" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
-          <rect x="120" y="84" width="18" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
+          <rect x="120" y="78" width="14" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
         </g>
 
-        {/* Front pocket of the open folder (in front of the files' bottoms) */}
-        <path d="M40 104 L160 104 L160 158 Q160 164 154 164 L46 164 Q40 164 40 158 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.2" strokeLinejoin="round" />
+        {/* Front pocket of the open folder — TALLER (extends from 116 to 172) */}
+        <path d="M38 116 L162 116 L162 168 Q162 174 156 174 L44 174 Q38 174 38 168 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.2" strokeLinejoin="round" />
         {/* Folder tab on the front pocket */}
-        <path d="M40 104 L40 96 Q40 90 46 90 L74 90 L80 104 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.2" strokeLinejoin="round" />
+        <path d="M38 116 L38 108 Q38 102 44 102 L72 102 L78 116 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.2" strokeLinejoin="round" />
         {/* Inner content lines on the front pocket */}
-        <rect x="56" y="120" width="88" height="4" rx="2" fill="var(--color-primary)" opacity="0.4" />
-        <rect x="56" y="132" width="68" height="4" rx="2" fill="var(--color-primary)" opacity="0.3" />
-        <rect x="56" y="144" width="78" height="4" rx="2" fill="var(--color-primary)" opacity="0.3" />
+        <rect x="54" y="132" width="92" height="4" rx="2" fill="var(--color-primary)" opacity="0.4" />
+        <rect x="54" y="146" width="72" height="4" rx="2" fill="var(--color-primary)" opacity="0.3" />
+        <rect x="54" y="160" width="82" height="4" rx="2" fill="var(--color-primary)" opacity="0.3" />
       </g>
 
       <circle className={`fv-${id}-spark`} cx="50" cy="60" r="2" fill="var(--color-primary)" />
@@ -193,8 +187,8 @@ export function FolderVisual({ selected = false }: { selected?: boolean }) {
 
       {selected && (
         <g className={`fv-${id}-badge`}>
-          <circle cx="150" cy="88" r="20" fill="var(--color-primary)" />
-          <path d="M141 88 L148 95 L160 81" fill="none" stroke="var(--color-bg)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="150" cy="92" r="20" fill="var(--color-primary)" />
+          <path d="M141 92 L148 99 L160 85" fill="none" stroke="var(--color-bg)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
         </g>
       )}
     </svg>

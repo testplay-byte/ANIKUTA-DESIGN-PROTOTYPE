@@ -145,8 +145,10 @@ export function ManualLinkingScreen({ active, onNext, onBack, palette, linkedAni
               autoFocus
             />
             {searchQuery ? (
-              <button className="search-cancel-btn" onClick={() => setSearchQuery("")} aria-label="Clear search">
-                Cancel
+              <button className="search-x-btn" onClick={() => setSearchQuery("")} aria-label="Clear search">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
               </button>
             ) : null}
             <button className="search-icon-btn" aria-label="Search">

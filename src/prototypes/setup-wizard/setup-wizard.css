@@ -1752,10 +1752,10 @@
   100% { transform: translateY(-70px) scale(1.2); opacity: 0; }
 }
 
-/* ---- Poison pill v2: proper half-split, plus icon, random rotation ---- */
+/* ---- Poison pill v2: wider/taller stretched, plus on RED half, random rotation ---- */
 .poison-pill-v2 {
-  width: 56px;
-  height: 28px;
+  width: 84px;
+  height: 40px;
   position: relative;
   border-radius: 999px;
   overflow: hidden;
@@ -1771,21 +1771,20 @@
   justify-content: center;
 }
 .poison-pill-v2__half--left {
-  background: var(--color-primary);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-primary) 85%, white 15%), var(--color-primary));
 }
 .poison-pill-v2__half--right {
-  background: var(--color-surface-5);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--color-surface-5) 90%, white 10%), var(--color-surface-5));
 }
 .poison-pill-v2__plus {
   position: absolute;
-  left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  color: var(--color-bg);
+  width: 20px;
+  height: 20px;
+  color: white;
   z-index: 2;
-  font-weight: 800;
-  font-size: 16px;
-  line-height: 1;
+  pointer-events: none;
 }
 /* Each pill gets a random-ish rotation via nth-child + a float */
 @keyframes poison-pill-float {
@@ -1801,19 +1800,19 @@
   .poison-bottle-v2, .poison-pill-v2, .poison-bubble-v2 { animation: none !important; }
 }
 
-/* ---- Poison visual row: z-index hierarchy (each item different layer) ---- */
+/* ---- Poison visual row: z-index hierarchy (each item different layer), centered ---- */
 .poison-visual-row--v2 {
   display: flex;
-  gap: var(--sp-2);
+  gap: var(--sp-3);
   justify-content: center;
-  align-items: flex-end;
-  min-height: 160px;
+  align-items: center;
+  min-height: 180px;
   position: relative;
 }
 .poison-visual-row--v2 > * { position: relative; }
 .poison-visual-row--v2 > *:nth-child(1) { z-index: 3; }
-.poison-visual-row--v2 > *:nth-child(2) { z-index: 1; transform: translateY(8px); }
-.poison-visual-row--v2 > *:nth-child(3) { z-index: 2; transform: translateY(-4px); }
+.poison-visual-row--v2 > *:nth-child(2) { z-index: 1; transform: translateY(10px); }
+.poison-visual-row--v2 > *:nth-child(3) { z-index: 2; transform: translateY(-6px); }
 
 /* ---- Manual search overlay v4: cancel inside bar, search = icon ---- */
 .search-overlay--v4 .search-overlay__topbar {
@@ -1877,20 +1876,21 @@
 }
 .search-overlay--v4 .search-icon-btn:hover { transform: scale(1.06); }
 .search-overlay--v4 .search-icon-btn:active { transform: scale(0.94); }
-.search-overlay--v4 .search-cancel-btn {
+.search-overlay--v4 .search-x-btn {
   flex: 0 0 auto;
+  width: 32px;
   height: 32px;
-  padding: 0 12px;
   border: none;
-  background: transparent;
+  background: var(--color-surface-4);
   color: var(--color-text-muted);
-  font-size: 13px;
-  font-weight: 700;
   cursor: pointer;
-  border-radius: var(--r-pill);
-  transition: color 0.15s var(--ease-standard);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s var(--ease-standard), color 0.15s var(--ease-standard);
 }
-.search-overlay--v4 .search-cancel-btn:hover { color: var(--color-text); }
+.search-overlay--v4 .search-x-btn:hover { background: var(--color-surface-5); color: var(--color-text); }
 .search-overlay--v4 .search-results {
   flex: 1;
   overflow-y: auto;
