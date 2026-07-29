@@ -160,9 +160,8 @@ export function useWizardState() {
     setRoute("finish");
   }, []);
 
-  /** Toggle a permission (all-files-access is locked off). */
+  /** Toggle a permission (all are user-toggleable now). */
   const togglePermission = useCallback((key: keyof Permissions) => {
-    if (key === "allFilesAccess") return; // not needed — locked off
     setPermissions((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
 

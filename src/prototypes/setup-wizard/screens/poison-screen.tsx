@@ -40,12 +40,38 @@ export function PoisonScreen({ active, onNext, onBack, adSettings, updateAdSetti
   return (
     <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        <div className="wizard-heading">
-          <p className="wizard-screen-eyebrow" style={{ color: "var(--color-primary)" }}>Ad preferences</p>
-          <h1 className="wizard-screen-title">Choose your poison</h1>
-          <p className="wizard-screen-sub">
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <p className="wizard-screen-eyebrow" style={{ color: "var(--color-primary)", alignSelf: "center" }}>Ad preferences</p>
+          <h1 className="wizard-screen-title wizard-screen-title--xl">Choose your poison</h1>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>
             Ads keep the app free. Let&apos;s make them non-intrusive — pick your daily dose.
           </p>
+        </div>
+
+        {/* Fun poison bottle animation */}
+        <div className="poison-hero" key={`${active}-${step}`} aria-hidden="true">
+          <span className="poison-glow" />
+          <svg className="poison-bottle" viewBox="0 0 100 140" aria-hidden="true">
+            {/* bottle body */}
+            <path d="M38 30 L38 44 Q30 50 30 62 L30 120 Q30 130 40 130 L60 130 Q70 130 70 120 L70 62 Q70 50 62 44 L62 30 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinejoin="round" />
+            {/* bottle neck + cap */}
+            <rect x="38" y="14" width="24" height="18" rx="2" fill="var(--color-surface-4)" stroke="var(--color-primary)" strokeWidth="1.5" />
+            <rect x="36" y="8" width="28" height="8" rx="2" fill="var(--color-primary)" />
+            {/* label */}
+            <rect x="36" y="74" width="28" height="34" rx="3" fill="var(--color-bg)" opacity="0.9" />
+            {/* skull on label */}
+            <circle cx="50" cy="86" r="6" fill="var(--color-primary)" />
+            <rect x="46" y="92" width="8" height="5" rx="1" fill="var(--color-primary)" />
+            <circle cx="48" cy="86" r="1.3" fill="var(--color-bg)" />
+            <circle cx="52" cy="86" r="1.3" fill="var(--color-bg)" />
+            {/* liquid highlight */}
+            <path d="M34 70 Q34 60 40 58 L40 120 Q34 120 34 110 Z" fill="var(--color-primary)" opacity="0.25" />
+          </svg>
+          {/* rising bubbles */}
+          <span className="poison-bubble" style={{ width: 8, height: 8, left: "44%", bottom: "40%", animationDelay: "0s" }} />
+          <span className="poison-bubble" style={{ width: 6, height: 6, left: "52%", bottom: "35%", animationDelay: "0.8s" }} />
+          <span className="poison-bubble" style={{ width: 10, height: 10, left: "48%", bottom: "30%", animationDelay: "1.6s" }} />
+          <span className="poison-bubble" style={{ width: 5, height: 5, left: "56%", bottom: "45%", animationDelay: "2.2s" }} />
         </div>
 
         {/* Step progress dots */}

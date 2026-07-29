@@ -162,8 +162,23 @@ export default function Page() {
     // Determine effective theme (system → dark for prototype)
     const effectiveDark = themeMode !== "light";
 
-    // Force red theme on the poison screen; otherwise apply selected palette.
-    if (route === "poison") {
+    // The poison screen forces a RED theme. Inline styles override the
+    // .device--poison CSS class (inline > class), so we apply the red palette
+    // values directly here to guarantee the red theme renders.
+    const POISON_RED = {
+      primary: "#ff5252",
+      primaryFg: "#1a0000",
+      onPrimaryContainer: "#ffe5e5",
+      primaryContainer: "#5c1a1a",
+      bg: "#1a0808",
+      s1: "#240d0d",
+      s2: "#2e1414",
+      s3: "#3a1c1c",
+      s4: "#462424",
+      s5: "#522c2c",
+    };
+    const isPoison = route === "poison";
+    if (isPoison) {
       device.classList.add("device--poison");
     } else {
       device.classList.remove("device--poison");
@@ -172,21 +187,21 @@ export default function Page() {
     // Apply theme mode
     device.setAttribute("data-theme", effectiveDark ? "dark" : "light");
 
-    // Apply palette colors as CSS custom properties
+    // Apply palette colors as CSS custom properties (red palette on poison).
     const root = device;
-    root.style.setProperty("--color-primary", palette.primary);
-    root.style.setProperty("--color-primary-fg", palette.onPrimary);
-    root.style.setProperty("--color-on-primary-container", palette.onPrimaryContainer);
-    root.style.setProperty("--color-primary-container", effectiveDark ? palette.primaryContainerDark : palette.primaryContainerLight);
-    root.style.setProperty("--color-bg", effectiveDark ? palette.bgDark : palette.bgLight);
-    root.style.setProperty("--color-surface-1", effectiveDark ? palette.surface1Dark : palette.bgLight);
-    root.style.setProperty("--color-surface-2", effectiveDark ? palette.surface2Dark : palette.primaryContainerLight);
-    root.style.setProperty("--color-surface-3", effectiveDark ? palette.surface3Dark : palette.bgLight);
-    root.style.setProperty("--color-surface-4", effectiveDark ? palette.surface4Dark : palette.primaryContainerLight);
-    root.style.setProperty("--color-surface-5", effectiveDark ? palette.surface5Dark : palette.primaryContainerLight);
+    root.style.setProperty("--color-primary", isPoison ? POISON_RED.primary : palette.primary);
+    root.style.setProperty("--color-primary-fg", isPoison ? POISON_RED.primaryFg : palette.onPrimary);
+    root.style.setProperty("--color-on-primary-container", isPoison ? POISON_RED.onPrimaryContainer : palette.onPrimaryContainer);
+    root.style.setProperty("--color-primary-container", isPoison ? POISON_RED.primaryContainer : (effectiveDark ? palette.primaryContainerDark : palette.primaryContainerLight));
+    root.style.setProperty("--color-bg", isPoison ? POISON_RED.bg : (effectiveDark ? palette.bgDark : palette.bgLight));
+    root.style.setProperty("--color-surface-1", isPoison ? POISON_RED.s1 : (effectiveDark ? palette.surface1Dark : palette.bgLight));
+    root.style.setProperty("--color-surface-2", isPoison ? POISON_RED.s2 : (effectiveDark ? palette.surface2Dark : palette.primaryContainerLight));
+    root.style.setProperty("--color-surface-3", isPoison ? POISON_RED.s3 : (effectiveDark ? palette.surface3Dark : palette.bgLight));
+    root.style.setProperty("--color-surface-4", isPoison ? POISON_RED.s4 : (effectiveDark ? palette.surface4Dark : palette.primaryContainerLight));
+    root.style.setProperty("--color-surface-5", isPoison ? POISON_RED.s5 : (effectiveDark ? palette.surface5Dark : palette.primaryContainerLight));
 
     // Stage background
-    document.documentElement.style.setProperty("--stage-bg", effectiveDark ? palette.bgDark : "#e0e0e0");
+    document.documentElement.style.setProperty("--stage-bg", isPoison ? POISON_RED.bg : (effectiveDark ? palette.bgDark : "#e0e0e0"));
   }, [themeMode, palette, route]);
 
   // Wrap wizard navigation for screens (each screen receives inline handlers below).

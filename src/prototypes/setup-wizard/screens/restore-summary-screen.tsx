@@ -3,12 +3,10 @@
 /**
  * setup-wizard / screens / restore-summary-screen — Step 10 (#restore-summary).
  *
- * v2 redesign:
- *  - Top heading "Restore Backup".
- *  - Custom M3 Expressive layout (hero card with elegant inline stats),
- *    not the basic stat grid.
- *  - Restore Now → #restore-processing (NEW processing animation screen).
- *  - Fixed the "Manually linked" stat misnomer.
+ * v2.1 refinements:
+ *  - Cleaner, more proper UI redesign (rs-card + rs-stats grid).
+ *  - "Restore Backup" heading top-left.
+ *  - Restore Now → #restore-processing.
  */
 import type { ThemePalette } from "../lib/themes";
 import type { LinkedAnime } from "../hooks/use-wizard-state";
@@ -23,37 +21,49 @@ interface RestoreSummaryScreenProps {
 
 export function RestoreSummaryScreen({ active, onNext, onBack, palette, linkedAnime }: RestoreSummaryScreenProps) {
   const linkedCount = linkedAnime.filter((a) => a.linked).length;
-  const manuallyLinked = Math.max(0, linkedCount - 5); // mock: 5 auto-linked, rest manual
+  const manuallyLinked = Math.max(0, linkedCount - 5);
   const episodes = 1432;
+  const toRestore = linkedCount + 239;
 
   return (
     <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
         <div className="wizard-heading">
           <p className="wizard-screen-eyebrow">Backup Restore</p>
-          <h1 className="wizard-screen-title">Restore summary</h1>
+          <h1 className="wizard-screen-title wizard-screen-title--xl">Restore summary</h1>
           <p className="wizard-screen-sub">Ready to restore. Review the details below.</p>
         </div>
 
         <div className="wizard-body">
-          <div className="restore-hero">
-            <h2 className="restore-hero__title">Ready to restore your library</h2>
-            <div className="restore-hero__stats">
-              <div className="restore-hero__stat">
-                <span className="restore-hero__stat-value">{linkedCount + 239}</span>
-                <span className="restore-hero__stat-label">Anime to restore</span>
+          <div className="rs-card">
+            <div className="rs-card__header">
+              <span className="rs-card__icon">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="M7 10l5 5 5-5" /><path d="M12 15V3" />
+                </svg>
+              </span>
+              <div>
+                <p className="rs-card__title">Ready to restore</p>
+                <p className="rs-card__sub">Your library will be overwritten with the backup data.</p>
               </div>
-              <div className="restore-hero__stat">
-                <span className="restore-hero__stat-value">{linkedCount}</span>
-                <span className="restore-hero__stat-label">Auto-linked</span>
+            </div>
+
+            <div className="rs-stats">
+              <div className="rs-stat">
+                <span className="rs-stat__value">{toRestore}</span>
+                <span className="rs-stat__label">Anime to restore</span>
               </div>
-              <div className="restore-hero__stat">
-                <span className="restore-hero__stat-value">{manuallyLinked}</span>
-                <span className="restore-hero__stat-label">Manually linked</span>
+              <div className="rs-stat">
+                <span className="rs-stat__value">{linkedCount}</span>
+                <span className="rs-stat__label">Auto-linked</span>
               </div>
-              <div className="restore-hero__stat">
-                <span className="restore-hero__stat-value">{episodes.toLocaleString()}</span>
-                <span className="restore-hero__stat-label">Episodes</span>
+              <div className="rs-stat">
+                <span className="rs-stat__value">{manuallyLinked}</span>
+                <span className="rs-stat__label">Manually linked</span>
+              </div>
+              <div className="rs-stat">
+                <span className="rs-stat__value">{episodes.toLocaleString()}</span>
+                <span className="rs-stat__label">Episodes</span>
               </div>
             </div>
           </div>

@@ -21,16 +21,16 @@ interface RestoreScreenProps {
 
 export function RestoreScreen({ active, onNext, onBack, onSkip, palette }: RestoreScreenProps) {
   return (
-    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+    <div className={`wizard-step wizard-step--v2 wizard-step--anim-first ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
+        <div className="wizard-visual" key={active ? "on" : "off"}>
+          <RestoreVisual />
+        </div>
+
         <div className="wizard-heading">
           <p className="wizard-screen-eyebrow">Restore</p>
           <h1 className="wizard-screen-title">Restore backup</h1>
           <p className="wizard-screen-sub">Got a backup from a previous install? Restore your library, history, and settings in one tap.</p>
-        </div>
-
-        <div className="wizard-visual" key={active ? "on" : "off"}>
-          <RestoreVisual />
         </div>
 
         <div className="wizard-body">

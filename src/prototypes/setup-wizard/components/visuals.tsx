@@ -131,40 +131,60 @@ export function FolderVisual({ selected = false }: { selected?: boolean }) {
   return (
     <svg viewBox="0 0 200 200" width="100%" height="100%" style={{ overflow: "visible" }} aria-hidden="true">
       <style>{`
-        @keyframes fv-${id}-bob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(-0.8deg); } }
+        @keyframes fv-${id}-bob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-5px) rotate(-1deg); } }
+        @keyframes fv-${id}-float1 { 0%,100% { transform: translate(0,0) rotate(-6deg); } 50% { transform: translate(2px,-8px) rotate(-2deg); } }
+        @keyframes fv-${id}-float2 { 0%,100% { transform: translate(0,0) rotate(8deg); } 50% { transform: translate(-3px,-6px) rotate(4deg); } }
+        @keyframes fv-${id}-float3 { 0%,100% { transform: translate(0,0) rotate(-3deg); } 50% { transform: translate(3px,-10px) rotate(1deg); } }
         @keyframes fv-${id}-pop { 0% { transform: scale(0); opacity: 0; } 60% { transform: scale(1.18); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
         @keyframes fv-${id}-twinkle { 0%,100% { opacity: 0.2; } 50% { opacity: 0.8; } }
         .fv-${id}-folder { transform-origin: 100px 120px; animation: fv-${id}-bob 3.6s ease-in-out infinite; }
-        .fv-${id}-badge { transform-origin: 150px 80px; animation: fv-${id}-pop 0.5s var(--ease-emphasized-decel, cubic-bezier(.05,.7,.1,1)) both; }
+        .fv-${id}-file1 { transform-origin: 138px 60px; animation: fv-${id}-float1 4.5s ease-in-out infinite; }
+        .fv-${id}-file2 { transform-origin: 50px 54px; animation: fv-${id}-float2 5.2s ease-in-out infinite; }
+        .fv-${id}-file3 { transform-origin: 150px 130px; animation: fv-${id}-float3 4.8s ease-in-out infinite 0.5s; }
+        .fv-${id}-badge { transform-origin: 150px 78px; animation: fv-${id}-pop 0.5s var(--ease-emphasized-decel, cubic-bezier(.05,.7,.1,1)) both; }
         .fv-${id}-spark { animation: fv-${id}-twinkle 2.4s ease-in-out infinite; }
-        @media (prefers-reduced-motion: reduce) { .fv-${id}-folder,.fv-${id}-badge,.fv-${id}-spark { animation: none !important; } }
+        @media (prefers-reduced-motion: reduce) { .fv-${id}-folder,.fv-${id}-file1,.fv-${id}-file2,.fv-${id}-file3,.fv-${id}-badge,.fv-${id}-spark { animation: none !important; } }
       `}</style>
-      <Glow cx={100} cy={120} r={56} color="var(--color-primary)" opacity={0.22} />
+      <Glow cx={100} cy={120} r={58} color="var(--color-primary)" opacity={0.22} />
 
-      <g className={`fv-${id}-folder`}>
-        {/* folder tab */}
-        <path d="M44 92 Q44 84 52 84 L84 84 L92 92 L148 92 Q156 92 156 100 L156 152 Q156 160 148 160 L52 160 Q44 160 44 152 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2" strokeLinejoin="round" />
-        {/* inner file lines */}
-        <rect x="60" y="108" width="80" height="4" rx="2" fill="var(--color-primary)" opacity="0.5" />
-        <rect x="60" y="120" width="60" height="4" rx="2" fill="var(--color-primary)" opacity="0.3" />
-        <rect x="60" y="132" width="70" height="4" rx="2" fill="var(--color-primary)" opacity="0.3" />
-        {/* highlight */}
-        <path d="M44 92 Q44 84 52 84 L84 84 L92 92" fill="none" stroke="var(--color-primary)" strokeWidth="1.5" opacity="0.6" />
+      {/* floating file cards (behind + in front of folder) */}
+      <g className={`fv-${id}-file2`} opacity="0.9">
+        <rect x="38" y="40" width="24" height="32" rx="3" fill="var(--color-surface-4)" stroke="var(--color-tertiary, #ccc)" strokeWidth="1" />
+        <rect x="42" y="46" width="16" height="2.5" rx="1.25" fill="var(--color-tertiary, #ccc)" opacity="0.7" />
+        <rect x="42" y="52" width="12" height="2.5" rx="1.25" fill="var(--color-tertiary, #ccc)" opacity="0.5" />
+      </g>
+      <g className={`fv-${id}-file1`} opacity="0.95">
+        <rect x="126" y="44" width="26" height="34" rx="3" fill="var(--color-surface-5)" stroke="var(--color-primary)" strokeWidth="1.2" />
+        <rect x="130" y="50" width="18" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.6" />
+        <rect x="130" y="56" width="14" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.4" />
       </g>
 
-      {/* floating file cards */}
-      <g opacity="0.85">
-        <rect x="120" y="44" width="26" height="34" rx="3" fill="var(--color-surface-4)" stroke="var(--color-tertiary, #ccc)" strokeWidth="1" />
-        <rect x="124" y="50" width="18" height="3" rx="1.5" fill="var(--color-tertiary, #ccc)" opacity="0.6" />
+      <g className={`fv-${id}-folder`}>
+        {/* folder body with tab */}
+        <path d="M40 90 Q40 82 48 82 L82 82 L90 90 L152 90 Q160 90 160 98 L160 156 Q160 164 152 164 L48 164 Q40 164 40 156 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.2" strokeLinejoin="round" />
+        {/* gradient sheen on the tab */}
+        <path d="M40 90 Q40 82 48 82 L82 82 L90 90" fill="none" stroke="var(--color-primary)" strokeWidth="1.5" opacity="0.7" />
+        {/* inner content lines (files inside the folder) */}
+        <rect x="56" y="104" width="88" height="5" rx="2.5" fill="var(--color-primary)" opacity="0.55" />
+        <rect x="56" y="116" width="68" height="5" rx="2.5" fill="var(--color-primary)" opacity="0.35" />
+        <rect x="56" y="128" width="78" height="5" rx="2.5" fill="var(--color-primary)" opacity="0.35" />
+        <rect x="56" y="140" width="60" height="5" rx="2.5" fill="var(--color-primary)" opacity="0.35" />
+      </g>
+
+      {/* floating file in front (bottom-right) */}
+      <g className={`fv-${id}-file3`} opacity="0.85">
+        <rect x="138" y="116" width="24" height="32" rx="3" fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth="1.2" />
+        <rect x="142" y="122" width="16" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.5" />
+        <rect x="142" y="128" width="12" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
       </g>
 
       <circle className={`fv-${id}-spark`} cx="56" cy="70" r="2" fill="var(--color-primary)" />
-      <circle className={`fv-${id}-spark`} cx="160" cy="120" r="1.8" fill="var(--color-primary)" style={{ animationDelay: "0.8s" }} />
+      <circle className={`fv-${id}-spark`} cx="160" cy="100" r="1.8" fill="var(--color-primary)" style={{ animationDelay: "0.8s" }} />
 
       {selected && (
         <g className={`fv-${id}-badge`}>
-          <circle cx="150" cy="80" r="20" fill="var(--color-primary)" />
-          <path d="M141 80 L148 87 L160 73" fill="none" stroke="var(--color-bg)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+          <circle cx="150" cy="78" r="20" fill="var(--color-primary)" />
+          <path d="M141 78 L148 85 L160 71" fill="none" stroke="var(--color-bg)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
         </g>
       )}
     </svg>

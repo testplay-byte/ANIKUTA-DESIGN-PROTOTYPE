@@ -3,11 +3,10 @@
 /**
  * setup-wizard / screens / permissions-screen — Step 3 (#permissions).
  *
- * v2 redesign:
- *  - Top-left heading "Grant Permissions".
- *  - Calmer shield visual (fewer particles, cleaner ripples).
- *  - One-line descriptions (truncated with ellipsis).
- *  - Added "All files access" permission, marked "not needed" (locked off).
+ * v2.1 refinements:
+ *  - Animation-first layout: animation at top, "Grant permissions" heading
+ *    BELOW the animation, "optional" subtitle below that.
+ *  - All files access is now a real USER toggle (was locked "not needed").
  */
 import type { ThemePalette } from "../lib/themes";
 import type { Permissions } from "../hooks/use-wizard-state";
@@ -27,7 +26,6 @@ const PERM_ROWS: {
   title: string;
   desc: string;
   icon: React.ReactNode;
-  disabled?: boolean;
 }[] = [
   {
     key: "installApps",
@@ -50,34 +48,31 @@ const PERM_ROWS: {
   {
     key: "allFilesAccess",
     title: "All files access",
-    desc: "Not needed — leave off",
+    desc: "Access all files on your device",
     icon: (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" /></svg>),
-    disabled: true,
   },
 ];
 
 export function PermissionsScreen({ active, onNext, onBack, permissions, togglePermission, palette }: PermissionsScreenProps) {
   return (
-    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+    <div className={`wizard-step wizard-step--v2 wizard-step--anim-first ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        <div className="wizard-heading">
-          <p className="wizard-screen-eyebrow">Permissions</p>
-          <h1 className="wizard-screen-title">Grant permissions</h1>
-          <p className="wizard-screen-sub">Optional — you can skip these and enable them later in settings.</p>
-        </div>
-
         <div className="wizard-visual" key={active ? "on" : "off"}>
           <PermissionsVisual />
+        </div>
+
+        <div className="wizard-heading">
+          <h1 className="wizard-screen-title">Grant permissions</h1>
+          <p className="wizard-screen-sub">Optional — you can skip these and enable them later in settings.</p>
         </div>
 
         <div className="wizard-body">
           {PERM_ROWS.map((row, i) => {
             const isOn = permissions[row.key];
-            const disabled = row.disabled;
             return (
               <div
                 key={row.key}
-                className={`perm-row perm-row--v2 ${disabled ? "perm-row--disabled" : ""}`}
+                className="perm-row perm-row--v2"
                 style={{ animation: `slideInLeft 0.4s var(--ease-emphasized-decel) ${0.1 * i + 0.15}s backwards` }}
               >
                 <div className="perm-icon" style={isOn ? { background: palette.primary, color: palette.onPrimary } : undefined}>
@@ -87,18 +82,14 @@ export function PermissionsScreen({ active, onNext, onBack, permissions, toggleP
                   <p className="perm-title">{row.title}</p>
                   <p className="perm-desc">{row.desc}</p>
                 </div>
-                {disabled ? (
-                  <span className="perm-notneeded-tag">Not needed</span>
-                ) : (
-                  <button
-                    role="switch"
-                    aria-checked={isOn}
-                    aria-label={`Toggle ${row.title}`}
-                    className={`perm-toggle ${isOn ? "perm-toggle--on" : ""}`}
-                    onClick={() => togglePermission(row.key)}
-                    style={isOn ? { background: palette.primary } : undefined}
-                  />
-                )}
+                <button
+                  role="switch"
+                  aria-checked={isOn}
+                  aria-label={`Toggle ${row.title}`}
+                  className={`perm-toggle ${isOn ? "perm-toggle--on" : ""}`}
+                  onClick={() => togglePermission(row.key)}
+                  style={isOn ? { background: palette.primary } : undefined}
+                />
               </div>
             );
           })}

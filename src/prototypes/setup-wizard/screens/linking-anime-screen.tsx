@@ -63,35 +63,36 @@ export function LinkingAnimeScreen({ active, onNext, onBack, palette, linkedAnim
   }
 
   return (
-    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+    <div className={`wizard-step wizard-step--v2 wizard-step--linking ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
         <div className="wizard-heading">
-          <p className="wizard-screen-eyebrow">Backup Restore</p>
-          <h1 className="wizard-screen-title">Linking anime</h1>
+          <p className="wizard-screen-eyebrow" style={{ fontSize: "var(--fs-label)", letterSpacing: "0.08em" }}>Backup Restore</p>
+          <h1 className="wizard-screen-title wizard-screen-title--xl">Linking anime</h1>
           <p className="wizard-screen-sub">Matching your backup entries</p>
         </div>
 
-        <div className="wizard-body">
-          {/* Four stat headings */}
-          <div className="linking-stats">
-            <div className="linking-stat linking-stat--linked">
-              <span className="linking-stat__value">{linkedCount}</span>
-              <span className="linking-stat__label">Linked</span>
-            </div>
-            <div className="linking-stat linking-stat--nomatch">
-              <span className="linking-stat__value">{unlinkedCount}</span>
-              <span className="linking-stat__label">No match</span>
-            </div>
-            <div className="linking-stat linking-stat--total">
-              <span className="linking-stat__value">{total}</span>
-              <span className="linking-stat__label">Total</span>
-            </div>
-            <div className="linking-stat linking-stat--remaining">
-              <span className="linking-stat__value">{remaining}</span>
-              <span className="linking-stat__label">Remaining</span>
-            </div>
+        {/* Four stat headings — fixed (not in scroll area) */}
+        <div className="linking-stats">
+          <div className="linking-stat linking-stat--linked">
+            <span className="linking-stat__value">{linkedCount}</span>
+            <span className="linking-stat__label">Linked</span>
           </div>
+          <div className="linking-stat linking-stat--nomatch">
+            <span className="linking-stat__value">{unlinkedCount}</span>
+            <span className="linking-stat__label">No match</span>
+          </div>
+          <div className="linking-stat linking-stat--total">
+            <span className="linking-stat__value">{total}</span>
+            <span className="linking-stat__label">Total</span>
+          </div>
+          <div className="linking-stat linking-stat--remaining">
+            <span className="linking-stat__value">{remaining}</span>
+            <span className="linking-stat__label">Remaining</span>
+          </div>
+        </div>
 
+        <div className="wizard-body">
+          {/* List — scrollable; header (above) + footer (below) stay fixed */}
           {/* List — fills available space */}
           <div className="linking-list">
             {linkedAnime.slice(0, revealedCount).map((anime, i) => (

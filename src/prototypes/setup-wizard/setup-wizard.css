@@ -403,18 +403,21 @@
 
 .perm-toggle {
   flex: 0 0 auto;
-  width: 44px;
-  height: 26px;
+  width: 46px;
+  height: 28px;
   border-radius: var(--r-pill);
   border: none;
   cursor: pointer;
   position: relative;
-  transition: background 0.2s var(--ease-emphasized);
-  background: var(--color-surface-4);
+  transition: background 0.2s var(--ease-emphasized), box-shadow 0.2s var(--ease-standard);
+  /* Off state: a visible track with inset shadow so it reads in BOTH themes */
+  background: var(--color-surface-3);
+  box-shadow: inset 0 0 0 1px var(--color-surface-5), inset 0 1px 3px rgba(0,0,0,0.25);
 }
 
 .perm-toggle--on {
   background: var(--color-primary);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 70%, transparent), 0 2px 8px color-mix(in srgb, var(--color-primary) 35%, transparent);
 }
 
 .perm-toggle::after {
@@ -422,11 +425,13 @@
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: var(--color-text);
-  transition: transform 0.2s var(--ease-emphasized);
+  /* Knob: muted off, white-ish with subtle shadow so it's visible on any track */
+  background: var(--color-text-muted);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  transition: transform 0.2s var(--ease-emphasized), background 0.2s var(--ease-standard);
 }
 
 .perm-toggle--on::after {
@@ -1156,4 +1161,310 @@
 .finish-summary__label { color: var(--color-text-muted); }
 .finish-summary__value { color: var(--color-text); font-weight: 700; }
 .finish-summary__value b { color: var(--color-primary); font-weight: 800; }
+
+/* =========================================================================
+   v2.1 REFINEMENTS (per second round of user feedback)
+   - Bigger/bolder prominent headings (--xl variant)
+   - Animation-first layout (animation at top, heading below it)
+   - Format screen: big/bold/centered message
+   - Linking screen: fixed header + scrollable list + fixed footer
+   - Mini preview: true smartphone aspect ratio + feel
+   - Poison: fun animations + guaranteed red theme
+   - Restore summary: cleaner redesign
+   - Manual search overlay: centered search, modern
+   ========================================================================= */
+
+/* ---- Bigger prominent heading (welcome, linking) ---- */
+.wizard-screen-title--xl {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+}
+
+/* ---- Animation-first layout: animation at top, heading BELOW it ---- */
+.wizard-step--anim-first .wizard-content {
+  justify-content: flex-start;
+  padding-top: var(--sp-3);
+}
+.wizard-step--anim-first .wizard-visual {
+  order: 0;
+  margin: var(--sp-2) auto var(--sp-1);
+}
+.wizard-step--anim-first .wizard-heading {
+  order: 1;
+  align-items: center;
+  text-align: center;
+}
+.wizard-step--anim-first .wizard-heading .wizard-screen-eyebrow {
+  align-self: center;
+}
+.wizard-step--anim-first .wizard-screen-sub {
+  align-self: center;
+  text-align: center;
+  max-width: 30ch;
+}
+.wizard-step--anim-first .wizard-body {
+  order: 2;
+}
+
+/* ---- Welcome screen: big hero heading, no list ---- */
+.welcome-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  text-align: center;
+  animation: titleSlideUp 0.5s var(--ease-emphasized-decel) 0.15s backwards;
+}
+.welcome-hero__title {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  color: var(--color-text);
+  margin: 0;
+}
+.welcome-hero__sub {
+  font-size: var(--fs-body-l);
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 26ch;
+}
+
+/* ---- Mini preview: true smartphone aspect ratio (~9:19.5) + bezel ---- */
+.mini-preview {
+  width: 150px;
+  height: 300px;
+  border-radius: 26px;
+  background: #050505;
+  border: none;
+  padding: 5px;
+  box-shadow: 0 12px 36px rgba(0,0,0,0.45), 0 0 0 1.5px var(--color-surface-5), inset 0 0 0 1px rgba(255,255,255,0.04);
+}
+.mini-preview__notch {
+  top: 10px;
+  width: 46px;
+  height: 7px;
+  border-radius: 999px;
+  background: #000;
+  z-index: 7;
+}
+.mini-preview__screen {
+  inset: 5px;
+  border-radius: 22px;
+  background: var(--color-bg);
+}
+.mini-preview__view { padding: 22px 9px 8px; gap: 6px; }
+/* hide the bottom label per user request */
+.mini-preview__label { display: none; }
+
+/* ---- Format screen: big bold centered message ---- */
+.format-message {
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.35;
+  color: var(--color-text);
+  text-align: center;
+  align-self: stretch;
+  animation: titleSlideUp 0.5s var(--ease-emphasized-decel) 0.2s backwards;
+}
+.format-message__sub {
+  display: block;
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0;
+}
+
+/* ---- Linking screen: fixed header + scrollable list + fixed footer ---- */
+.wizard-step--linking .wizard-content {
+  padding-bottom: 0;
+}
+.wizard-step--linking .wizard-heading {
+  flex: 0 0 auto;
+}
+.wizard-step--linking .linking-stats {
+  flex: 0 0 auto;
+}
+.wizard-step--linking .wizard-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.wizard-step--linking .linking-list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+
+/* ---- Poison: fun animations + guaranteed red ---- */
+.poison-hero {
+  position: relative;
+  width: 180px;
+  height: 180px;
+  align-self: center;
+  margin: var(--sp-2) auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.poison-bottle {
+  width: 100px;
+  height: 140px;
+  position: relative;
+  animation: poison-bob 3s ease-in-out infinite;
+  filter: drop-shadow(0 8px 20px rgba(255,82,82,0.35));
+}
+@keyframes poison-bob {
+  0%,100% { transform: translateY(0) rotate(-2deg); }
+  50% { transform: translateY(-6px) rotate(2deg); }
+}
+.poison-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-primary) 50%, transparent);
+  animation: poison-rise 3.5s ease-in infinite;
+  opacity: 0;
+}
+@keyframes poison-rise {
+  0% { transform: translateY(0) scale(0.5); opacity: 0; }
+  20% { opacity: 0.8; }
+  100% { transform: translateY(-80px) scale(1.1); opacity: 0; }
+}
+.poison-glow {
+  position: absolute;
+  inset: -20px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-primary) 35%, transparent), transparent 70%);
+  animation: poison-pulse 2.4s ease-in-out infinite;
+}
+@keyframes poison-pulse {
+  0%,100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.15); opacity: 0.8; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .poison-bottle, .poison-bubble, .poison-glow { animation: none !important; }
+}
+
+/* ---- Restore summary: cleaner redesign ---- */
+.rs-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-radius: var(--r-lg);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-surface-3);
+  align-self: stretch;
+  animation: cardEntry 0.5s var(--ease-emphasized-decel) backwards;
+}
+.rs-card__header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.rs-card__icon {
+  flex: 0 0 auto;
+  width: 40px; height: 40px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--color-primary) 16%, transparent);
+  color: var(--color-primary);
+}
+.rs-card__title { font-size: var(--fs-body-l); font-weight: 800; color: var(--color-text); margin: 0; }
+.rs-card__sub { font-size: 11px; color: var(--color-text-muted); margin: 0; }
+.rs-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--color-surface-3);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.rs-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 14px;
+  background: var(--color-surface-2);
+}
+.rs-stat__value { font-size: 20px; font-weight: 800; color: var(--color-primary); font-variant-numeric: tabular-nums; line-height: 1; }
+.rs-stat__label { font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--color-text-muted); }
+
+/* ---- Manual search overlay: centered, modern ---- */
+.search-overlay--v2 {
+  padding: var(--sp-5) var(--sp-4) var(--sp-4);
+}
+.search-overlay--v2 .search-overlay__header {
+  border: none;
+  padding: 0;
+  justify-content: center;
+  margin-bottom: var(--sp-4);
+}
+.search-overlay--v2 .search-overlay__back {
+  position: absolute;
+  top: var(--sp-4);
+  left: var(--sp-4);
+}
+.search-overlay--v2 .search-overlay__title {
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  color: var(--color-text);
+  margin: 0;
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+.search-overlay--v2 .search-overlay__input-wrap {
+  max-width: 320px;
+  margin: 0 auto var(--sp-3);
+  width: 100%;
+}
+.search-overlay--v2 .search-overlay__input {
+  height: 48px;
+  font-size: 14px;
+  padding-left: 44px;
+}
+.search-overlay--v2 .search-overlay__input-icon { left: 15px; }
+.search-overlay--v2 .search-overlay__info {
+  text-align: center;
+  padding: 0 var(--sp-4) var(--sp-3);
+}
+.search-overlay--v2 .search-overlay__results {
+  max-width: 340px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ---- Finish screen refinements ---- */
+.finish-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  text-align: center;
+}
+.finish-hero__title {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  margin: 0;
+  background: linear-gradient(135deg, var(--color-primary), color-mix(in srgb, var(--color-primary) 60%, var(--color-text)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+.finish-hero__sub {
+  font-size: var(--fs-body);
+  color: var(--color-text-muted);
+  margin: 0;
+  line-height: 1.5;
+  max-width: 28ch;
+}
 

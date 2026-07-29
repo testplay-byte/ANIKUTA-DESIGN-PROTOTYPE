@@ -3,15 +3,14 @@
 /**
  * setup-wizard / screens / theme-screen — Step 1 (#theme).
  *
- * v2 redesign:
- *  - Top-left heading.
- *  - Mini live anime-app preview (auto-navigates home/library/search/
- *    settings/detail/player) replaces the old rotating-dots visual.
- *  - Theme options in a horizontal carousel (single row), not a 3-col grid.
- *  - More customization options: bold-text + reduced-motion toggles.
- *  - Bold-rendering fix applied globally (see setup-wizard.css .device).
+ * v2.1 refinements:
+ *  - Improved heading (bigger, bolder, prominent).
+ *  - Mini live preview now has a true smartphone aspect ratio + bezel feel
+ *    (CSS .mini-preview). Screen-name label at bottom removed (CSS hides it).
+ *  - Removed the Bold-text + Reduced-motion toggles (irrelevant, user said
+ *    they don't need to be shown).
+ *  - Kept: mode toggle + horizontal palette carousel.
  */
-import { useState } from "react";
 import type { ThemeMode, ThemePalette } from "../lib/themes";
 import { PALETTES } from "../lib/themes";
 import { MiniAnimePreview } from "../components/mini-anime-preview";
@@ -45,20 +44,16 @@ const MODE_OPTIONS = [
 ];
 
 export function ThemeScreen({ active, onNext, onBack, themeMode, setThemeMode, palette, setPalette }: ThemeScreenProps) {
-  // Local cosmetic customization (not persisted — prototype-only).
-  const [boldText, setBoldText] = useState(true);
-  const [reducedMotion, setReducedMotion] = useState(false);
-
   return (
     <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
         <div className="wizard-heading">
           <p className="wizard-screen-eyebrow">Theme</p>
-          <h1 className="wizard-screen-title">Choose your theme</h1>
+          <h1 className="wizard-screen-title wizard-screen-title--xl">Choose your theme</h1>
           <p className="wizard-screen-sub">Pick a mode and a color. You can change this anytime in settings.</p>
         </div>
 
-        {/* Mini live preview — auto-navigates through the anime app screens */}
+        {/* Mini live preview — true smartphone aspect ratio + bezel (CSS), no bottom label */}
         <MiniAnimePreview />
 
         <div className="wizard-body">
@@ -97,36 +92,6 @@ export function ThemeScreen({ active, onNext, onBack, themeMode, setThemeMode, p
                 <span className="palette-carousel__name">{p.name}</span>
               </button>
             ))}
-          </div>
-
-          {/* Extra customization toggles */}
-          <div className="wizard-toggle-row" style={{ animationDelay: "0.3s" }}>
-            <span className="wizard-toggle-row__text">
-              <span className="wizard-toggle-row__title">Bold text</span>
-              <span className="wizard-toggle-row__desc">Heavier headings everywhere</span>
-            </span>
-            <button
-              role="switch"
-              aria-checked={boldText}
-              aria-label="Toggle bold text"
-              className={`perm-toggle ${boldText ? "perm-toggle--on" : ""}`}
-              onClick={() => setBoldText((v) => !v)}
-              style={boldText ? { background: palette.primary } : undefined}
-            />
-          </div>
-          <div className="wizard-toggle-row" style={{ animationDelay: "0.4s" }}>
-            <span className="wizard-toggle-row__text">
-              <span className="wizard-toggle-row__title">Reduced motion</span>
-              <span className="wizard-toggle-row__desc">Calmer animations</span>
-            </span>
-            <button
-              role="switch"
-              aria-checked={reducedMotion}
-              aria-label="Toggle reduced motion"
-              className={`perm-toggle ${reducedMotion ? "perm-toggle--on" : ""}`}
-              onClick={() => setReducedMotion((v) => !v)}
-              style={reducedMotion ? { background: palette.primary } : undefined}
-            />
           </div>
         </div>
       </div>

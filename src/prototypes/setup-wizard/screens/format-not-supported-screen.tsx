@@ -62,10 +62,9 @@ export function FormatNotSupportedScreen({ active, onNext, onBack, palette }: Fo
         </div>
 
         <div className="wizard-body">
-          <p className="wizard-screen-sub" style={{ fontSize: "var(--fs-body)", color: "var(--color-text)", fontWeight: 600, maxWidth: "none" }}>
+          <p className="format-message">
             This is not the format I was expecting.
-            <br />
-            <span style={{ color: "var(--color-text-muted)", fontWeight: 500 }}>Still, I can try to restore from it properly.</span>
+            <span className="format-message__sub">Still, I can try to restore from it properly.</span>
           </p>
 
           {/* File details card */}

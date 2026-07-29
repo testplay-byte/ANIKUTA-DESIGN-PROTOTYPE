@@ -36,28 +36,23 @@ export function FinishScreen({ active, onRestart, palette, themeMode, folderSele
 
   return (
     <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
-      <div className="wizard-content" style={{ position: "relative", zIndex: 2 }}>
-        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
-          <span className="finish-badge" style={{ background: `${palette.primary}22`, color: palette.primary, animation: "scaleIn 0.5s var(--ease-emphasized-decel) 0.1s backwards", alignSelf: "center" }}>
+      <div className="wizard-content" style={{ position: "relative", zIndex: 2, justifyContent: "center" }}>
+        <div className="wizard-visual wizard-visual--lg" key={active ? "on" : "off"} style={{ animation: "scaleIn 0.6s var(--ease-emphasized-decel) 0.2s backwards, float 4s ease-in-out 0.8s infinite" }}>
+          <FinishVisual />
+        </div>
+
+        <div className="finish-hero">
+          <span className="finish-badge" style={{ background: `${palette.primary}22`, color: palette.primary, animation: "scaleIn 0.5s var(--ease-emphasized-decel) 0.1s backwards" }}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
               <path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6-6.3 4.6L7.9 14l-6-4.6h7.6z" />
             </svg>
             Setup complete
           </span>
-          <h1 className="wizard-screen-title" style={{ fontSize: 32, background: `linear-gradient(135deg, ${palette.primary}, ${palette.primary}aa)`, WebkitBackgroundClip: "text", backgroundClip: "text", WebkitTextFillColor: "transparent", color: "transparent", animation: "titleSlideUp 0.5s var(--ease-emphasized-decel) 0.4s backwards" }}>
-            You&apos;re all set!
-          </h1>
-        </div>
-
-        <div className="wizard-visual wizard-visual--lg" key={active ? "on" : "off"} style={{ animation: "scaleIn 0.6s var(--ease-emphasized-decel) 0.2s backwards, float 4s ease-in-out 0.8s infinite" }}>
-          <FinishVisual />
+          <h1 className="finish-hero__title">You&apos;re all set!</h1>
+          <p className="finish-hero__sub">Your anime journey begins now. Explore thousands of titles, track your progress, and never miss a new episode.</p>
         </div>
 
         <div className="wizard-body">
-          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center", animation: "titleSlideUp 0.5s var(--ease-emphasized-decel) 0.55s backwards" }}>
-            Your anime journey begins now. Enjoy exploring thousands of titles, tracking your progress, and never missing a new episode.
-          </p>
-
           {/* Config summary — gives the screen substance (not minimal) */}
           <div className="finish-summary">
             <div className="finish-summary__row">
