@@ -958,6 +958,8 @@ fun RestoreSummaryScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>,
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            DescriptiveTitle("Restore summary", modifier = Modifier.fillMaxWidth())
+            Subtitle("Ready to restore. Review the details below.", modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
             Spacer(Modifier.height(8.dp))
             // Hero card
             Column(
@@ -1004,6 +1006,16 @@ fun RestoreSummaryScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>,
                 fontWeight = FontWeight.Bold)
                     }
                 }
+            }
+            Spacer(Modifier.height(8.dp))
+            // Warning note
+            Row(
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(palette.primary.copy(alpha = 0.07f)).border(1.dp, palette.primary.copy(alpha = 0.33f), RoundedCornerShape(16.dp)).padding(11.dp),
+                verticalAlignment = Alignment.Top
+            ) {
+                Icon(Icons.Default.Info, null, tint = palette.primary, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(10.dp))
+                Text("This will overwrite any existing library data. The restore process may take a few moments.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 12.sp, fontFamily = RobotoFamily)
             }
         }
         // Fixed footer
