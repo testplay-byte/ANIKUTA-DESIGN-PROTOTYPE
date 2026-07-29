@@ -1430,6 +1430,325 @@ export default function Page() {
                 </a>
               </div>
             </article>
+
+            {/* ===== ANIKUTA (anime-first app, 12 screens, lime green) ===== */}
+            <article className="show">
+              <div className="show__info show__info--left">
+                <span className="tag tag--status">review</span>
+                <h3 className="show__name">ANIKUTA</h3>
+                <p className="show__desc">
+                  An anime-first app prototype with 12 interactive screens:
+                  Home, Library, Search, Anime Details, Watch, History,
+                  Updates, Profile/My, More, Backup &amp; Restore, Downloads,
+                  and Extensions. Lime green (#B1F256) primary on
+                  purple-tinted dark surfaces. Floating pill bottom nav,
+                  blurred cover headers, watched-episode grayscale+blur,
+                  accent-colored uppercase section headers, 2/3-way
+                  segmented toggles, and no-drag-handle bottom sheets. Full
+                  hash routing (#home, #library, #search, #animedetails, and
+                  #watch, etc.) like the anime-app prototype.
+                </p>
+                <div className="tags">
+                  <span className="tag">Lime</span>
+                  <span className="tag">12 screens</span>
+                  <span className="tag">Hash routing</span>
+                  <span className="tag">Mock data</span>
+                </div>
+              </div>
+              <a
+                className="phone"
+                href="prototypes/anikuta/"
+                aria-label="Open ANIKUTA prototype"
+                style={{
+                  borderColor: "#1f2a14",
+                  background: "linear-gradient(160deg, #14111f, #1f2a14)",
+                }}
+              >
+                <span className="phone__screen" style={{ background: "#14111f" }}>
+                  <span
+                    className="phone__statusbar"
+                    style={{ color: "#ece6f5" }}
+                  >
+                    <span>9:41</span>
+                    <span className="phone__punchhole" />
+                    <span>87%</span>
+                  </span>
+                  {/* Topbar title */}
+                  <span
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "6px 12px 4px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        fontSize: 18,
+                        fontWeight: 800,
+                        color: "#ece6f5",
+                        letterSpacing: "-0.02em",
+                      }}
+                    >
+                      Home
+                    </span>
+                    <span style={{ display: "flex", gap: 4 }}>
+                      <span
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          background: "#1b1729",
+                          display: "inline-block",
+                        }}
+                      />
+                      <span
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          background: "#1b1729",
+                          display: "inline-block",
+                        }}
+                      />
+                    </span>
+                  </span>
+                  {/* Hero gradient card */}
+                  <span
+                    style={{
+                      display: "block",
+                      margin: "0 12px 8px",
+                      height: 56,
+                      borderRadius: 12,
+                      background:
+                        "linear-gradient(135deg, #344e41, #588157, #a3b18a)",
+                      position: "relative",
+                    }}
+                  >
+                    <span
+                      style={{
+                        position: "absolute",
+                        bottom: 5,
+                        left: 8,
+                        fontSize: 8,
+                        fontWeight: 800,
+                        color: "#14111f",
+                        background: "#b1f256",
+                        padding: "1px 5px",
+                        borderRadius: 999,
+                      }}
+                    >
+                      ★ TRENDING
+                    </span>
+                  </span>
+                  {/* Section header */}
+                  <span
+                    style={{
+                      display: "block",
+                      padding: "0 12px 4px",
+                      fontSize: 8,
+                      fontWeight: 800,
+                      color: "#b1f256",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.06em",
+                    }}
+                  >
+                    Popular This Season
+                  </span>
+                  {/* 3-col grid of cover cards */}
+                  <span
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr 1fr",
+                      gap: 4,
+                      padding: "0 12px",
+                    }}
+                  >
+                    <span
+                      style={{
+                        aspectRatio: "2/3",
+                        borderRadius: 6,
+                        background:
+                          "linear-gradient(135deg, #9d0208, #dc2f02, #f48c06)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        aspectRatio: "2/3",
+                        borderRadius: 6,
+                        background:
+                          "linear-gradient(135deg, #03045e, #023e8a, #0077b6)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        aspectRatio: "2/3",
+                        borderRadius: 6,
+                        background:
+                          "linear-gradient(135deg, #10002b, #240046, #5a189a)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        aspectRatio: "2/3",
+                        borderRadius: 6,
+                        background:
+                          "linear-gradient(135deg, #2d3a1f, #5a6e3a, #9ab87a)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        aspectRatio: "2/3",
+                        borderRadius: 6,
+                        background:
+                          "linear-gradient(135deg, #d62828, #f77f00, #fcbf49)",
+                      }}
+                    />
+                    <span
+                      style={{
+                        aspectRatio: "2/3",
+                        borderRadius: 6,
+                        background:
+                          "linear-gradient(135deg, #6a040f, #9d0208, #e85d04)",
+                      }}
+                    />
+                  </span>
+                  {/* Floating pill bottom nav */}
+                  <span
+                    style={{
+                      position: "absolute",
+                      bottom: 10,
+                      left: 12,
+                      right: 12,
+                      height: 32,
+                      borderRadius: 16,
+                      background: "#2a2540",
+                      display: "flex",
+                      alignItems: "center",
+                      padding: "0 6px",
+                      gap: 4,
+                      boxShadow: "0 6px 16px rgba(0,0,0,0.4)",
+                    }}
+                  >
+                    <span
+                      style={{
+                        height: 22,
+                        borderRadius: 999,
+                        background: "#b1f256",
+                        flex: "0 1 auto",
+                        padding: "0 8px",
+                        display: "flex",
+                        alignItems: "center",
+                        fontSize: 7,
+                        fontWeight: 800,
+                        color: "#14111f",
+                      }}
+                    >
+                      Home
+                    </span>
+                    <span
+                      style={{ flex: 1, height: 18, borderRadius: 999, background: "transparent" }}
+                    />
+                    <span
+                      style={{ flex: 1, height: 18, borderRadius: 999, background: "transparent" }}
+                    />
+                    <span
+                      style={{ flex: 1, height: 18, borderRadius: 999, background: "transparent" }}
+                    />
+                  </span>
+                </span>
+              </a>
+              <div className="show__info show__info--right">
+                <div className="mini-donut">
+                  <svg width="56" height="56" viewBox="0 0 56 56">
+                    <circle
+                      cx="28"
+                      cy="28"
+                      r="22"
+                      fill="none"
+                      stroke="var(--muted)"
+                      strokeWidth="6"
+                    />
+                    <circle
+                      cx="28"
+                      cy="28"
+                      r="22"
+                      fill="none"
+                      stroke="#b1f256"
+                      strokeWidth="6"
+                      strokeDasharray="120 138"
+                      transform="rotate(-90 28 28)"
+                    />
+                  </svg>
+                  <span className="mini-donut__num">12</span>
+                </div>
+                <div className="mini-bars">
+                  <div className="mini-bar-row">
+                    <span className="mini-bar-label">Screens</span>
+                    <div className="mini-bar-track">
+                      <div
+                        className="mini-bar-fill"
+                        style={{ width: "100%", background: "#b1f256" }}
+                      />
+                    </div>
+                  </div>
+                  <div className="mini-bar-row">
+                    <span className="mini-bar-label">Anime</span>
+                    <div className="mini-bar-track">
+                      <div
+                        className="mini-bar-fill"
+                        style={{ width: "75%", background: "var(--chart-2)" }}
+                      />
+                    </div>
+                  </div>
+                  <div className="mini-bar-row">
+                    <span className="mini-bar-label">Nav items</span>
+                    <div className="mini-bar-track">
+                      <div
+                        className="mini-bar-fill"
+                        style={{ width: "50%", background: "var(--chart-3)" }}
+                      />
+                    </div>
+                  </div>
+                  <div className="mini-bar-row">
+                    <span className="mini-bar-label">Routes</span>
+                    <div className="mini-bar-track">
+                      <div
+                        className="mini-bar-fill"
+                        style={{ width: "90%", background: "var(--chart-4)" }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="kv">
+                  <div className="kv__row">
+                    <b>12</b>
+                    &nbsp;screens
+                  </div>
+                  <div className="kv__row">
+                    <b>Lime</b>
+                    &nbsp;theme
+                  </div>
+                </div>
+                <a className="openlink" href="prototypes/anikuta/">
+                  Open prototype
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+            </article>
           </div>
 
           <div className="empty" id="emptyNote" hidden>
