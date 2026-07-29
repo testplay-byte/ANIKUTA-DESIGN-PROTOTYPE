@@ -4,6 +4,8 @@ import androidx.compose.animation.*
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.*
 import androidx.compose.foundation.text.BasicTextField
@@ -139,16 +141,16 @@ fun SetupWizardApp() {
             modifier = Modifier.fillMaxSize(),
             color = MaterialTheme.colorScheme.background
         ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                // Progress bar at top — flush, no padding
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Progress bar at top — flush, no padding, below status bar
                 WizardProgressBar(
                     current = STEP_ORDER.indexOf(state.step),
                     total = STEP_ORDER.size,
                     color = effectivePalette.primary,
-                    modifier = Modifier.align(Alignment.TopCenter),
+                    modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = 16.dp),
                 )
-                // Screen content
-                Box(modifier = Modifier.fillMaxSize()) {
+                // Screen content — fills remaining space
+                Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
                     AnimatedContent(
                         targetState = state.step,
                         transitionSpec = {
@@ -294,7 +296,7 @@ fun ScreenLayout(
 
 @Composable
 fun WizardProgressBar(current: Int, total: Int, color: Color, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.padding(horizontal = 16.dp, vertical = 0.dp)) {
+    Column(modifier = modifier) {
         LinearProgressIndicator(
             progress = { (current + 1f) / total },
             modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(999.dp)),
@@ -309,7 +311,7 @@ fun PageHeading(text: String, palette: WizardPalette, modifier: Modifier = Modif
     Text(
         text = text,
         color = palette.primary,
-        fontSize = 28.sp,
+        fontSize = 42.sp,
         fontFamily = RobotoFamily,
         fontWeight = FontWeight.ExtraBold,
         letterSpacing = (-0.5).sp,
@@ -385,7 +387,7 @@ fun WelcomeScreen(palette: WizardPalette, onNext: () -> Unit) {
             Text(
                 "Welcome to Anime App!",
                 color = palette.primary,
-                fontSize = 30.sp,
+                fontSize = 45.sp,
                                 fontWeight = FontWeight.ExtraBold,
                 fontFamily = RobotoFamily,
                 letterSpacing = (-0.8).sp,
@@ -840,7 +842,7 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
             DescriptiveTitle("Linking anime", modifier = Modifier.fillMaxWidth())
             Subtitle("Matching your backup entries", modifier = Modifier.fillMaxWidth().padding(top = 2.dp))
             Spacer(Modifier.height(4.dp))
-            // Stats — squished (less padding, smaller font)
+            // Stats — wider (squished vertically), bigger values
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 listOf(
                     "Linked" to linked to palette.primary,
@@ -850,12 +852,12 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
                 ).forEach { (pair, color) ->
                     val (label, value) = pair
                     Column(
-                        Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(10.dp)).padding(horizontal = 4.dp, vertical = 5.dp),
+                        Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(10.dp)).padding(horizontal = 2.dp, vertical = 4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("$value", color = color, fontSize = 15.sp, fontFamily = RobotoFamily,
+                        Text("$value", color = color, fontSize = 20.sp, fontFamily = RobotoFamily,
         fontWeight = FontWeight.ExtraBold)
-                        Text(label, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 8.sp, fontFamily = RobotoFamily,
+                        Text(label, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 9.sp, fontFamily = RobotoFamily,
         fontWeight = FontWeight.Bold)
                     }
                 }
@@ -1163,24 +1165,27 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
     Column(modifier = Modifier.fillMaxSize()) {
         // Fixed header (poison red heading + subtitle)
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            Text("Choose Your Poison", color = Color(0xFFFF6B6B), fontSize = 28.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(top = 8.dp))
+            Text("Choose Your Poison", color = Color(0xFFFF6B6B), fontSize = 42.sp, fontFamily = RobotoFamily,
+        fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(top = 16.dp))
             Text("Ads keep the app free. Let's make them non-intrusive — pick your daily dose.", color = Color(0xFFD9A0A0), fontSize = 14.sp, modifier = Modifier.padding(top = 2.dp))
         }
         // Scrollable content
         Column(
-            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp)
+            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Poison visual
+            // Poison visual — taller area so bottles don't get cut off
             val visualCount = if (step == 0) 1 else adSettings.frequency
             Row(
-                modifier = Modifier.fillMaxWidth().height(150.dp).padding(vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().height(200.dp).padding(vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 repeat(visualCount) { i ->
-                    val offsetY = when (i) { 0 -> (-28).dp; 1 -> 28.dp; 2 -> (-8).dp; else -> 0.dp }
-                    Box(modifier = Modifier.weight(1f).offset(y = offsetY)) {
+                    val offsetY = when (i) { 0 -> (-20).dp; 1 -> 20.dp; 2 -> (-6).dp; else -> 0.dp }
+                    // Use fixed width instead of weight so all bottles stay the same size
+                    Box(modifier = Modifier.size(100.dp).offset(y = offsetY)) {
                         if (adSettings.name == AdName.POISON) PoisonBottleVisual(palette, i) else PoisonPillVisual(palette, i)
                     }
                 }
