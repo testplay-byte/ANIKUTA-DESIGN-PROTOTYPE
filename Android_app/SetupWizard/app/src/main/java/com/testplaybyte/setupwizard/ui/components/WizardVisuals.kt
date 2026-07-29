@@ -8,6 +8,7 @@ import androidx.compose.ui.*
 import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.testplaybyte.setupwizard.ui.theme.WizardPalette
@@ -283,13 +284,24 @@ fun DatabaseVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
 @Composable
 fun PoisonBottleVisual(palette: WizardPalette, idx: Int = 0, modifier: Modifier = Modifier) {
     val t = rememberInfiniteTransition(label = "pbv-$idx")
+    val spinT = rememberInfiniteTransition(label = "pbs-$idx")
+    // Each bottle gets a different spin animation for random motion
+    val spin by spinT.animateFloat(
+        initialValue = -6f,
+        targetValue = 8f,
+        animationSpec = infiniteRepeatable(
+            tween((4000 + idx * 500), easing = FastOutSlowInEasing),
+            RepeatMode.Reverse
+        ),
+        label = "pbs-$idx"
+    )
     val bubbles = listOf(
         t.animateFloat(0f, 1f, infiniteRepeatable(tween(3200, delayMillis = 0), RepeatMode.Restart), "pb1-$idx"),
         t.animateFloat(0f, 1f, infiniteRepeatable(tween(3200, delayMillis = 800), RepeatMode.Restart), "pb2-$idx"),
         t.animateFloat(0f, 1f, infiniteRepeatable(tween(3200, delayMillis = 1600), RepeatMode.Restart), "pb3-$idx"),
         t.animateFloat(0f, 1f, infiniteRepeatable(tween(3200, delayMillis = 2400), RepeatMode.Restart), "pb4-$idx"),
     )
-    Canvas(modifier.fillMaxSize()) {
+    Canvas(modifier.fillMaxSize().graphicsLayer { rotationZ = spin }) {
         val u = minOf(size.width, size.height) / 140f
         val cx = 50f * u
         // Bottle body

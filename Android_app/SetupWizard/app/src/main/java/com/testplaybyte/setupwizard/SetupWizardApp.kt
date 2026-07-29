@@ -115,13 +115,13 @@ fun SetupWizardApp() {
     var poisonStep by remember { mutableStateOf(0) }
     val isPoison = state.step == WizardStep.POISON
     val systemDark = isSystemInDarkTheme()
-    val isDark = when (state.themeMode) {
+    // Poison screen is ALWAYS dark red, regardless of user's theme mode
+    val isDark = if (isPoison) true else when (state.themeMode) {
         ThemeMode.DARK -> true
         ThemeMode.LIGHT -> false
         ThemeMode.SYSTEM -> systemDark
     }
-    // When light mode is active, adjust the palette surfaces to light tones
-    // so the whole UI switches properly (not just the MaterialTheme colorScheme).
+    // When light mode is active (and not on poison screen), adjust palette surfaces
     val basePalette = if (isPoison) PoisonPalette else state.palette
     val effectivePalette = if (!isDark && !isPoison) {
         basePalette.copy(
@@ -259,9 +259,42 @@ fun SetupWizardApp() {
 // SHARED COMPONENTS
 // ============================================================================
 
+/**
+ * Screen layout: fixed heading at top, centered content in the middle, fixed footer at bottom.
+ * Content is vertically CENTERED in the available space (not squished to top).
+ * If content overflows, it scrolls.
+ */
+@Composable
+fun ScreenLayout(
+    palette: WizardPalette,
+    heading: String? = null,
+    onBack: (() -> Unit)? = null,
+    onNext: (() -> Unit)? = null,
+    nextText: String = "Next",
+    nextEnabled: Boolean = true,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        if (heading != null) {
+            PageHeading(heading, palette)
+        }
+        // Content area — fills available space, centers content vertically
+        Column(
+            modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            content = content,
+        )
+        if (onBack != null || onNext != null) {
+            ActionRow(back = onBack, next = onNext, nextText = nextText, palette = palette, nextEnabled = nextEnabled)
+        }
+    }
+}
+// ============================================================================
+
 @Composable
 fun WizardProgressBar(current: Int, total: Int, color: Color, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.padding(horizontal = 16.dp, vertical = 2.dp)) {
+    Column(modifier = modifier.padding(horizontal = 16.dp, vertical = 0.dp)) {
         LinearProgressIndicator(
             progress = { (current + 1f) / total },
             modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(999.dp)),
@@ -281,7 +314,7 @@ fun PageHeading(text: String, palette: WizardPalette, modifier: Modifier = Modif
         fontWeight = FontWeight.ExtraBold,
         letterSpacing = (-0.5).sp,
         maxLines = 2,
-        modifier = modifier.padding(start = 20.dp, top = 8.dp, end = 20.dp)
+        modifier = modifier.padding(start = 20.dp, top = 16.dp, end = 20.dp)
     )
 }
 
@@ -368,6 +401,7 @@ fun WelcomeScreen(palette: WizardPalette, onNext: () -> Unit) {
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.size(140.dp).padding(vertical = 8.dp)) {
@@ -407,6 +441,7 @@ fun ThemeScreen(palette: WizardPalette, paletteIndex: Int, onPaletteChange: (Int
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Mini preview (smartphone shape) — smaller 130x240
@@ -492,6 +527,7 @@ fun FolderScreen(palette: WizardPalette, folderSelected: Boolean, onSelect: () -
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) {
@@ -569,6 +605,7 @@ fun PermissionsScreen(palette: WizardPalette, permissions: Map<String, Boolean>,
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.size(150.dp).padding(vertical = 4.dp)) { ShieldVisual(palette) }
@@ -620,6 +657,7 @@ fun RestoreScreen(palette: WizardPalette, onBack: () -> Unit, onNext: () -> Unit
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { RestoreVisual(palette) }
@@ -663,6 +701,7 @@ fun FormatScreen(palette: WizardPalette, onBack: () -> Unit, onNext: () -> Unit)
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { WarningVisual(palette) }
@@ -712,6 +751,7 @@ fun ProcessingScreen(palette: WizardPalette, onNext: () -> Unit) {
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { ProcessingVisual(palette) }
@@ -749,6 +789,7 @@ fun SummaryScreen(palette: WizardPalette, onCancel: () -> Unit, onNext: () -> Un
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.size(150.dp).padding(vertical = 4.dp)) { ClipboardVisual(palette) }
@@ -902,6 +943,7 @@ fun ManualScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onLink:
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DescriptiveTitle("Manual linking", modifier = Modifier.fillMaxWidth())
@@ -996,6 +1038,7 @@ fun RestoreSummaryScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>,
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             DescriptiveTitle("Restore summary", modifier = Modifier.fillMaxWidth())
@@ -1073,6 +1116,7 @@ fun RestoreProcessingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnim
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { RestoreProcessingVisual(palette) }
@@ -1102,6 +1146,7 @@ fun RestoreSuccessScreen(palette: WizardPalette, onNext: () -> Unit) {
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { DatabaseVisual(palette) }
@@ -1212,6 +1257,7 @@ fun FinishScreen(palette: WizardPalette, state: WizardState, onRestart: () -> Un
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+            verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { FinishVisual(palette) }
