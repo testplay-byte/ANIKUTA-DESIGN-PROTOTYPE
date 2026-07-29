@@ -1737,7 +1737,9 @@
 .poison-bubble-v2 {
   position: absolute;
   border-radius: 50%;
-  background: color-mix(in srgb, var(--color-primary) 60%, transparent);
+  background: color-mix(in srgb, var(--color-primary) 70%, white);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 90%, white);
+  box-shadow: 0 0 4px color-mix(in srgb, var(--color-primary) 50%, transparent);
   animation: poison-bubble-rise 3s ease-in infinite;
   opacity: 0;
   pointer-events: none;
