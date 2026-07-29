@@ -3,10 +3,8 @@
 /**
  * setup-wizard / screens / permissions-screen — Step 3 (#permissions).
  *
- * v2.1 refinements:
- *  - Animation-first layout: animation at top, "Grant permissions" heading
- *    BELOW the animation, "optional" subtitle below that.
- *  - All files access is now a real USER toggle (was locked "not needed").
+ * v2.2: "Permissions" big bold green heading at top-left. Subtitle changed to
+ * just "Optional: you can skip these".
  */
 import type { ThemePalette } from "../lib/themes";
 import type { Permissions } from "../hooks/use-wizard-state";
@@ -55,15 +53,17 @@ const PERM_ROWS: {
 
 export function PermissionsScreen({ active, onNext, onBack, permissions, togglePermission, palette }: PermissionsScreenProps) {
   return (
-    <div className={`wizard-step wizard-step--v2 wizard-step--anim-first ${active ? "wizard-step--active" : ""}`}>
+    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
+        <h1 className="wizard-page-heading">Permissions</h1>
+
         <div className="wizard-visual" key={active ? "on" : "off"}>
           <PermissionsVisual />
         </div>
 
-        <div className="wizard-heading">
-          <h1 className="wizard-screen-title">Grant permissions</h1>
-          <p className="wizard-screen-sub">Optional — you can skip these and enable them later in settings.</p>
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Grant permissions</h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>Optional: you can skip these</p>
         </div>
 
         <div className="wizard-body">

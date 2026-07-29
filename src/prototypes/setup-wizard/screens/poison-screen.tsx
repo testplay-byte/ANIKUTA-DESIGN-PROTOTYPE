@@ -1,16 +1,13 @@
 "use client";
 
 /**
- * setup-wizard / screens / poison-screen — Step 13 (#poison). NEW.
+ * setup-wizard / screens / poison-screen — Step 13 (#poison).
  *
- * "Choose Your Poison" — a forced red-themed screen where the user configures
- * ad preferences. Multi-step within the same route:
- *   Step A — Name: "Daily dose of poison" / "Daily dose of pills"
- *   Step B — Frequency: 1 / 2 / 3 ads per day
- *   Step C — Timing: On app open / On episode start / Both
- *
- * The red theme is applied via the .device--poison class (forced by page.tsx
- * when route === "poison"), so this screen ignores the user's chosen palette.
+ * v2.2:
+ *  - Fixed text colors (bright/readable on dark red via .wizard-step--poison CSS).
+ *  - Bottle→pills: when name === 'pills', show pills instead of a bottle.
+ *  - Frequency = count: show N bottles or N pills (N = selected frequency).
+ *  - Better bottle animation (more life).
  */
 import { useState } from "react";
 import type { AdSettings, AdName, AdTiming } from "../lib/ad-settings";
@@ -26,6 +23,50 @@ interface PoisonScreenProps {
 
 const TOTAL_STEPS = 3;
 
+/** A single poison bottle SVG. */
+function PoisonBottle({ delay = "0s" }: { delay?: string }) {
+  return (
+    <svg className="poison-bottle" viewBox="0 0 100 140" aria-hidden="true" style={{ animationDelay: delay }}>
+      <path d="M38 30 L38 44 Q30 50 30 62 L30 120 Q30 130 40 130 L60 130 Q70 130 70 120 L70 62 Q70 50 62 44 L62 30 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinejoin="round" />
+      <rect x="38" y="14" width="24" height="18" rx="2" fill="var(--color-surface-4)" stroke="var(--color-primary)" strokeWidth="1.5" />
+      <rect x="36" y="8" width="28" height="8" rx="2" fill="var(--color-primary)" />
+      <rect x="36" y="74" width="28" height="34" rx="3" fill="var(--color-bg)" opacity="0.9" />
+      <circle cx="50" cy="86" r="6" fill="var(--color-primary)" />
+      <rect x="46" y="92" width="8" height="5" rx="1" fill="var(--color-primary)" />
+      <circle cx="48" cy="86" r="1.3" fill="var(--color-bg)" />
+      <circle cx="52" cy="86" r="1.3" fill="var(--color-bg)" />
+      <path d="M34 70 Q34 60 40 58 L40 120 Q34 120 34 110 Z" fill="var(--color-primary)" opacity="0.25" />
+    </svg>
+  );
+}
+
+/** A single poison pill (capsule). */
+function PoisonPill({ delay = "0s" }: { delay?: string }) {
+  return (
+    <div className="poison-pill" style={{ animationDelay: delay }}>
+      <div className="poison-pill__cap" />
+      <div className="poison-pill__body">
+        <div className="poison-pill__line" />
+      </div>
+    </div>
+  );
+}
+
+/** Renders the appropriate visual: N bottles or N pills. */
+function PoisonVisual({ name, count }: { name: AdName; count: number }) {
+  const items = Array.from({ length: count });
+  return (
+    <div className="poison-hero" key={`${name}-${count}`} aria-hidden="true">
+      <span className="poison-glow" />
+      <div className="poison-visual-row">
+        {name === "poison"
+          ? items.map((_, i) => <PoisonBottle key={i} delay={`${i * 0.2}s`} />)
+          : items.map((_, i) => <PoisonPill key={i} delay={`${i * 0.15}s`} />)}
+      </div>
+    </div>
+  );
+}
+
 export function PoisonScreen({ active, onNext, onBack, adSettings, updateAdSettings }: PoisonScreenProps) {
   const [step, setStep] = useState(0);
 
@@ -37,42 +78,24 @@ export function PoisonScreen({ active, onNext, onBack, adSettings, updateAdSetti
     }
   }
 
-  return (
-    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
-      <div className="wizard-content">
-        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
-          <p className="wizard-screen-eyebrow" style={{ color: "var(--color-primary)", alignSelf: "center" }}>Ad preferences</p>
-          <h1 className="wizard-screen-title wizard-screen-title--xl">Choose your poison</h1>
-          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>
-            Ads keep the app free. Let&apos;s make them non-intrusive — pick your daily dose.
-          </p>
-        </div>
+  // The visual count: on step 0 (name) show 1 bottle or 3 pills; on step 1+2 show N (frequency).
+  const visualCount = step === 0
+    ? (adSettings.name === "pills" ? 3 : 1)
+    : adSettings.frequency;
+  // On step 0, show the currently-selected name's visual (bottle or pills).
+  const visualName = adSettings.name;
 
-        {/* Fun poison bottle animation */}
-        <div className="poison-hero" key={`${active}-${step}`} aria-hidden="true">
-          <span className="poison-glow" />
-          <svg className="poison-bottle" viewBox="0 0 100 140" aria-hidden="true">
-            {/* bottle body */}
-            <path d="M38 30 L38 44 Q30 50 30 62 L30 120 Q30 130 40 130 L60 130 Q70 130 70 120 L70 62 Q70 50 62 44 L62 30 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinejoin="round" />
-            {/* bottle neck + cap */}
-            <rect x="38" y="14" width="24" height="18" rx="2" fill="var(--color-surface-4)" stroke="var(--color-primary)" strokeWidth="1.5" />
-            <rect x="36" y="8" width="28" height="8" rx="2" fill="var(--color-primary)" />
-            {/* label */}
-            <rect x="36" y="74" width="28" height="34" rx="3" fill="var(--color-bg)" opacity="0.9" />
-            {/* skull on label */}
-            <circle cx="50" cy="86" r="6" fill="var(--color-primary)" />
-            <rect x="46" y="92" width="8" height="5" rx="1" fill="var(--color-primary)" />
-            <circle cx="48" cy="86" r="1.3" fill="var(--color-bg)" />
-            <circle cx="52" cy="86" r="1.3" fill="var(--color-bg)" />
-            {/* liquid highlight */}
-            <path d="M34 70 Q34 60 40 58 L40 120 Q34 120 34 110 Z" fill="var(--color-primary)" opacity="0.25" />
-          </svg>
-          {/* rising bubbles */}
-          <span className="poison-bubble" style={{ width: 8, height: 8, left: "44%", bottom: "40%", animationDelay: "0s" }} />
-          <span className="poison-bubble" style={{ width: 6, height: 6, left: "52%", bottom: "35%", animationDelay: "0.8s" }} />
-          <span className="poison-bubble" style={{ width: 10, height: 10, left: "48%", bottom: "30%", animationDelay: "1.6s" }} />
-          <span className="poison-bubble" style={{ width: 5, height: 5, left: "56%", bottom: "45%", animationDelay: "2.2s" }} />
-        </div>
+  return (
+    <div className={`wizard-step wizard-step--v2 wizard-step--poison ${active ? "wizard-step--active" : ""}`}>
+      <div className="wizard-content">
+        <h1 className="wizard-page-heading">Choose Your Poison</h1>
+
+        <p className="wizard-screen-sub" style={{ alignSelf: "flex-start" }}>
+          Ads keep the app free. Let&apos;s make them non-intrusive — pick your daily dose.
+        </p>
+
+        {/* Poison visual: bottles or pills, count = frequency (or 1 on name step) */}
+        <PoisonVisual name={visualName} count={visualCount} />
 
         {/* Step progress dots */}
         <div className="poison-steps">

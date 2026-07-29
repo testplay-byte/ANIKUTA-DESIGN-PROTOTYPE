@@ -51,14 +51,15 @@ export function RestoreProcessingScreen({ active, onNext, palette, linkedAnime }
   return (
     <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        <div className="wizard-heading">
-          <p className="wizard-screen-eyebrow">Backup Restore</p>
-          <h1 className="wizard-screen-title">Restoring your library</h1>
-          <p className="wizard-screen-sub">Please wait while we restore {restoredCount} anime to your library.</p>
-        </div>
+        <h1 className="wizard-page-heading">Restore Backup</h1>
 
         <div className="restore-processing-visual" key={active ? "on" : "off"}>
           <RestoreProcessingVisual palette={palette} />
+        </div>
+
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Restoring your library</h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>Please wait while we restore {restoredCount} anime to your library.</p>
         </div>
 
         <div className="wizard-body">

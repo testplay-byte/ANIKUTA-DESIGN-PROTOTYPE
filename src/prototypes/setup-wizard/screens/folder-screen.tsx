@@ -3,10 +3,8 @@
 /**
  * setup-wizard / screens / folder-screen — Step 2 (#folder).
  *
- * v2.1 refinements:
- *  - Animation-first layout: animation at top, heading "Select Your Anime
- *    Folder" shown BELOW the animation.
- *  - Improved folder animation: more detailed, file floating.
+ * v2.2: "Folder" big bold green heading at top-left. "Select your anime folder"
+ * centered below the animation. Improved FolderVisual (open folder, files at top).
  */
 import { useEffect, useState } from "react";
 import type { ThemePalette } from "../lib/themes";
@@ -38,17 +36,19 @@ export function FolderScreen({ active, onNext, onBack, folderSelected, setFolder
   const showSelected = folderSelected && !scanning;
 
   return (
-    <div className={`wizard-step wizard-step--v2 wizard-step--anim-first ${active ? "wizard-step--active" : ""}`}>
+    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
+        <h1 className="wizard-page-heading">Folder</h1>
+
         <div className="wizard-visual" key={`${active ? "on" : "off"}-${folderSelected ? "sel" : "empty"}`}>
           <FolderVisual selected={showSelected} />
         </div>
 
-        <div className="wizard-heading">
-          <h1 className="wizard-screen-title">
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">
             {folderSelected ? "Folder connected!" : "Select your anime folder"}
-          </h1>
-          <p className="wizard-screen-sub">
+          </h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>
             {folderSelected && scanning && "Scanning your library…"}
             {folderSelected && !scanning && "Your library is ready to go. Continue when you are."}
             {!folderSelected && "Pick the folder where your anime library lives. We'll scan it and organize everything for you."}

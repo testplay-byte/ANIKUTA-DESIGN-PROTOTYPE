@@ -63,12 +63,13 @@ export function LinkingAnimeScreen({ active, onNext, onBack, palette, linkedAnim
   }
 
   return (
-    <div className={`wizard-step wizard-step--v2 wizard-step--linking ${active ? "wizard-step--active" : ""}`}>
+    <div className={`wizard-step wizard-step--v2 wizard-step--linking wizard-step--fixed ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        <div className="wizard-heading">
-          <p className="wizard-screen-eyebrow" style={{ fontSize: "var(--fs-label)", letterSpacing: "0.08em" }}>Backup Restore</p>
-          <h1 className="wizard-screen-title wizard-screen-title--xl">Linking anime</h1>
-          <p className="wizard-screen-sub">Matching your backup entries</p>
+        <h1 className="wizard-page-heading">Backup Restore</h1>
+
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Linking anime</h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>Matching your backup entries</p>
         </div>
 
         {/* Four stat headings — fixed (not in scroll area) */}

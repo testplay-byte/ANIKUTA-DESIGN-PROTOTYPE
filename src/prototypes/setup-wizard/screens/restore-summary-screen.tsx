@@ -28,10 +28,11 @@ export function RestoreSummaryScreen({ active, onNext, onBack, palette, linkedAn
   return (
     <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        <div className="wizard-heading">
-          <p className="wizard-screen-eyebrow">Backup Restore</p>
-          <h1 className="wizard-screen-title wizard-screen-title--xl">Restore summary</h1>
-          <p className="wizard-screen-sub">Ready to restore. Review the details below.</p>
+        <h1 className="wizard-page-heading">Restore Backup</h1>
+
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Restore summary</h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>Ready to restore. Review the details below.</p>
         </div>
 
         <div className="wizard-body">

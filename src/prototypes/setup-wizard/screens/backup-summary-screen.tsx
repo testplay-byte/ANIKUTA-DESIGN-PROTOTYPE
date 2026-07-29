@@ -51,20 +51,20 @@ export function BackupSummaryScreen({ active, onNext, onCancel, onBack, palette 
   // onBack is provided for consistency (browser back) but Cancel uses onCancel → #format.
   void onBack;
   return (
-    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+    <div className={`wizard-step wizard-step--v2 wizard-step--fixed ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        <div className="wizard-heading">
-          <p className="wizard-screen-eyebrow">Restore</p>
-          <h1 className="wizard-screen-title">Backup summary</h1>
-          <p className="wizard-screen-sub">Here&apos;s what we found in your backup. Review before restoring.</p>
-        </div>
+        <h1 className="wizard-page-heading">Restore Backup</h1>
 
-        <div className="wizard-visual" key={active ? "on" : "off"} style={{ width: 160, height: 160 }}>
+        <div className="wizard-visual" key={active ? "on" : "off"} style={{ width: 140, height: 140, margin: "var(--sp-1) auto" }}>
           <SummaryVisual />
         </div>
 
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Backup summary</h2>
+        </div>
+
         <div className="wizard-body">
-          <ul className="summary-list">
+          <ul className="summary-list" style={{ overflowY: "auto", flex: "1 1 auto", minHeight: 0, scrollbarWidth: "none" }}>
             {SUMMARY_ITEMS.map((item, i) => (
               <li
                 key={item.label}

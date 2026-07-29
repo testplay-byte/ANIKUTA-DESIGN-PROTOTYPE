@@ -1468,3 +1468,229 @@
   max-width: 28ch;
 }
 
+/* =========================================================================
+   v2.2 REFINEMENTS (per third round of user feedback)
+   - Big bold theme-colored heading at TOP-LEFT on every screen
+   - Mini preview: less rounded corners
+   - Fixed header/footer + scrollable list (backup summary + linking)
+   - Poison: text color fixes + bottle/pills visual
+   - Restore success: bolder/bigger stats (no line break)
+   - Manual search overlay: complete redo
+   ========================================================================= */
+
+/* ---- Page heading: big, bold, theme-colored, top-left ---- */
+.wizard-page-heading {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--color-primary);
+  margin: 0;
+  align-self: flex-start;
+  text-align: left;
+  animation: titleSlideUp 0.5s var(--ease-emphasized-decel) backwards;
+}
+
+/* Descriptive title (below animation, centered) */
+.wizard-descriptive-title {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  text-align: center;
+  align-self: center;
+  letter-spacing: -0.01em;
+  animation: titleSlideUp 0.5s var(--ease-emphasized-decel) 0.1s backwards;
+}
+
+/* ---- Mini preview: less rounded corners ---- */
+.mini-preview {
+  border-radius: 18px;
+}
+.mini-preview__screen {
+  border-radius: 14px;
+}
+
+/* ---- Fixed layout: step doesn't scroll, only the inner list ---- */
+.wizard-step--fixed {
+  overflow: hidden;
+}
+.wizard-step--fixed .wizard-content {
+  height: 100%;
+  padding-bottom: 0;
+}
+.wizard-step--fixed .wizard-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Poison text color fixes (bright, readable on dark red) ---- */
+.wizard-step--poison .wizard-page-heading { color: #ff6b6b; }
+.wizard-step--poison .wizard-descriptive-title { color: #ffeaea; }
+.wizard-step--poison .wizard-screen-sub { color: #d9a0a0; }
+.wizard-step--poison .poison-option-group__label { color: #d9a0a0; }
+.wizard-step--poison .poison-segmented__btn { color: #d9a0a0; }
+.wizard-step--poison .poison-summary { color: #ffeaea; }
+
+/* ---- Restore success: bolder/bigger stats, no line break ---- */
+.rs-success-stats {
+  display: flex;
+  gap: var(--sp-5);
+  justify-content: center;
+  align-self: stretch;
+  padding: var(--sp-3) 0;
+}
+.rs-success-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.rs-success-stat__value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.rs-success-stat__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* ---- Manual search overlay v3: complete redo ---- */
+.search-overlay--v3 {
+  padding: var(--sp-4) var(--sp-4) 0;
+}
+.search-overlay--v3 .search-overlay__topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+.search-overlay--v3 .search-overlay__title {
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  color: var(--color-text);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+.search-overlay--v3 .search-bar-block {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+.search-overlay--v3 .search-input-row {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+.search-overlay--v3 .search-input-row .search-overlay__input-wrap {
+  flex: 1;
+  margin: 0;
+}
+.search-overlay--v3 .search-input-row .search-overlay__input {
+  height: 48px;
+  font-size: 14px;
+  padding-left: 44px;
+}
+.search-overlay--v3 .search-btn {
+  flex: 0 0 auto;
+  height: 48px;
+  padding: 0 18px;
+  border-radius: var(--r-pill);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: transform 0.15s var(--ease-emphasized);
+}
+.search-overlay--v3 .search-btn:hover { transform: translateY(-1px); }
+.search-overlay--v3 .search-btn:active { transform: scale(0.97); }
+.search-overlay--v3 .cancel-btn {
+  flex: 0 0 auto;
+  height: 48px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid var(--color-surface-4);
+  transition: background 0.15s var(--ease-standard);
+}
+.search-overlay--v3 .cancel-btn:hover { background: var(--color-surface-4); }
+.search-overlay--v3 .search-overlay__info {
+  text-align: center;
+  padding: 0 0 var(--sp-3);
+  font-size: 12px;
+}
+.search-overlay--v3 .search-overlay__results {
+  max-width: none;
+  margin: 0;
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--color-surface-3);
+}
+
+/* ---- Poison visual: bottles + pills ---- */
+.poison-visual-row {
+  display: flex;
+  gap: var(--sp-2);
+  justify-content: center;
+  align-items: flex-end;
+  min-height: 150px;
+}
+.poison-pill {
+  width: 40px;
+  height: 90px;
+  position: relative;
+  animation: poison-bob 3s ease-in-out infinite;
+}
+.poison-pill__cap {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 28px;
+  border-radius: 20px 20px 4px 4px;
+  background: var(--color-primary);
+}
+.poison-pill__body {
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 4px 4px 20px 20px;
+  background: var(--color-primary-container);
+  border: 2px solid var(--color-primary);
+  border-top: none;
+  overflow: hidden;
+}
+.poison-pill__line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-primary);
+  opacity: 0.5;
+  transform: translateX(-50%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .poison-pill { animation: none !important; }
+}
+

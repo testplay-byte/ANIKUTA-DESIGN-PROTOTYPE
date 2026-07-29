@@ -60,12 +60,13 @@ export function ManualLinkingScreen({ active, onNext, onBack, palette, linkedAni
   }
 
   return (
-    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+    <div className={`wizard-step wizard-step--v2 wizard-step--fixed ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        <div className="wizard-heading">
-          <p className="wizard-screen-eyebrow">Backup Restore</p>
-          <h1 className="wizard-screen-title">Manual linking</h1>
-          <p className="wizard-screen-sub">
+        <h1 className="wizard-page-heading">Restore Backup</h1>
+
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Manual linking</h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>
             {unlinked.length > 0
               ? `${unlinked.length} anime need your help. Tap any entry to search for a match.`
               : "All anime are linked! You're ready to continue."}
@@ -119,35 +120,56 @@ export function ManualLinkingScreen({ active, onNext, onBack, palette, linkedAni
         </button>
       </div>
 
-      {/* Search overlay — v2: centered, modern */}
+      {/* Search overlay — v3: complete redo, search bar lower with cancel + search buttons */}
       {searchOpen && (
-        <div className="search-overlay search-overlay--v2">
-          <button className="search-overlay__back" onClick={() => { setSearchOpen(false); setSelectedAnimeId(null); }} aria-label="Close search">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </button>
-          <div className="search-overlay__header">
+        <div className="search-overlay search-overlay--v3">
+          <div className="search-overlay__topbar">
+            <button className="search-overlay__back" onClick={() => { setSearchOpen(false); setSelectedAnimeId(null); }} aria-label="Close search">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </button>
             <h2 className="search-overlay__title">Find a match</h2>
           </div>
-          <div className="search-overlay__input-wrap">
-            <span className="search-overlay__input-icon">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-              </svg>
-            </span>
-            <input
-              type="text"
-              className="search-overlay__input"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search for anime…"
-              autoFocus
-            />
+
+          <div className="search-bar-block">
+            <div className="search-overlay__info">
+              Linking: <b>{selectedAnime?.backupName}</b>
+            </div>
+            <div className="search-input-row">
+              <div className="search-overlay__input-wrap">
+                <span className="search-overlay__input-icon">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  className="search-overlay__input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search for anime…"
+                  autoFocus
+                />
+              </div>
+              <button
+                className="search-btn"
+                onClick={() => {/* search is live-filtered; this is a visual button */}}
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+                </svg>
+                Search
+              </button>
+              <button
+                className="cancel-btn"
+                onClick={() => { setSearchOpen(false); setSelectedAnimeId(null); }}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
-          <div className="search-overlay__info">
-            Linking: <b>{selectedAnime?.backupName}</b>
-          </div>
+
           <div className="search-overlay__results">
             {filteredResults.length === 0 ? (
               <div className="search-overlay__empty">No results found. Try a different search.</div>

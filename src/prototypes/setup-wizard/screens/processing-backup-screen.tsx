@@ -29,11 +29,7 @@ export function ProcessingBackupScreen({ active, onNext, palette }: ProcessingBa
   return (
     <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        <div className="wizard-heading">
-          <p className="wizard-screen-eyebrow">Restore</p>
-          <h1 className="wizard-screen-title">Processing backup</h1>
-          <p className="wizard-screen-sub">Reading your backup file and extracting data…</p>
-        </div>
+        <h1 className="wizard-page-heading">Restore Backup</h1>
 
         <div className="wizard-visual" key={active ? "on" : "off"}>
           <svg viewBox="0 0 200 200" width="100%" height="100%" style={{ overflow: "visible" }} aria-hidden="true">
@@ -70,6 +66,11 @@ export function ProcessingBackupScreen({ active, onNext, palette }: ProcessingBa
             <rect className="pb-row3" x="76" y="114" width="44" height="4" rx="2" fill={p} opacity="0.6" />
             <rect className="pb-row4" x="76" y="126" width="36" height="4" rx="2" fill={p} opacity="0.5" />
           </svg>
+        </div>
+
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Processing backup</h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>Reading your backup file and extracting data…</p>
         </div>
 
         <div className="wizard-body">

@@ -24,10 +24,7 @@ export function FormatNotSupportedScreen({ active, onNext, onBack, palette }: Fo
   return (
     <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        <div className="wizard-heading">
-          <p className="wizard-screen-eyebrow">Restore</p>
-          <h1 className="wizard-screen-title">Restore backup</h1>
-        </div>
+        <h1 className="wizard-page-heading">Restore Backup</h1>
 
         {/* Inline visual — KEPT from the original (user likes this animation) */}
         <div className="wizard-visual" key={active ? "on" : "off"}>

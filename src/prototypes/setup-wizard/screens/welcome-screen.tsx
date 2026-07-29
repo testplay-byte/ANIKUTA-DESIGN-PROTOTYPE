@@ -3,11 +3,7 @@
 /**
  * setup-wizard / screens / welcome-screen — Step 0 (#welcome).
  *
- * v2.1 refinements (per second round of feedback):
- *  - BIG, bold, prominent hero heading (was too small).
- *  - Removed the steps list (unnecessary — user said don't show theme/colors/etc).
- *  - Just welcomes the user + "Let's get things quickly set up for you."
- *  - Calm play-mark animation kept.
+ * v2.2: Big bold theme-colored heading at top-left. Cleaner look.
  */
 import type { ThemePalette } from "../lib/themes";
 import { WelcomeVisual } from "../components/visuals";
@@ -21,15 +17,14 @@ interface WelcomeScreenProps {
 export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
   return (
     <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
-      <div className="wizard-content" style={{ justifyContent: "center" }}>
-        <div className="wizard-visual" key={active ? "on" : "off"} style={{ marginBottom: "var(--sp-4)" }}>
-          <WelcomeVisual />
-        </div>
+      <div className="wizard-content">
+        <h1 className="wizard-page-heading">Welcome to Anime App!</h1>
+        <p className="wizard-screen-sub" style={{ alignSelf: "flex-start" }}>
+          Let&apos;s get things quickly set up for you.
+        </p>
 
-        <div className="welcome-hero">
-          <p className="wizard-screen-eyebrow">Welcome</p>
-          <h1 className="welcome-hero__title">Welcome to Anime App!</h1>
-          <p className="welcome-hero__sub">Let&apos;s get things quickly set up for you.</p>
+        <div className="wizard-visual" key={active ? "on" : "off"} style={{ margin: "var(--sp-4) auto" }}>
+          <WelcomeVisual />
         </div>
       </div>
       <div className="wizard-actions">

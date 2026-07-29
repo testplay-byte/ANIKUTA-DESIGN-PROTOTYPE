@@ -3,13 +3,8 @@
 /**
  * setup-wizard / screens / theme-screen — Step 1 (#theme).
  *
- * v2.1 refinements:
- *  - Improved heading (bigger, bolder, prominent).
- *  - Mini live preview now has a true smartphone aspect ratio + bezel feel
- *    (CSS .mini-preview). Screen-name label at bottom removed (CSS hides it).
- *  - Removed the Bold-text + Reduced-motion toggles (irrelevant, user said
- *    they don't need to be shown).
- *  - Kept: mode toggle + horizontal palette carousel.
+ * v2.2: "Theme" big bold green heading at top-left. "Choose your theme"
+ * descriptive title below the mini preview. Mini preview corners less rounded.
  */
 import type { ThemeMode, ThemePalette } from "../lib/themes";
 import { PALETTES } from "../lib/themes";
@@ -47,17 +42,18 @@ export function ThemeScreen({ active, onNext, onBack, themeMode, setThemeMode, p
   return (
     <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        <div className="wizard-heading">
-          <p className="wizard-screen-eyebrow">Theme</p>
-          <h1 className="wizard-screen-title wizard-screen-title--xl">Choose your theme</h1>
-          <p className="wizard-screen-sub">Pick a mode and a color. You can change this anytime in settings.</p>
-        </div>
+        <h1 className="wizard-page-heading">Theme</h1>
 
-        {/* Mini live preview — true smartphone aspect ratio + bezel (CSS), no bottom label */}
         <MiniAnimePreview />
 
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Choose your theme</h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>
+            Pick a mode and a color. You can change this anytime in settings.
+          </p>
+        </div>
+
         <div className="wizard-body">
-          {/* Mode toggle */}
           <div className="mode-toggle" role="radiogroup" aria-label="Theme mode" style={{ alignSelf: "stretch", maxWidth: "none" }}>
             {MODE_OPTIONS.map((opt) => (
               <button
@@ -74,7 +70,6 @@ export function ThemeScreen({ active, onNext, onBack, themeMode, setThemeMode, p
             ))}
           </div>
 
-          {/* Palette carousel (single row) */}
           <div className="palette-carousel" role="radiogroup" aria-label="Color palette">
             {PALETTES.map((p, i) => (
               <button
