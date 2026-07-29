@@ -24,22 +24,27 @@ interface PoisonScreenProps {
 const TOTAL_STEPS = 3;
 
 /** A single poison bottle SVG (v2: more spin, liquid, bubbles, better skull). */
-function PoisonBottle({ delay = "0s" }: { delay?: string }) {
+function PoisonBottle({ delay = "0s", idx = 0 }: { delay?: string; idx?: number }) {
+  const clipId = `poison-clip-${idx}`;
   return (
     <div style={{ position: "relative", animationDelay: delay }} className="poison-bottle-v2">
       <svg viewBox="0 0 100 140" width="100%" height="100%" aria-hidden="true" style={{ overflow: "visible" }}>
+        <defs>
+          <clipPath id={clipId}>
+            <path d="M38 30 L38 44 Q30 50 30 62 L30 120 Q30 130 40 130 L60 130 Q70 130 70 120 L70 62 Q70 50 62 44 L62 30 Z" />
+          </clipPath>
+        </defs>
         {/* bottle body */}
         <path d="M38 30 L38 44 Q30 50 30 62 L30 120 Q30 130 40 130 L60 130 Q70 130 70 120 L70 62 Q70 50 62 44 L62 30 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinejoin="round" />
         {/* neck + cap */}
         <rect x="38" y="14" width="24" height="18" rx="2" fill="var(--color-surface-4)" stroke="var(--color-primary)" strokeWidth="1.5" />
         <rect x="36" y="8" width="28" height="8" rx="2" fill="var(--color-primary)" />
-        {/* liquid inside (bottom ~60% of the bottle) */}
-        <clipPath id={`bottle-clip-${delay}`}>
-          <path d="M38 30 L38 44 Q30 50 30 62 L30 120 Q30 130 40 130 L60 130 Q70 130 70 120 L70 62 Q70 50 62 44 L62 30 Z" />
-        </clipPath>
-        <rect x="30" y="70" width="40" height="60" fill="var(--color-primary)" opacity="0.45" clipPath={`url(#bottle-clip-${delay})`} />
-        {/* liquid surface wave */}
-        <path d="M30 72 Q40 68 50 72 Q60 76 70 72 L70 76 Q60 80 50 76 Q40 72 30 76 Z" fill="var(--color-primary)" opacity="0.6" clipPath={`url(#bottle-clip-${delay})`} />
+        {/* liquid inside (clipped to bottle body shape) */}
+        <g clipPath={`url(#${clipId})`}>
+          <rect x="28" y="72" width="44" height="60" fill="var(--color-primary)" opacity="0.55" />
+          {/* liquid surface wave */}
+          <path d="M28 72 Q38 68 50 72 Q62 76 72 72 L72 78 L28 78 Z" fill="var(--color-primary)" opacity="0.75" />
+        </g>
         {/* label */}
         <rect x="36" y="78" width="28" height="32" rx="3" fill="var(--color-bg)" opacity="0.92" />
         {/* skull (better) */}
@@ -50,10 +55,10 @@ function PoisonBottle({ delay = "0s" }: { delay?: string }) {
         <path d="M48 95 L50 97 L52 95" fill="none" stroke="var(--color-bg)" strokeWidth="0.8" strokeLinecap="round" />
       </svg>
       {/* rising bubbles */}
-      <span className="poison-bubble-v2" style={{ width: 6, height: 6, left: "42%", bottom: "30%", animationDelay: "0s" }} />
-      <span className="poison-bubble-v2" style={{ width: 4, height: 4, left: "55%", bottom: "25%", animationDelay: "0.8s" }} />
-      <span className="poison-bubble-v2" style={{ width: 7, height: 7, left: "48%", bottom: "20%", animationDelay: "1.6s" }} />
-      <span className="poison-bubble-v2" style={{ width: 3, height: 3, left: "58%", bottom: "35%", animationDelay: "2.2s" }} />
+      <span className="poison-bubble-v2" style={{ width: 7, height: 7, left: "40%", bottom: "28%", animationDelay: "0s" }} />
+      <span className="poison-bubble-v2" style={{ width: 5, height: 5, left: "55%", bottom: "22%", animationDelay: "0.9s" }} />
+      <span className="poison-bubble-v2" style={{ width: 8, height: 8, left: "46%", bottom: "15%", animationDelay: "1.7s" }} />
+      <span className="poison-bubble-v2" style={{ width: 4, height: 4, left: "58%", bottom: "33%", animationDelay: "2.3s" }} />
     </div>
   );
 }
@@ -77,7 +82,7 @@ function PoisonVisual({ name, count }: { name: AdName; count: number }) {
       <span className="poison-glow" />
       <div className="poison-visual-row--v2">
         {name === "poison"
-          ? items.map((_, i) => <PoisonBottle key={i} delay={`${i * 0.3}s`} />)
+          ? items.map((_, i) => <PoisonBottle key={i} delay={`${i * 0.3}s`} idx={i} />)
           : items.map((_, i) => <PoisonPill key={i} delay={`${i * 0.4}s`} />)}
       </div>
     </div>
