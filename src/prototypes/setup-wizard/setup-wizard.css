@@ -1810,9 +1810,10 @@
   position: relative;
 }
 .poison-visual-row--v2 > * { position: relative; }
-.poison-visual-row--v2 > *:nth-child(1) { z-index: 3; }
-.poison-visual-row--v2 > *:nth-child(2) { z-index: 1; transform: translateY(10px); }
-.poison-visual-row--v2 > *:nth-child(3) { z-index: 2; transform: translateY(-6px); }
+/* Hierarchy via margin-top (doesn't conflict with the pill/bottle animation transform) */
+.poison-visual-row--v2 > *:nth-child(1) { z-index: 3; margin-top: -10px; }
+.poison-visual-row--v2 > *:nth-child(2) { z-index: 1; margin-top: 14px; }
+.poison-visual-row--v2 > *:nth-child(3) { z-index: 2; margin-top: -4px; }
 
 /* ---- Manual search overlay v4: cancel inside bar, search = icon ---- */
 .search-overlay--v4 .search-overlay__topbar {
