@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.drawscope.*
 import androidx.compose.ui.text.*
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.unit.dp
 import com.testplaybyte.setupwizard.ui.theme.*
@@ -91,6 +92,20 @@ val DEFAULT_ANIME = listOf(
 )
 
 // ============================================================================
+// HELPERS
+// ============================================================================
+
+/** Mix two colors: result = base * (1-ratio) + tint * ratio */
+private fun colorMix(base: Color, tint: Color, ratio: Float): Color {
+    return Color(
+        red = base.red * (1 - ratio) + tint.red * ratio,
+        green = base.green * (1 - ratio) + tint.green * ratio,
+        blue = base.blue * (1 - ratio) + tint.blue * ratio,
+        alpha = 1f,
+    )
+}
+
+// ============================================================================
 // MAIN APP
 // ============================================================================
 
@@ -99,13 +114,25 @@ fun SetupWizardApp() {
     var state by remember { mutableStateOf(WizardState()) }
     var poisonStep by remember { mutableStateOf(0) }
     val isPoison = state.step == WizardStep.POISON
-    val effectivePalette = if (isPoison) PoisonPalette else state.palette
     val systemDark = isSystemInDarkTheme()
     val isDark = when (state.themeMode) {
         ThemeMode.DARK -> true
         ThemeMode.LIGHT -> false
         ThemeMode.SYSTEM -> systemDark
     }
+    // When light mode is active, adjust the palette surfaces to light tones
+    // so the whole UI switches properly (not just the MaterialTheme colorScheme).
+    val basePalette = if (isPoison) PoisonPalette else state.palette
+    val effectivePalette = if (!isDark && !isPoison) {
+        basePalette.copy(
+            background = LightBg,
+            surface1 = LightSurface1,
+            surface2 = LightSurface2,
+            surface3 = colorMix(LightSurface2, basePalette.primary, 0.15f),
+            surface4 = colorMix(LightSurface1, basePalette.primary, 0.1f),
+            surface5 = colorMix(LightBg, basePalette.primary, 0.05f),
+        )
+    } else basePalette
 
     SetupWizardTheme(palette = effectivePalette, isDark = isDark) {
         Surface(
@@ -764,9 +791,9 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
         fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp, modifier = Modifier.padding(top = 8.dp))
             DescriptiveTitle("Linking anime", modifier = Modifier.fillMaxWidth())
             Subtitle("Matching your backup entries", modifier = Modifier.fillMaxWidth().padding(top = 2.dp))
-            Spacer(Modifier.height(8.dp))
-            // Stats
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Spacer(Modifier.height(4.dp))
+            // Stats — squished (less padding, smaller font)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 listOf(
                     "Linked" to linked to palette.primary,
                     "No match" to unlinked to Color(0xFFF2B8B5),
@@ -775,38 +802,46 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
                 ).forEach { (pair, color) ->
                     val (label, value) = pair
                     Column(
-                        Modifier.weight(1f).clip(RoundedCornerShape(12.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(12.dp)).padding(8.dp),
+                        Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(10.dp)).padding(horizontal = 4.dp, vertical = 5.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text("$value", color = color, fontSize = 18.sp, fontFamily = RobotoFamily,
+                        Text("$value", color = color, fontSize = 15.sp, fontFamily = RobotoFamily,
         fontWeight = FontWeight.ExtraBold)
-                        Text(label, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 9.sp, fontFamily = RobotoFamily,
+                        Text(label, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 8.sp, fontFamily = RobotoFamily,
         fontWeight = FontWeight.Bold)
                     }
                 }
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(4.dp))
         }
-        // Scrollable list
-        LazyColumn(modifier = Modifier.weight(1f).padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        // Scrollable list — uniform row heights, proper spacing
+        LazyColumn(modifier = Modifier.weight(1f).padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(6.dp), contentPadding = PaddingValues(vertical = 4.dp)) {
             items(linkedAnime.take(revealed)) { anime ->
                 Row(
-                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(12.dp)).then(if (anime.linked) Modifier.clickable { popupId = anime.id } else Modifier).padding(9.dp),
+                    modifier = Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(12.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(12.dp)).then(if (anime.linked) Modifier.clickable { popupId = anime.id } else Modifier).padding(horizontal = 11.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    // Left half: name (wraps)
                     Column(Modifier.weight(1f)) {
                         Text(anime.backupName, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
-                        if (anime.linked && anime.matchedName != null) Text(anime.matchedName, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp)
+        fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        if (anime.linked && anime.matchedName != null) Text(anime.matchedName, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
+                    Spacer(Modifier.width(8.dp))
+                    // Middle: marker (check or X) — dedicated section
                     Box(Modifier.size(26.dp).clip(CircleShape).background(if (anime.linked) palette.primary.copy(alpha = 0.18f) else Color(0xFFF2B8B5).copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
                         Icon(if (anime.linked) Icons.Default.Check else Icons.Default.Close, null, tint = if (anime.linked) palette.primary else Color(0xFFF2B8B5), modifier = Modifier.size(16.dp))
                     }
+                    Spacer(Modifier.width(8.dp))
+                    // Right: thumbnail (linked only) — fixed size for uniform rows
                     if (anime.linked) {
                         Box(Modifier.size(width = 30.dp, height = 42.dp).clip(RoundedCornerShape(5.dp)).background(brush = Brush.linearGradient(listOf(palette.primary, palette.primary.copy(alpha = 0.5f)))), contentAlignment = Alignment.Center) {
                             Text(anime.backupName.first().toString(), color = palette.onPrimary, fontSize = 14.sp, fontFamily = RobotoFamily,
         fontWeight = FontWeight.ExtraBold)
                         }
+                    } else {
+                        // Empty spacer to keep uniform row width
+                        Box(Modifier.size(width = 30.dp, height = 42.dp))
                     }
                 }
             }
@@ -874,9 +909,12 @@ fun ManualScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onLink:
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(anime.backupName, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-                    Text("Search", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f), maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    Spacer(Modifier.width(8.dp))
+                    // Plus icon (matches web prototype)
+                    Box(Modifier.size(28.dp).clip(CircleShape).background(palette.primary.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.Add, null, tint = palette.primary, modifier = Modifier.size(16.dp))
+                    }
                 }
             }
         }
