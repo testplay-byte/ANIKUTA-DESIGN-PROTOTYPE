@@ -22,8 +22,11 @@ private fun DrawScope.glow(cx: Float, cy: Float, radius: Float, color: Color, al
 }
 
 private fun DrawScope.rr(color: Color, x: Float, y: Float, w: Float, h: Float, cr: Float, stroke: Float = 0f) {
-    if (stroke > 0f) drawRoundRect(color, Offset(x, y), Size(w, h), CornerRadius(cr, cr), 1f, Stroke(stroke))
-    else drawRoundRect(color, Offset(x, y), Size(w, h), CornerRadius(cr, cr))
+    val path = Path().apply {
+        addRoundRect(RoundRect(Rect(x, y, x + w, y + h), CornerRadius(cr, cr)))
+    }
+    if (stroke > 0f) drawPath(path, color, style = Stroke(stroke))
+    else drawPath(path, color)
 }
 
 // ============================================================================
