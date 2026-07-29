@@ -3,28 +3,30 @@
 /**
  * setup-wizard / page — the prototype entry point.
  *
- * A 13-step animated setup wizard for an anime app.
- * Theme color: #b3f35a (lime) by default, user can switch palettes.
+ * A 15-route animated setup wizard for an anime app, using HASH ROUTING
+ * (like the anime-app prototype) so every screen has its own addressable
+ * URL:
  *
- * Steps:
- *   0.  Welcome
- *   1.  Theme selection (light/dark/system + color palette)
- *   2.  Folder selection (stays on screen with success animation)
- *   3.  Permissions (install apps, notifications, battery — optional)
- *   4.  Restore backup (Select Backup File / Skip)
- *   5.  Format not supported (fun warning screen)
- *   6.  Processing backup (~2s animation, auto-advances)
- *   7.  Backup summary (stats + manga red warning + Cancel/Restore)
- *   8.  Linking anime (progressive linking list + stats)
- *   9.  Manual linking (unlinked anime → search → link)
- *   10. Restore summary (final summary → Restore Now)
- *   11. Restore successful (auto-close 5s or Continue)
- *   12. Finish / URL set (modern animation + Start Exploring)
+ *   #welcome             — Welcome / intro + setup overview list
+ *   #theme               — Choose your theme (mini live preview + carousel)
+ *   #folder              — Select your anime folder
+ *   #permissions         — Grant permissions (optional)
+ *   #restore             — Restore backup (Select Backup File / Skip)
+ *   #format              — Format not supported
+ *   #processing          — Processing backup (auto-advance)
+ *   #summary             — Backup summary (Cancel → #format)
+ *   #linking             — Linking anime
+ *   #manual              — Manual linking (search overlay)
+ *   #restore-summary     — Restore summary → Restore Now
+ *   #restore-processing  — Restore Now processing (NEW)
+ *   #restore-success     — Restore successful → #poison
+ *   #poison              — Choose Your Poison (red, ad config) (NEW)
+ *   #finish              — Setup complete
  *
- * Skip (on step 4) jumps directly to the Finish screen (step 12),
- * bypassing the entire restore flow.
+ * The browser back button works (popstate listener re-parses the hash).
+ * See docs/setup-wizard-redesign/plan.md for the full architecture.
  */
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   DeviceThemeProvider,
   DeviceFrame,
@@ -35,7 +37,8 @@ import {
   PanelDesc,
   PanelHead,
 } from "../../../src/proto-kit";
-import { useWizardState } from "../../../src/prototypes/setup-wizard/hooks/use-wizard-state";
+import { useWizardState, ROUTE_ORDER, TOTAL_ROUTES } from "../../../src/prototypes/setup-wizard/hooks/use-wizard-state";
+import type { WizardRoute } from "../../../src/prototypes/setup-wizard/hooks/use-wizard-state";
 import { WelcomeScreen } from "../../../src/prototypes/setup-wizard/screens/welcome-screen";
 import { ThemeScreen } from "../../../src/prototypes/setup-wizard/screens/theme-screen";
 import { FolderScreen } from "../../../src/prototypes/setup-wizard/screens/folder-screen";
@@ -47,53 +50,124 @@ import { BackupSummaryScreen } from "../../../src/prototypes/setup-wizard/screen
 import { LinkingAnimeScreen } from "../../../src/prototypes/setup-wizard/screens/linking-anime-screen";
 import { ManualLinkingScreen } from "../../../src/prototypes/setup-wizard/screens/manual-linking-screen";
 import { RestoreSummaryScreen } from "../../../src/prototypes/setup-wizard/screens/restore-summary-screen";
+import { RestoreProcessingScreen } from "../../../src/prototypes/setup-wizard/screens/restore-processing-screen";
 import { RestoreSuccessfulScreen } from "../../../src/prototypes/setup-wizard/screens/restore-successful-screen";
+import { PoisonScreen } from "../../../src/prototypes/setup-wizard/screens/poison-screen";
 import { FinishScreen } from "../../../src/prototypes/setup-wizard/screens/finish-screen";
 import { WizardProgress } from "../../../src/prototypes/setup-wizard/components/wizard-progress";
 
-const STEP_NAMES = [
-  "Welcome",
-  "Theme",
-  "Folder",
-  "Permissions",
-  "Restore",
-  "Format",
-  "Processing",
-  "Summary",
-  "Linking",
-  "Manual",
-  "Restore",
-  "Success",
-  "Finish",
-];
+const VALID_ROUTES = new Set<string>(ROUTE_ORDER);
 
-const STEP_DESCRIPTIONS = [
-  "Welcome to the setup wizard.",
-  "Choose your theme and colors.",
-  "Select your anime folder.",
-  "Grant app permissions (optional).",
-  "Restore from a backup or skip.",
-  "Backup format not supported.",
-  "Processing your backup file…",
-  "Backup summary with manga warning.",
-  "Linking anime to AniList entries.",
-  "Manually link unlinked anime.",
-  "Final restore summary.",
-  "Restore successful!",
-  "You're all set!",
-];
+function parseHash(): WizardRoute {
+  if (typeof window === "undefined") return "welcome";
+  const hash = window.location.hash.replace(/^#/, "");
+  if (!hash) return "welcome";
+  if (VALID_ROUTES.has(hash)) return hash as WizardRoute;
+  return "welcome";
+}
+
+const ROUTE_LABELS: Record<WizardRoute, string> = {
+  welcome: "Welcome",
+  theme: "Theme",
+  folder: "Folder",
+  permissions: "Permissions",
+  restore: "Restore",
+  format: "Format",
+  processing: "Processing",
+  summary: "Summary",
+  linking: "Linking",
+  manual: "Manual",
+  "restore-summary": "Restore",
+  "restore-processing": "Restoring",
+  "restore-success": "Success",
+  poison: "Poison",
+  finish: "Finish",
+};
+
+const ROUTE_DESCRIPTIONS: Record<WizardRoute, string> = {
+  welcome: "Welcome to the setup wizard.",
+  theme: "Choose your theme and colors.",
+  folder: "Select your anime folder.",
+  permissions: "Grant app permissions (optional).",
+  restore: "Restore from a backup or skip.",
+  format: "Backup format not supported.",
+  processing: "Processing your backup file…",
+  summary: "Backup summary with manga warning.",
+  linking: "Linking anime to AniList entries.",
+  manual: "Manually link unlinked anime.",
+  "restore-summary": "Final restore summary.",
+  "restore-processing": "Restoring your library…",
+  "restore-success": "Restore successful!",
+  poison: "Pick your daily dose — ad preferences.",
+  finish: "You're all set!",
+};
 
 export default function Page() {
   const wizard = useWizardState();
-  const { step, themeMode, palette } = wizard;
+  const { route, themeMode, palette } = wizard;
+  const [, setHashTick] = useState(0);
 
-  // Apply the selected palette as CSS custom properties on the .device element
+  // Read hash on mount; if empty, replaceState to #welcome.
+  useEffect(() => {
+    if (window.location.hash === "") {
+      try {
+        history.replaceState(null, "", "#welcome");
+      } catch {
+        /* sandbox may block hash writes — ignore */
+      }
+      wizard.setRoute("welcome");
+    } else {
+      wizard.setRoute(parseHash());
+    }
+    setHashTick((t) => t + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Listen for back/forward.
+  useEffect(() => {
+    function onPop() {
+      wizard.setRoute(parseHash());
+      setHashTick((t) => t + 1);
+    }
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, [wizard]);
+
+  // Navigate to a route via pushState (so back button works).
+  function go(target: WizardRoute) {
+    if (target === route) return;
+    try {
+      history.pushState(null, "", `#${target}`);
+    } catch {
+      /* ignore */
+    }
+    wizard.setRoute(target);
+    setHashTick((t) => t + 1);
+  }
+
+  // Browser back.
+  function goBack() {
+    try {
+      history.back();
+    } catch {
+      /* ignore */
+    }
+  }
+
+  // Apply the selected palette as CSS custom properties on the .device element.
   useEffect(() => {
     const device = document.querySelector(".device") as HTMLElement | null;
     if (!device) return;
 
     // Determine effective theme (system → dark for prototype)
     const effectiveDark = themeMode !== "light";
+
+    // Force red theme on the poison screen; otherwise apply selected palette.
+    if (route === "poison") {
+      device.classList.add("device--poison");
+    } else {
+      device.classList.remove("device--poison");
+    }
 
     // Apply theme mode
     device.setAttribute("data-theme", effectiveDark ? "dark" : "light");
@@ -113,10 +187,12 @@ export default function Page() {
 
     // Stage background
     document.documentElement.style.setProperty("--stage-bg", effectiveDark ? palette.bgDark : "#e0e0e0");
-  }, [themeMode, palette]);
+  }, [themeMode, palette, route]);
 
-  const info = STEP_NAMES[step] || "Unknown";
-  const desc = STEP_DESCRIPTIONS[step] || "";
+  // Wrap wizard navigation for screens (each screen receives inline handlers below).
+  const routeIndex = ROUTE_ORDER.indexOf(route);
+  const info = ROUTE_LABELS[route] || "Unknown";
+  const desc = ROUTE_DESCRIPTIONS[route] || "";
 
   return (
     <DeviceThemeProvider storageKey="setup-wizard-theme" initialTheme="dark">
@@ -126,16 +202,18 @@ export default function Page() {
             <PanelBadge>prototype</PanelBadge>
             <PanelTitle>Setup Wizard</PanelTitle>
             <PanelDesc>
-              An animated 13-step setup wizard for an anime app. Material 3
-              Expressive with a lime (#b3f35a) primary color. Theme switching,
-              folder selection, permissions, full backup restore flow
-              (format detection, processing, summary, anime linking, manual
-              linking, restore), and abstract animated visuals on every screen.
+              An animated 15-route setup wizard for an anime app. Material 3
+              Expressive with a lime (#b3f35a) primary color and switchable
+              palettes. Hash routing (#welcome, #theme, …) like the anime
+              app. Theme selection with a mini live preview, folder
+              selection, permissions, a full backup-restore flow with anime
+              linking, an ad-preferences (&quot;Choose Your Poison&quot;)
+              step, and a setup complete screen.
             </PanelDesc>
             <div className="tags">
               <span className="tag">Material 3</span>
               <span className="tag">Animated</span>
-              <span className="tag">Abstract</span>
+              <span className="tag">Hash routing</span>
             </div>
           </>
         }
@@ -149,15 +227,15 @@ export default function Page() {
 
             <PanelHead>Progress</PanelHead>
             <div className="mini-bars">
-              {STEP_NAMES.map((name, i) => (
-                <div key={`${name}-${i}`} className="mini-bar-row">
-                  <span className="mini-bar-label">{name}</span>
+              {ROUTE_ORDER.map((r, i) => (
+                <div key={`${r}-${i}`} className="mini-bar-row">
+                  <span className="mini-bar-label">{ROUTE_LABELS[r]}</span>
                   <div className="mini-bar-track">
                     <div
                       className="mini-bar-fill"
                       style={{
-                        width: i <= step ? "100%" : "0%",
-                        background: i <= step ? "var(--color-primary)" : "var(--muted)",
+                        width: i <= routeIndex ? "100%" : "0%",
+                        background: i <= routeIndex ? "var(--color-primary)" : "var(--muted)",
                         transition: "width 0.4s var(--ease-emphasized)",
                       }}
                     />
@@ -175,11 +253,17 @@ export default function Page() {
               </div>
               <div className="kvlist__row">
                 <span>Primary</span>
-                <b style={{ color: palette.primary }}>{palette.primary}</b>
+                <b style={{ color: route === "poison" ? "#ff5252" : palette.primary }}>
+                  {route === "poison" ? "#ff5252" : palette.primary}
+                </b>
               </div>
               <div className="kvlist__row">
                 <span>Mode</span>
                 <b>{themeMode}</b>
+              </div>
+              <div className="kvlist__row">
+                <span>Route</span>
+                <b>#{route}</b>
               </div>
             </div>
           </>
@@ -187,88 +271,115 @@ export default function Page() {
       >
         <DeviceFrame theme="dark">
           {/* Progress bar — flows in the flex column between status bar and screen */}
-          <WizardProgress currentStep={step} totalSteps={13} palette={palette} />
+          <WizardProgress currentStep={routeIndex} totalSteps={TOTAL_ROUTES} palette={route === "poison" ? { ...palette, primary: "#ff5252" } : palette} />
           <Screen>
-            {/* Screen content — all screens always mounted, visibility via .wizard-step--active */}
-            <WelcomeScreen active={step === 0} onNext={wizard.next} palette={palette} />
+            {/* All screens always mounted; visibility via .wizard-step--active.
+                Each screen receives `active` + a navigation proxy. */}
+            <WelcomeScreen active={route === "welcome"} onNext={() => go("theme")} palette={palette} />
             <ThemeScreen
-              active={step === 1}
-              onNext={wizard.next}
-              onBack={wizard.back}
+              active={route === "theme"}
+              onNext={() => go("folder")}
+              onBack={goBack}
               themeMode={themeMode}
               setThemeMode={wizard.setThemeMode}
               palette={palette}
               setPalette={wizard.setPalette}
             />
             <FolderScreen
-              active={step === 2}
-              onNext={wizard.next}
-              onBack={wizard.back}
+              active={route === "folder"}
+              onNext={() => go("permissions")}
+              onBack={goBack}
               folderSelected={wizard.folderSelected}
               setFolderSelected={wizard.setFolderSelected}
               palette={palette}
             />
             <PermissionsScreen
-              active={step === 3}
-              onNext={wizard.next}
-              onBack={wizard.back}
-              permissions={wizard.permissionsGranted}
+              active={route === "permissions"}
+              onNext={() => go("restore")}
+              onBack={goBack}
+              permissions={wizard.permissions}
               togglePermission={wizard.togglePermission}
               palette={palette}
             />
             <RestoreScreen
-              active={step === 4}
-              onNext={wizard.next}
-              onBack={wizard.back}
-              onSkip={wizard.skipToFinish}
+              active={route === "restore"}
+              onNext={() => go("format")}
+              onBack={goBack}
+              onSkip={() => go("finish")}
               palette={palette}
             />
             <FormatNotSupportedScreen
-              active={step === 5}
-              onNext={wizard.next}
-              onBack={wizard.back}
+              active={route === "format"}
+              onNext={() => go("processing")}
+              onBack={goBack}
               palette={palette}
             />
             <ProcessingBackupScreen
-              active={step === 6}
-              onNext={wizard.next}
+              active={route === "processing"}
+              onNext={() => go("summary")}
               palette={palette}
             />
             <BackupSummaryScreen
-              active={step === 7}
-              onNext={wizard.next}
-              onBack={wizard.back}
+              active={route === "summary"}
+              onNext={() => go("linking")}
+              onCancel={() => go("format")}
+              onBack={goBack}
               palette={palette}
             />
             <LinkingAnimeScreen
-              active={step === 8}
-              onNext={wizard.next}
-              onBack={wizard.back}
+              active={route === "linking"}
+              onNext={() => go("manual")}
+              onBack={goBack}
               palette={palette}
               linkedAnime={wizard.linkedAnime}
+              onUnlink={wizard.unlinkAnime}
             />
             <ManualLinkingScreen
-              active={step === 9}
-              onNext={wizard.next}
-              onBack={wizard.back}
+              active={route === "manual"}
+              onNext={() => go("restore-summary")}
+              onBack={goBack}
               palette={palette}
               linkedAnime={wizard.linkedAnime}
               onLink={wizard.linkAnime}
             />
             <RestoreSummaryScreen
-              active={step === 10}
-              onNext={wizard.next}
-              onBack={wizard.back}
+              active={route === "restore-summary"}
+              onNext={() => go("restore-processing")}
+              onBack={goBack}
+              palette={palette}
+              linkedAnime={wizard.linkedAnime}
+            />
+            <RestoreProcessingScreen
+              active={route === "restore-processing"}
+              onNext={() => go("restore-success")}
               palette={palette}
               linkedAnime={wizard.linkedAnime}
             />
             <RestoreSuccessfulScreen
-              active={step === 11}
-              onNext={wizard.next}
+              active={route === "restore-success"}
+              onNext={() => go("poison")}
               palette={palette}
               linkedAnime={wizard.linkedAnime}
             />
-            <FinishScreen active={step === 12} onRestart={wizard.reset} palette={palette} />
+            <PoisonScreen
+              active={route === "poison"}
+              onNext={() => go("finish")}
+              onBack={goBack}
+              adSettings={wizard.adSettings}
+              updateAdSettings={wizard.updateAdSettings}
+            />
+            <FinishScreen
+              active={route === "finish"}
+              onRestart={() => {
+                wizard.reset();
+                go("welcome");
+              }}
+              palette={palette}
+              themeMode={themeMode}
+              folderSelected={wizard.folderSelected}
+              adSettings={wizard.adSettings}
+              linkedAnime={wizard.linkedAnime}
+            />
           </Screen>
         </DeviceFrame>
       </Stage>

@@ -1,12 +1,12 @@
 "use client";
+
 /**
- * setup-wizard / screens / processing-backup-screen — step 6.
+ * setup-wizard / screens / processing-backup-screen — Step 6 (#processing).
  *
- * Shows a "Processing backup" animation for ~2 seconds, then auto-advances
- * to the backup summary screen (step 7).
- *
- * The animation is a circular spinner with orbiting dots + a pulsing
- * file icon in the center.
+ * v2 redesign:
+ *  - Better, more purposeful animation: a file unfolding into rows of data
+ *    being parsed, with a circular progress feel.
+ *  - Auto-advances to #summary after ~2.5s.
  */
 import { useEffect } from "react";
 import type { ThemePalette } from "../lib/themes";
@@ -18,95 +18,69 @@ interface ProcessingBackupScreenProps {
 }
 
 export function ProcessingBackupScreen({ active, onNext, palette }: ProcessingBackupScreenProps) {
-  // Auto-advance after ~2 seconds.
   useEffect(() => {
     if (!active) return;
-    const t = setTimeout(() => {
-      onNext();
-    }, 2000);
+    const t = setTimeout(() => onNext(), 2500);
     return () => clearTimeout(t);
   }, [active, onNext]);
 
+  const p = palette.primary;
+
   return (
-    <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
+    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Processing animation — circular spinner with orbiting dots */}
-        <div className="illustration" key={active ? "on" : "off"}>
-          <svg viewBox="0 0 200 200" role="img" aria-label="Processing backup" style={{ overflow: "visible", width: "100%", height: "100%" }}>
+        <div className="wizard-heading">
+          <p className="wizard-screen-eyebrow">Restore</p>
+          <h1 className="wizard-screen-title">Processing backup</h1>
+          <p className="wizard-screen-sub">Reading your backup file and extracting data…</p>
+        </div>
+
+        <div className="wizard-visual" key={active ? "on" : "off"}>
+          <svg viewBox="0 0 200 200" width="100%" height="100%" style={{ overflow: "visible" }} aria-hidden="true">
             <style>{`
-              .pb-ring { transform-box: fill-box; transform-origin: center; }
-              .pb-ring-1 { animation: pb-spin 2s linear infinite; }
-              .pb-ring-2 { animation: pb-spin 3s linear infinite reverse; }
-              @keyframes pb-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-              .pb-core { transform-box: fill-box; transform-origin: center; animation: pb-pulse 1.2s ease-in-out infinite; }
-              @keyframes pb-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
-              .pb-glow { transform-box: fill-box; transform-origin: center; animation: pb-glow 1.5s ease-in-out infinite; }
-              @keyframes pb-glow { 0%,100% { opacity: 0.2; } 50% { opacity: 0.5; } }
-              @media (prefers-reduced-motion: reduce) { .pb-ring, .pb-core, .pb-glow { animation: none !important; } }
+              @keyframes pb-spin { to { transform: rotate(360deg); } }
+              @keyframes pb-spin-rev { to { transform: rotate(-360deg); } }
+              @keyframes pb-glow { 0%,100% { opacity: 0.25; transform: scale(1); } 50% { opacity: 0.45; transform: scale(1.08); } }
+              @keyframes pb-parse { 0% { transform: translateX(-30px); opacity: 0; } 30% { opacity: 1; } 70% { opacity: 1; } 100% { transform: translateX(30px); opacity: 0; } }
+              @keyframes pb-row-in { 0%,40% { transform: scaleY(0); opacity: 0; } 60%,100% { transform: scaleY(1); opacity: 1; } }
+              .pb-ring-outer { transform-origin: 100px 100px; animation: pb-spin 4s linear infinite; }
+              .pb-ring-inner { transform-origin: 100px 100px; animation: pb-spin-rev 3s linear infinite; }
+              .pb-glow { transform-origin: 100px 100px; animation: pb-glow 2s ease-in-out infinite; }
+              .pb-parse { animation: pb-parse 2.2s ease-in-out infinite; }
+              .pb-row1 { transform-origin: 100px 92px; animation: pb-row-in 2.4s ease-in-out infinite; }
+              .pb-row2 { transform-origin: 100px 104px; animation: pb-row-in 2.4s ease-in-out 0.3s infinite; }
+              .pb-row3 { transform-origin: 100px 116px; animation: pb-row-in 2.4s ease-in-out 0.6s infinite; }
+              .pb-row4 { transform-origin: 100px 128px; animation: pb-row-in 2.4s ease-in-out 0.9s infinite; }
+              @media (prefers-reduced-motion: reduce) { .pb-ring-outer,.pb-ring-inner,.pb-glow,.pb-parse,.pb-row1,.pb-row2,.pb-row3,.pb-row4 { animation: none !important; } }
             `}</style>
+            <circle className="pb-glow" cx="100" cy="100" r="60" fill={p} opacity="0.3" style={{ filter: "blur(14px)" }} />
+            <circle className="pb-ring-outer" cx="100" cy="100" r="76" fill="none" stroke={p} strokeWidth="2" strokeDasharray="5 9" strokeLinecap="round" opacity="0.5" />
+            <circle className="pb-ring-inner" cx="100" cy="100" r="62" fill="none" stroke="var(--color-tertiary, #ccc)" strokeWidth="1.5" strokeDasharray="3 6" strokeLinecap="round" opacity="0.4" />
 
-            {/* Glow */}
-            <circle className="pb-glow" cx={100} cy={100} r={60} fill="var(--color-primary)" opacity={0.3} style={{ filter: "blur(12px)" }} />
-
-            {/* Outer ring with dots */}
-            <g className="pb-ring pb-ring-1">
-              <circle cx={100} cy={100} r={64} fill="none" stroke="var(--color-primary)" strokeWidth={2} strokeDasharray="6 10" opacity={0.4} />
-              <circle cx={100} cy={36} r={5} fill="var(--color-primary)" />
-              <circle cx={164} cy={100} r={4} fill="var(--color-tertiary)" />
-              <circle cx={100} cy={164} r={4} fill="var(--color-warn)" />
-              <circle cx={36} cy={100} r={4} fill="var(--color-secondary)" />
-            </g>
-
-            {/* Inner ring */}
-            <g className="pb-ring pb-ring-2">
-              <circle cx={100} cy={100} r={48} fill="none" stroke="var(--color-tertiary)" strokeWidth={1.5} strokeDasharray="3 6" opacity={0.3} />
-            </g>
-
-            {/* Central file icon */}
-            <g className="pb-core">
-              <circle cx={100} cy={100} r={34} fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth={2} />
-              <path
-                d="M 88 84 L 88 116 Q 88 119 91 119 L 109 119 Q 112 119 112 116 L 112 90 L 106 84 Z"
-                fill="var(--color-primary)"
-                opacity={0.9}
-              />
-              <path d="M 106 84 L 106 90 L 112 90" fill="none" stroke="var(--color-on-primary)" strokeWidth={1.5} opacity={0.4} />
-              <rect x={93} y={96} width={14} height={2} rx={1} fill="var(--color-on-primary)" opacity={0.5} />
-              <rect x={93} y={102} width={10} height={2} rx={1} fill="var(--color-on-primary)" opacity={0.4} />
-              <rect x={93} y={108} width={12} height={2} rx={1} fill="var(--color-on-primary)" opacity={0.4} />
-            </g>
+            {/* central file transforming into rows */}
+            <rect x="68" y="76" width="64" height="56" rx="6" fill="var(--color-surface-3)" stroke={p} strokeWidth="1.5" />
+            {/* parsing particles flowing through */}
+            <circle className="pb-parse" cx="100" cy="100" r="2.5" fill={p} style={{ animationDelay: "0s" }} />
+            <circle className="pb-parse" cx="100" cy="100" r="2" fill={p} style={{ animationDelay: "0.55s" }} />
+            <circle className="pb-parse" cx="100" cy="100" r="2.5" fill={p} style={{ animationDelay: "1.1s" }} />
+            <circle className="pb-parse" cx="100" cy="100" r="2" fill={p} style={{ animationDelay: "1.65s" }} />
+            {/* rows being parsed */}
+            <rect className="pb-row1" x="76" y="90" width="48" height="4" rx="2" fill={p} opacity="0.8" />
+            <rect className="pb-row2" x="76" y="102" width="40" height="4" rx="2" fill={p} opacity="0.6" />
+            <rect className="pb-row3" x="76" y="114" width="44" height="4" rx="2" fill={p} opacity="0.6" />
+            <rect className="pb-row4" x="76" y="126" width="36" height="4" rx="2" fill={p} opacity="0.5" />
           </svg>
         </div>
 
-        <h1 className="wizard-title" style={{ fontWeight: 800 }}>Processing backup</h1>
-        <p className="wizard-subtitle">
-          Reading your backup file and extracting data…
-        </p>
-
-        {/* Scanning indicator */}
-        <span
-          className="scanning-pill"
-          style={{ background: `${palette.primary}22`, color: palette.primary }}
-        >
-          <span className="scanning-dots" aria-hidden="true">
-            <span />
-            <span />
-            <span />
+        <div className="wizard-body">
+          <span className="scanning-pill" style={{ background: `${p}22`, color: p, alignSelf: "center" }}>
+            <span className="scanning-dots"><span /><span /><span /></span>
+            Processing
           </span>
-          Processing
-        </span>
+        </div>
       </div>
-
-      {/* No actions — auto-advances after 2s */}
       <div className="wizard-actions">
-        <span
-          className="wizard-btn wizard-btn--ghost"
-          style={{
-            cursor: "default",
-            color: "var(--color-text-muted)",
-            fontWeight: 800,
-          }}
-        >
+        <span className="wizard-btn wizard-btn--ghost" style={{ cursor: "default", color: "var(--color-text-muted)", fontWeight: 800 }}>
           Please wait…
         </span>
       </div>

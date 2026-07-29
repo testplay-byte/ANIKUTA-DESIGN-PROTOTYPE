@@ -1,21 +1,8 @@
 import { useState, useCallback } from "react";
 import type { ThemeMode, ThemePalette } from "../lib/themes";
 import { DEFAULT_PALETTE } from "../lib/themes";
-
-export interface WizardState {
-  step: number;
-  themeMode: ThemeMode;
-  palette: ThemePalette;
-  folderSelected: boolean;
-  backupSelected: boolean;
-  permissionsGranted: {
-    installApps: boolean;
-    notifications: boolean;
-    battery: boolean;
-  };
-  /** Linked anime state (for the restore flow). */
-  linkedAnime: LinkedAnime[];
-}
+import type { AdSettings } from "../lib/ad-settings";
+import { DEFAULT_AD_SETTINGS } from "../lib/ad-settings";
 
 /**
  * An anime entry being linked during the restore flow.
@@ -32,24 +19,71 @@ export interface LinkedAnime {
   matchedName?: string;
 }
 
+/** Wizard permissions (toggleable, except all-files-access which is fixed off). */
+export interface Permissions {
+  installApps: boolean;
+  notifications: boolean;
+  battery: boolean;
+  /** All files access — NOT needed, always off, toggle disabled. */
+  allFilesAccess: boolean;
+}
+
 /**
- * Wizard step indices.
+ * Wizard routes (hash routing, like the anime-app prototype).
  *
- *   0  Welcome
- *   1  Theme
- *   2  Folder
- *   3  Permissions
- *   4  Restore (Select backup file)
- *   5  Format not supported (fun screen)
- *   6  Processing backup (~2s animation)
- *   7  Backup summary (stats + manga warning + Cancel/Restore)
- *   8  Linking anime (stats + linked/unlinked list)
- *   9  Manual linking (unlinked anime → search → link)
- *   10 Restore summary (final summary → Restore)
- *   11 Restore successful (auto-close 5s or Continue)
- *   12 Finish (URL set screen)
+ *   welcome             — Welcome / intro + setup overview list
+ *   theme               — Choose your theme (mini preview + carousel)
+ *   folder              — Select your anime folder
+ *   permissions         — Grant permissions (optional)
+ *   restore             — Restore backup (Select Backup File / Skip)
+ *   format              — Format not supported (fun screen)
+ *   processing          — Processing backup (~2.5s auto-advance)
+ *   summary             — Backup summary (list view) — Cancel → format
+ *   linking             — Linking anime (stats + two-half rows)
+ *   manual              — Manual linking (search overlay)
+ *   restore-summary     — Restore summary (custom M3) → Restore Now
+ *   restore-processing  — Restore Now processing animation (NEW)
+ *   restore-success     — Restore successful (statistics) → poison
+ *   poison              — Choose Your Poison (red, ad config) (NEW)
+ *   finish              — Setup complete
  */
-export const TOTAL_STEPS = 13;
+export type WizardRoute =
+  | "welcome"
+  | "theme"
+  | "folder"
+  | "permissions"
+  | "restore"
+  | "format"
+  | "processing"
+  | "summary"
+  | "linking"
+  | "manual"
+  | "restore-summary"
+  | "restore-processing"
+  | "restore-success"
+  | "poison"
+  | "finish";
+
+/** Ordered route list (for progress bar + next/back stepping). */
+export const ROUTE_ORDER: WizardRoute[] = [
+  "welcome",
+  "theme",
+  "folder",
+  "permissions",
+  "restore",
+  "format",
+  "processing",
+  "summary",
+  "linking",
+  "manual",
+  "restore-summary",
+  "restore-processing",
+  "restore-success",
+  "poison",
+  "finish",
+];
+
+export const TOTAL_ROUTES = ROUTE_ORDER.length;
 
 /** Mock anime entries for the linking flow. */
 const MOCK_ANIME_ENTRIES: LinkedAnime[] = [
@@ -63,44 +97,77 @@ const MOCK_ANIME_ENTRIES: LinkedAnime[] = [
   { id: 8, backupName: "Solo Leveling", linked: true, matchedName: "Ore dake Level Up na Ken" },
 ];
 
+export interface WizardState {
+  /** Active route (driven by the hash in page.tsx). */
+  route: WizardRoute;
+  themeMode: ThemeMode;
+  palette: ThemePalette;
+  folderSelected: boolean;
+  backupSelected: boolean;
+  permissions: Permissions;
+  /** Linked anime state (for the restore flow). */
+  linkedAnime: LinkedAnime[];
+  /** Ad preferences (Choose Your Poison screen). */
+  adSettings: AdSettings;
+}
+
 export function useWizardState() {
-  const [step, setStep] = useState(0);
+  const [route, setRoute] = useState<WizardRoute>("welcome");
   const [themeMode, setThemeMode] = useState<ThemeMode>("dark");
   const [palette, setPalette] = useState<ThemePalette>(DEFAULT_PALETTE);
   const [folderSelected, setFolderSelected] = useState(false);
   const [backupSelected, setBackupSelected] = useState(false);
-  const [permissionsGranted, setPermissionsGranted] = useState({
+  const [permissions, setPermissions] = useState<Permissions>({
     installApps: false,
     notifications: false,
     battery: false,
+    allFilesAccess: false,
   });
   const [linkedAnime, setLinkedAnime] = useState<LinkedAnime[]>(MOCK_ANIME_ENTRIES);
+  const [adSettings, setAdSettings] = useState<AdSettings>(DEFAULT_AD_SETTINGS);
 
-  const next = useCallback(() => {
-    setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
+  /** Set the active route (page.tsx calls this from the hash router). */
+  const setRouteAction = useCallback((r: WizardRoute) => {
+    setRoute(r);
   }, []);
 
+  /** Step to the next route in ROUTE_ORDER. */
+  const next = useCallback(() => {
+    setRoute((r) => {
+      const i = ROUTE_ORDER.indexOf(r);
+      return ROUTE_ORDER[Math.min(i + 1, TOTAL_ROUTES - 1)];
+    });
+  }, []);
+
+  /** Step to the previous route in ROUTE_ORDER. */
   const back = useCallback(() => {
-    setStep((s) => Math.max(s - 1, 0));
+    setRoute((r) => {
+      const i = ROUTE_ORDER.indexOf(r);
+      return ROUTE_ORDER[Math.max(i - 1, 0)];
+    });
+  }, []);
+
+  /** Jump to a specific route. */
+  const goTo = useCallback((target: WizardRoute) => {
+    setRoute(target);
   }, []);
 
   /**
-   * Jump directly to the Finish screen (last step), skipping the entire
-   * restore flow. Used by the Restore screen's "Skip" button so that
-   * skipping a backup bypasses all restore-related screens.
+   * Skip from the Restore screen directly to the Finish screen,
+   * bypassing the entire restore flow.
    */
   const skipToFinish = useCallback(() => {
-    setStep(TOTAL_STEPS - 1);
+    setRoute("finish");
   }, []);
 
-  /** Jump to a specific step (used for the restore sub-flow navigation). */
-  const goToStep = useCallback((target: number) => {
-    setStep(Math.max(0, Math.min(target, TOTAL_STEPS - 1)));
+  /** Toggle a permission (all-files-access is locked off). */
+  const togglePermission = useCallback((key: keyof Permissions) => {
+    if (key === "allFilesAccess") return; // not needed — locked off
+    setPermissions((prev) => ({ ...prev, [key]: !prev[key] }));
   }, []);
 
   /**
    * Link an unlinked anime to a matched AniList entry.
-   * Removes it from the manual linking list.
    */
   const linkAnime = useCallback((id: number, matchedName: string) => {
     setLinkedAnime((prev) =>
@@ -108,23 +175,36 @@ export function useWizardState() {
     );
   }, []);
 
+  /**
+   * Mark a previously-linked anime as NOT linked (undo a wrong link).
+   * Used by the popup on the Linking Anime screen.
+   */
+  const unlinkAnime = useCallback((id: number) => {
+    setLinkedAnime((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, linked: false, matchedName: undefined } : a)),
+    );
+  }, []);
+
+  /** Update ad settings (Choose Your Poison screen). */
+  const updateAdSettings = useCallback((patch: Partial<AdSettings>) => {
+    setAdSettings((prev) => ({ ...prev, ...patch }));
+  }, []);
+
   /** Reset the entire wizard to the initial state. */
   const reset = useCallback(() => {
-    setStep(0);
+    setRoute("welcome");
     setThemeMode("dark");
     setPalette(DEFAULT_PALETTE);
     setFolderSelected(false);
     setBackupSelected(false);
-    setPermissionsGranted({ installApps: false, notifications: false, battery: false });
+    setPermissions({ installApps: false, notifications: false, battery: false, allFilesAccess: false });
     setLinkedAnime(MOCK_ANIME_ENTRIES);
-  }, []);
-
-  const togglePermission = useCallback((key: keyof typeof permissionsGranted) => {
-    setPermissionsGranted((prev) => ({ ...prev, [key]: !prev[key] }));
+    setAdSettings(DEFAULT_AD_SETTINGS);
   }, []);
 
   return {
-    step,
+    route,
+    setRoute: setRouteAction,
     themeMode,
     setThemeMode,
     palette,
@@ -133,14 +213,17 @@ export function useWizardState() {
     setFolderSelected,
     backupSelected,
     setBackupSelected,
-    permissionsGranted,
+    permissions,
     togglePermission,
     linkedAnime,
     linkAnime,
+    unlinkAnime,
+    adSettings,
+    updateAdSettings,
     next,
     back,
+    goTo,
     skipToFinish,
-    goToStep,
     reset,
   };
 }

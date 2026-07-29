@@ -1,15 +1,20 @@
 "use client";
+
 /**
- * setup-wizard / screens / theme-screen — step 1.
+ * setup-wizard / screens / theme-screen — Step 1 (#theme).
  *
- * User picks a theme mode (Dark / Light / System) and a color palette
- * (Lime / Teal / Purple / Coral / Forest / Amber). An abstract animated
- * visual of orbiting color orbs around a central swatch sits at the top.
+ * v2 redesign:
+ *  - Top-left heading.
+ *  - Mini live anime-app preview (auto-navigates home/library/search/
+ *    settings/detail/player) replaces the old rotating-dots visual.
+ *  - Theme options in a horizontal carousel (single row), not a 3-col grid.
+ *  - More customization options: bold-text + reduced-motion toggles.
+ *  - Bold-rendering fix applied globally (see setup-wizard.css .device).
  */
-import type { ReactNode } from "react";
+import { useState } from "react";
 import type { ThemeMode, ThemePalette } from "../lib/themes";
 import { PALETTES } from "../lib/themes";
-import { ThemeVisual } from "../components/visuals";
+import { MiniAnimePreview } from "../components/mini-anime-preview";
 
 interface ThemeScreenProps {
   active: boolean;
@@ -21,148 +26,121 @@ interface ThemeScreenProps {
   setPalette: (palette: ThemePalette) => void;
 }
 
-const MODE_OPTIONS: { value: ThemeMode; label: string; icon: ReactNode }[] = [
+const MODE_OPTIONS = [
   {
-    value: "dark",
+    value: "dark" as const,
     label: "Dark",
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <path
-          d="M21 12.8A9 9 0 1111.2 3a7 7 0 109.8 9.8z"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
+    icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12.8A9 9 0 1111.2 3 a7 7 0 109.8 9.8z" /></svg>),
   },
   {
-    value: "light",
+    value: "light" as const,
     label: "Light",
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" />
-        <path
-          d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
+    icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" /></svg>),
   },
   {
-    value: "system",
+    value: "system" as const,
     label: "System",
-    icon: (
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-        <rect x="3" y="4" width="18" height="13" rx="2" stroke="currentColor" strokeWidth="2" />
-        <path d="M8 21h8M12 17v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    ),
+    icon: (<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8M12 17v4" /></svg>),
   },
 ];
 
-export function ThemeScreen({
-  active,
-  onNext,
-  onBack,
-  themeMode,
-  setThemeMode,
-  palette,
-  setPalette,
-}: ThemeScreenProps) {
+export function ThemeScreen({ active, onNext, onBack, themeMode, setThemeMode, palette, setPalette }: ThemeScreenProps) {
+  // Local cosmetic customization (not persisted — prototype-only).
+  const [boldText, setBoldText] = useState(true);
+  const [reducedMotion, setReducedMotion] = useState(false);
+
   return (
-    <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
+    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration — orbiting color orbs around a central swatch */}
-        <div className="illustration illustration--clip" key={active ? "on" : "off"}>
-          <ThemeVisual />
+        <div className="wizard-heading">
+          <p className="wizard-screen-eyebrow">Theme</p>
+          <h1 className="wizard-screen-title">Choose your theme</h1>
+          <p className="wizard-screen-sub">Pick a mode and a color. You can change this anytime in settings.</p>
         </div>
 
-        <h1 className="wizard-title" style={{ fontWeight: 800 }}>Choose your theme</h1>
-        <p className="wizard-subtitle">
-          Pick a mode and a color. You can change this anytime in settings.
-        </p>
+        {/* Mini live preview — auto-navigates through the anime app screens */}
+        <MiniAnimePreview />
 
-        {/* Theme mode toggle (Dark / Light / System) */}
-        <div className="mode-toggle" role="radiogroup" aria-label="Theme mode">
-          {MODE_OPTIONS.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              role="radio"
-              aria-checked={themeMode === opt.value}
-              className={`mode-btn ${themeMode === opt.value ? "mode-btn--active" : ""}`}
-              onClick={() => setThemeMode(opt.value)}
-              style={
-                themeMode === opt.value
-                  ? { background: palette.primary, color: palette.onPrimary }
-                  : undefined
-              }
-            >
-              {opt.icon}
-              {opt.label}
-            </button>
-          ))}
-        </div>
+        <div className="wizard-body">
+          {/* Mode toggle */}
+          <div className="mode-toggle" role="radiogroup" aria-label="Theme mode" style={{ alignSelf: "stretch", maxWidth: "none" }}>
+            {MODE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                className={`mode-btn ${themeMode === opt.value ? "mode-btn--active" : ""}`}
+                role="radio"
+                aria-checked={themeMode === opt.value}
+                onClick={() => setThemeMode(opt.value)}
+                style={themeMode === opt.value ? { background: palette.primary, color: palette.onPrimary } : undefined}
+              >
+                {opt.icon}
+                {opt.label}
+              </button>
+            ))}
+          </div>
 
-        {/* Color palette grid */}
-        <div className="palette-grid" role="radiogroup" aria-label="Color palette">
-          {PALETTES.map((p, i) => (
+          {/* Palette carousel (single row) */}
+          <div className="palette-carousel" role="radiogroup" aria-label="Color palette">
+            {PALETTES.map((p, i) => (
+              <button
+                key={p.id}
+                className={`palette-carousel__card ${palette.id === p.id ? "palette-carousel__card--active" : ""}`}
+                role="radio"
+                aria-checked={palette.id === p.id}
+                onClick={() => setPalette(p)}
+                style={{ animationDelay: `${0.05 * i + 0.1}s` }}
+              >
+                <span
+                  className="palette-carousel__swatch"
+                  style={{ background: `linear-gradient(135deg, ${p.primary}, ${p.primary}aa)` }}
+                />
+                <span className="palette-carousel__name">{p.name}</span>
+              </button>
+            ))}
+          </div>
+
+          {/* Extra customization toggles */}
+          <div className="wizard-toggle-row" style={{ animationDelay: "0.3s" }}>
+            <span className="wizard-toggle-row__text">
+              <span className="wizard-toggle-row__title">Bold text</span>
+              <span className="wizard-toggle-row__desc">Heavier headings everywhere</span>
+            </span>
             <button
-              key={p.id}
-              type="button"
-              role="radio"
-              aria-checked={palette.id === p.id}
-              className={`palette-card ${palette.id === p.id ? "palette-card--active" : ""}`}
-              onClick={() => setPalette(p)}
-              style={{
-                animation: `cardEntry 0.4s var(--ease-emphasized-decel) ${0.05 * i + 0.2}s backwards`,
-                ...(palette.id === p.id ? { borderColor: palette.primary } : {}),
-              }}
-            >
-              <span
-                className="palette-swatch"
-                style={{
-                  background: `linear-gradient(135deg, ${p.primary}, ${p.primary}aa)`,
-                }}
-              />
-              <span className="palette-name">{p.name}</span>
-            </button>
-          ))}
+              role="switch"
+              aria-checked={boldText}
+              aria-label="Toggle bold text"
+              className={`perm-toggle ${boldText ? "perm-toggle--on" : ""}`}
+              onClick={() => setBoldText((v) => !v)}
+              style={boldText ? { background: palette.primary } : undefined}
+            />
+          </div>
+          <div className="wizard-toggle-row" style={{ animationDelay: "0.4s" }}>
+            <span className="wizard-toggle-row__text">
+              <span className="wizard-toggle-row__title">Reduced motion</span>
+              <span className="wizard-toggle-row__desc">Calmer animations</span>
+            </span>
+            <button
+              role="switch"
+              aria-checked={reducedMotion}
+              aria-label="Toggle reduced motion"
+              className={`perm-toggle ${reducedMotion ? "perm-toggle--on" : ""}`}
+              onClick={() => setReducedMotion((v) => !v)}
+              style={reducedMotion ? { background: palette.primary } : undefined}
+            />
+          </div>
         </div>
       </div>
-
       <div className="wizard-actions">
-        <button type="button" className="wizard-btn wizard-btn--secondary" onClick={onBack} style={{ fontWeight: 800 }}>
+        <button className="wizard-btn wizard-btn--secondary" onClick={onBack} style={{ fontWeight: 800 }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M19 12H5M11 18l-6-6 6-6"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
           Back
         </button>
-        <button
-          type="button"
-          className="wizard-btn wizard-btn--primary"
-          onClick={onNext}
-          style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}
-        >
+        <button className="wizard-btn wizard-btn--primary" onClick={onNext} style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}>
           Next
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M5 12h14M13 6l6 6-6 6"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
       </div>
