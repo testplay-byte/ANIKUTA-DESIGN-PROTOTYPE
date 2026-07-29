@@ -1754,8 +1754,8 @@
 
 /* ---- Poison pill v2: wider/taller stretched, plus on RED half, random rotation ---- */
 .poison-pill-v2 {
-  width: 84px;
-  height: 40px;
+  width: 100px;
+  height: 42px;
   position: relative;
   border-radius: 999px;
   overflow: hidden;
@@ -1800,20 +1800,20 @@
   .poison-bottle-v2, .poison-pill-v2, .poison-bubble-v2 { animation: none !important; }
 }
 
-/* ---- Poison visual row: z-index hierarchy (each item different layer), centered ---- */
+/* ---- Poison visual row: z-index hierarchy + staggered positions (some up, some down, some middle) ---- */
 .poison-visual-row--v2 {
   display: flex;
   gap: var(--sp-3);
   justify-content: center;
   align-items: center;
-  min-height: 180px;
+  min-height: 200px;
   position: relative;
 }
 .poison-visual-row--v2 > * { position: relative; }
-/* Hierarchy via margin-top (doesn't conflict with the pill/bottle animation transform) */
-.poison-visual-row--v2 > *:nth-child(1) { z-index: 3; margin-top: -10px; }
-.poison-visual-row--v2 > *:nth-child(2) { z-index: 1; margin-top: 14px; }
-.poison-visual-row--v2 > *:nth-child(3) { z-index: 2; margin-top: -4px; }
+/* Big stagger: item 1 high, item 2 low, item 3 middle — clearly different areas */
+.poison-visual-row--v2 > *:nth-child(1) { z-index: 3; margin-top: -28px; }
+.poison-visual-row--v2 > *:nth-child(2) { z-index: 1; margin-top: 28px; }
+.poison-visual-row--v2 > *:nth-child(3) { z-index: 2; margin-top: -8px; }
 
 /* ---- Manual search overlay v4: cancel inside bar, search = icon ---- */
 .search-overlay--v4 .search-overlay__topbar {

@@ -128,8 +128,22 @@ export function ThemeVisual() {
 export function FolderVisual({ selected = false }: { selected?: boolean }) {
   const raw = useId();
   const id = raw.replace(/:/g, "");
+  const gradId = `fv-grad-${id}`;
+  const lidGradId = `fv-lid-grad-${id}`;
   return (
     <svg viewBox="0 0 200 200" width="100%" height="100%" style={{ overflow: "visible" }} aria-hidden="true">
+      <defs>
+        {/* Folder body gradient — subtle surface tones, NOT solid themed color */}
+        <linearGradient id={gradId} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="var(--color-surface-3)" />
+          <stop offset="100%" stopColor="var(--color-surface-5)" />
+        </linearGradient>
+        {/* Back lid gradient — slightly lighter for depth */}
+        <linearGradient id={lidGradId} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="var(--color-surface-4)" />
+          <stop offset="100%" stopColor="var(--color-surface-5)" />
+        </linearGradient>
+      </defs>
       <style>{`
         @keyframes fv-${id}-bob { 0%,100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-4px) rotate(-0.5deg); } }
         @keyframes fv-${id}-fileBob1 { 0%,100% { transform: translateY(0) rotate(-4deg); } 50% { transform: translateY(-5px) rotate(-7deg); } }
@@ -145,13 +159,15 @@ export function FolderVisual({ selected = false }: { selected?: boolean }) {
         .fv-${id}-spark { animation: fv-${id}-twinkle 2.4s ease-in-out infinite; }
         @media (prefers-reduced-motion: reduce) { .fv-${id}-folder,.fv-${id}-file1,.fv-${id}-file2,.fv-${id}-file3,.fv-${id}-badge,.fv-${id}-spark { animation: none !important; } }
       `}</style>
-      <Glow cx={100} cy={140} r={60} color="var(--color-primary)" opacity={0.22} />
+      <Glow cx={100} cy={140} r={60} color="var(--color-primary)" opacity={0.2} />
 
-      {/* Open folder back panel (the lid, angled open) — taller */}
       <g className={`fv-${id}-folder`}>
-        <path d="M40 116 L40 96 Q40 88 48 88 L86 88 L94 96 L152 96 Q158 96 158 104 L158 116 Z" fill="var(--color-primary)" opacity="0.9" stroke="var(--color-primary)" strokeWidth="2" strokeLinejoin="round" />
+        {/* Open back lid — surface gradient (not solid themed), with primary edge accent */}
+        <path d="M40 116 L40 96 Q40 88 48 88 L86 88 L94 96 L152 96 Q158 96 158 104 L158 116 Z" fill={`url(#${lidGradId})`} stroke="var(--color-primary)" strokeWidth="2" strokeLinejoin="round" />
+        {/* Lid highlight line */}
+        <path d="M48 92 L84 92 L92 98" fill="none" stroke="var(--color-primary)" strokeWidth="1" opacity="0.5" />
 
-        {/* Three SHORT files floating out the top — each a different shade, only top ~32px visible */}
+        {/* Three SHORT files floating out the top — each a different shade */}
         <g className={`fv-${id}-file1`}>
           <rect x="56" y="56" width="28" height="34" rx="3" fill="var(--color-surface-5)" stroke="var(--color-primary)" strokeWidth="1.3" />
           <rect x="56" y="56" width="28" height="10" rx="3" fill="var(--color-primary)" opacity="0.55" />
@@ -172,14 +188,16 @@ export function FolderVisual({ selected = false }: { selected?: boolean }) {
           <rect x="120" y="78" width="14" height="2.5" rx="1.25" fill="var(--color-primary)" opacity="0.35" />
         </g>
 
-        {/* Front pocket of the open folder — TALLER (extends from 116 to 172) */}
-        <path d="M38 116 L162 116 L162 168 Q162 174 156 174 L44 174 Q38 174 38 168 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.2" strokeLinejoin="round" />
+        {/* Front pocket — surface gradient (not solid primary-container), primary border */}
+        <path d="M38 116 L162 116 L162 168 Q162 174 156 174 L44 174 Q38 174 38 168 Z" fill={`url(#${gradId})`} stroke="var(--color-primary)" strokeWidth="2.2" strokeLinejoin="round" />
         {/* Folder tab on the front pocket */}
-        <path d="M38 116 L38 108 Q38 102 44 102 L72 102 L78 116 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.2" strokeLinejoin="round" />
+        <path d="M38 116 L38 108 Q38 102 44 102 L72 102 L78 116 Z" fill={`url(#${gradId})`} stroke="var(--color-primary)" strokeWidth="2.2" strokeLinejoin="round" />
+        {/* Top edge highlight on the pocket */}
+        <rect x="40" y="116" width="120" height="2" rx="1" fill="var(--color-primary)" opacity="0.4" />
         {/* Inner content lines on the front pocket */}
-        <rect x="54" y="132" width="92" height="4" rx="2" fill="var(--color-primary)" opacity="0.4" />
-        <rect x="54" y="146" width="72" height="4" rx="2" fill="var(--color-primary)" opacity="0.3" />
-        <rect x="54" y="160" width="82" height="4" rx="2" fill="var(--color-primary)" opacity="0.3" />
+        <rect x="54" y="134" width="92" height="4" rx="2" fill="var(--color-primary)" opacity="0.35" />
+        <rect x="54" y="148" width="72" height="4" rx="2" fill="var(--color-primary)" opacity="0.25" />
+        <rect x="54" y="162" width="82" height="4" rx="2" fill="var(--color-primary)" opacity="0.25" />
       </g>
 
       <circle className={`fv-${id}-spark`} cx="50" cy="60" r="2" fill="var(--color-primary)" />

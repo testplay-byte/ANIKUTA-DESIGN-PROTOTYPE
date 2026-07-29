@@ -320,7 +320,7 @@ export default function Page() {
               active={route === "restore"}
               onNext={() => go("format")}
               onBack={goBack}
-              onSkip={() => go("finish")}
+              onSkip={() => go("poison")}
               palette={palette}
             />
             <FormatNotSupportedScreen

@@ -3,8 +3,7 @@
 /**
  * setup-wizard / screens / welcome-screen — Step 0 (#welcome).
  *
- * v2.3: Bigger heading (--xl, ~25% bigger). Details list below the animation
- * (about the app experience, NOT about the next setup screens).
+ * v2.5: Simple, minimal details items (no descriptions). Clean + good-looking.
  */
 import type { ThemePalette } from "../lib/themes";
 import { WelcomeVisual } from "../components/visuals";
@@ -17,19 +16,16 @@ interface WelcomeScreenProps {
 
 const DETAILS = [
   {
-    title: "Binge without guilt",
-    desc: "We won't judge your watch history",
-    icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 21h10M9 17h6M12 3a7 7 0 0 0-4 12.7V17h8v-1.3A7 7 0 0 0 12 3z" /></svg>),
+    title: "Track what you watch",
+    icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>),
   },
   {
-    title: "Syncs like magic",
-    desc: "Pick up where you left off, anywhere",
-    icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3v4M3 5h4M6 17v4M4 19h4M13 3l2.5 6.5L22 12l-6.5 2.5L13 21l-2.5-6.5L4 12l6.5-2.5z" /></svg>),
+    title: "Pick up anywhere",
+    icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /></svg>),
   },
   {
-    title: "Spoilers? Never.",
-    desc: "We guard your watch history with our life",
-    icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" /></svg>),
+    title: "Never miss a release",
+    icon: (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></svg>),
   },
 ];
 
@@ -50,10 +46,7 @@ export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
           {DETAILS.map((d, i) => (
             <li className="welcome-details__item" key={d.title} style={{ animationDelay: `${0.1 * i + 0.2}s` }}>
               <span className="welcome-details__icon">{d.icon}</span>
-              <span className="welcome-details__text">
-                <span className="welcome-details__title">{d.title}</span>
-                <span className="welcome-details__desc">{d.desc}</span>
-              </span>
+              <span className="welcome-details__title" style={{ fontSize: "var(--fs-body-l)" }}>{d.title}</span>
             </li>
           ))}
         </ul>
