@@ -140,7 +140,7 @@ fun SetupWizardApp() {
             color = MaterialTheme.colorScheme.background
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-                // Progress bar at top
+                // Progress bar at top — flush, no padding
                 WizardProgressBar(
                     current = STEP_ORDER.indexOf(state.step),
                     total = STEP_ORDER.size,
@@ -148,7 +148,7 @@ fun SetupWizardApp() {
                     modifier = Modifier.align(Alignment.TopCenter),
                 )
                 // Screen content
-                Box(modifier = Modifier.fillMaxSize().padding(top = 6.dp)) {
+                Box(modifier = Modifier.fillMaxSize()) {
                     AnimatedContent(
                         targetState = state.step,
                         transitionSpec = {
@@ -261,7 +261,7 @@ fun SetupWizardApp() {
 
 @Composable
 fun WizardProgressBar(current: Int, total: Int, color: Color, modifier: Modifier = Modifier) {
-    Column(modifier = modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+    Column(modifier = modifier.padding(horizontal = 16.dp, vertical = 2.dp)) {
         LinearProgressIndicator(
             progress = { (current + 1f) / total },
             modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(999.dp)),
@@ -540,8 +540,15 @@ fun FolderScreen(palette: WizardPalette, folderSelected: Boolean, onSelect: () -
         }
         // Fixed footer
         if (scanning) {
-            ActionRow(back = onBack, next = null, palette = palette)
-            Text("Scanning…", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp), textAlign = TextAlign.Center)
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                WizardButton("Back", onBack, palette, isPrimary = false, enabled = true, leadingIcon = { Icon(Icons.Default.ArrowBack, null, Modifier.size(20.dp)) }, modifier = Modifier.weight(1f))
+                Box(modifier = Modifier.weight(1f).height(52.dp).clip(RoundedCornerShape(999.dp)).background(palette.surface3), contentAlignment = Alignment.Center) {
+                    Text("Scanning…", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontFamily = RobotoFamily, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+                }
+            }
         } else {
             ActionRow(back = onBack, next = onNext, nextText = "Continue", palette = palette, nextEnabled = folderSelected)
         }
@@ -1128,7 +1135,7 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
             ) {
                 repeat(visualCount) { i ->
                     val offsetY = when (i) { 0 -> (-28).dp; 1 -> 28.dp; 2 -> (-8).dp; else -> 0.dp }
-                    Box(modifier = Modifier.weight(1f).padding(top = offsetY)) {
+                    Box(modifier = Modifier.weight(1f).offset(y = offsetY)) {
                         if (adSettings.name == AdName.POISON) PoisonBottleVisual(palette, i) else PoisonPillVisual(palette, i)
                     }
                 }
