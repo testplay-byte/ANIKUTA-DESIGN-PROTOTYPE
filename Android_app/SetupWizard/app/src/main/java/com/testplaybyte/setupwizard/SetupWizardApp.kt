@@ -251,8 +251,7 @@ fun PageHeading(text: String, palette: WizardPalette, modifier: Modifier = Modif
         color = palette.primary,
         fontSize = 28.sp,
         fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold,
-        fontFamily = RobotoFamily,
+        fontWeight = FontWeight.ExtraBold,
         letterSpacing = (-0.5).sp,
         maxLines = 2,
         modifier = modifier.padding(start = 20.dp, top = 8.dp, end = 20.dp)
@@ -266,8 +265,7 @@ fun DescriptiveTitle(text: String, modifier: Modifier = Modifier) {
         color = MaterialTheme.colorScheme.onBackground,
         fontSize = 20.sp,
         fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold,
-        fontFamily = RobotoFamily,
+        fontWeight = FontWeight.Bold,
         textAlign = TextAlign.Center,
         modifier = modifier
     )
@@ -328,8 +326,7 @@ fun WelcomeScreen(palette: WizardPalette, onNext: () -> Unit) {
                 "Welcome to Anime App!",
                 color = palette.primary,
                 fontSize = 30.sp,
-                fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold,
+                                fontWeight = FontWeight.ExtraBold,
                 fontFamily = RobotoFamily,
                 letterSpacing = (-0.8).sp,
                 modifier = Modifier.padding(top = 16.dp)
@@ -338,8 +335,7 @@ fun WelcomeScreen(palette: WizardPalette, onNext: () -> Unit) {
                 "Let's get things quickly set up for you.",
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 fontSize = 16.sp,
-                fontFamily = RobotoFamily,
-                modifier = Modifier.padding(top = 4.dp)
+                                modifier = Modifier.padding(top = 4.dp)
             )
         }
         // Scrollable content
@@ -432,7 +428,7 @@ fun ThemeScreen(palette: WizardPalette, paletteIndex: Int, onPaletteChange: (Int
                             color = if (themeMode == mode) palette.onPrimary else MaterialTheme.colorScheme.onBackground,
                             fontSize = 12.sp,
                             fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Bold
                         )
                     }
                 }
@@ -449,7 +445,7 @@ fun ThemeScreen(palette: WizardPalette, paletteIndex: Int, onPaletteChange: (Int
                         Box(Modifier.size(44.dp).clip(CircleShape).background(brush = Brush.linearGradient(listOf(p.primary, p.primary.copy(alpha = 0.7f)))))
                         Spacer(Modifier.height(8.dp))
                         Text(PaletteNames[i], color = if (i == paletteIndex) p.primary else MaterialTheme.colorScheme.onBackground, fontSize = 11.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -494,7 +490,7 @@ fun FolderScreen(palette: WizardPalette, folderSelected: Boolean, onSelect: () -
                     Icon(Icons.Default.Folder, null, tint = palette.primary, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(6.dp))
                     Text("Select Folder", color = palette.primary, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                 }
             } else {
                 // Folder card
@@ -508,7 +504,7 @@ fun FolderScreen(palette: WizardPalette, folderSelected: Boolean, onSelect: () -
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text("/storage/anime-library", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                         Text(if (scanning) "Scanning…" else "247 items · ready", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 12.sp)
                     }
                     if (!scanning) Icon(Icons.Default.Check, null, tint = palette.primary)
@@ -570,7 +566,7 @@ fun PermissionsScreen(palette: WizardPalette, permissions: Map<String, Boolean>,
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(pair.first, color = MaterialTheme.colorScheme.onBackground, fontSize = 15.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                         Text(pair.second, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 11.sp)
                     }
                     Switch(checked = isOn, onCheckedChange = { onToggle(key) }, colors = SwitchDefaults.colors(checkedTrackColor = palette.primary, checkedThumbColor = palette.onPrimary))
@@ -608,7 +604,7 @@ fun RestoreScreen(palette: WizardPalette, onBack: () -> Unit, onNext: () -> Unit
                 Icon(Icons.Default.FileDownload, null, tint = palette.primary, modifier = Modifier.size(18.dp))
                 Spacer(Modifier.width(6.dp))
                 Text("Select Backup File", color = palette.primary, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
             }
         }
         // Fixed footer (Back + Skip)
@@ -619,7 +615,7 @@ fun RestoreScreen(palette: WizardPalette, onBack: () -> Unit, onNext: () -> Unit
             WizardButton("Back", onBack, palette, isPrimary = false, enabled = true, leadingIcon = { Icon(Icons.Default.ArrowBack, null, Modifier.size(20.dp)) }, modifier = Modifier.weight(1f))
             TextButton(onClick = onSkip, modifier = Modifier.weight(1f)) {
                 Text("Skip", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -640,8 +636,7 @@ fun FormatScreen(palette: WizardPalette, onBack: () -> Unit, onNext: () -> Unit)
                 "This is not the format I was expecting.",
                 color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 18.sp,
-                fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold,
+                                fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )
@@ -664,7 +659,7 @@ fun FormatScreen(palette: WizardPalette, onBack: () -> Unit, onNext: () -> Unit)
                 Spacer(Modifier.width(12.dp))
                 Column {
                     Text("anime_backup_2025-01-15.json", color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                     Text("2.3 MB · JSON (unknown schema)", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 12.sp)
                 }
             }
@@ -694,7 +689,7 @@ fun ProcessingScreen(palette: WizardPalette, onNext: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Processing", color = palette.primary, fontSize = 13.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                 Spacer(Modifier.width(8.dp))
                 repeat(3) { Box(Modifier.size(6.dp).clip(CircleShape).background(palette.primary)); Spacer(Modifier.width(4.dp)) }
             }
@@ -737,11 +732,11 @@ fun SummaryScreen(palette: WizardPalette, onCancel: () -> Unit, onNext: () -> Un
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(pair.first, color = MaterialTheme.colorScheme.onBackground, fontSize = 15.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                         Text(if (isWarn) "Not supported — will be skipped" else "Ready to restore", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 11.sp)
                     }
                     Text(pair.second, color = if (isWarn) Color(0xFFF2B8B5) else palette.primary, fontSize = 18.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                 }
             }
         }
@@ -766,7 +761,7 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
         // Fixed header (heading + title + subtitle + stats) — NOT scrollable
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text("Backup Restore", color = palette.primary, fontSize = 28.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp, modifier = Modifier.padding(top = 8.dp))
+        fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp, modifier = Modifier.padding(top = 8.dp))
             DescriptiveTitle("Linking anime", modifier = Modifier.fillMaxWidth())
             Subtitle("Matching your backup entries", modifier = Modifier.fillMaxWidth().padding(top = 2.dp))
             Spacer(Modifier.height(8.dp))
@@ -784,9 +779,9 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text("$value", color = color, fontSize = 18.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                         Text(label, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 9.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -801,7 +796,7 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
                 ) {
                     Column(Modifier.weight(1f)) {
                         Text(anime.backupName, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                         if (anime.linked && anime.matchedName != null) Text(anime.matchedName, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp)
                     }
                     Box(Modifier.size(26.dp).clip(CircleShape).background(if (anime.linked) palette.primary.copy(alpha = 0.18f) else Color(0xFFF2B8B5).copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
@@ -810,7 +805,7 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
                     if (anime.linked) {
                         Box(Modifier.size(width = 30.dp, height = 42.dp).clip(RoundedCornerShape(5.dp)).background(brush = Brush.linearGradient(listOf(palette.primary, palette.primary.copy(alpha = 0.5f)))), contentAlignment = Alignment.Center) {
                             Text(anime.backupName.first().toString(), color = palette.onPrimary, fontSize = 14.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                         }
                     }
                 }
@@ -829,10 +824,10 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
                     Text("Linked entry", color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                     Text("This entry was auto-linked. If the match is wrong, mark it as not linked — you'll be able to link it manually.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 12.sp)
                     Text(anime.backupName, color = MaterialTheme.colorScheme.onBackground, fontSize = 13.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(palette.surface3).padding(8.dp))
+        fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(palette.surface3).padding(8.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         WizardButton("Keep linked", { popupId = null }, palette, isPrimary = false, enabled = true, modifier = Modifier.weight(1f))
                         WizardButton("Mark as not linked", { onUnlink(anime.id); popupId = null }, palette, isPrimary = true, enabled = true, modifier = Modifier.weight(1f))
@@ -879,9 +874,9 @@ fun ManualScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onLink:
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(anime.backupName, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+        fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                     Text("Search", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                 }
             }
         }
@@ -894,7 +889,7 @@ fun ManualScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onLink:
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                 IconButton(onClick = { searchOpen = false; selectedId = null }) { Icon(Icons.Default.ArrowBack, null) }
                 Text("Find a match", color = MaterialTheme.colorScheme.onBackground, fontSize = 22.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
             }
             Text("Linking: ${selectedAnime?.backupName ?: ""}", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 12.sp, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
             // Search bar with X + search icon
@@ -927,12 +922,12 @@ fun ManualScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onLink:
                     ) {
                         Box(Modifier.size(width = 34.dp, height = 48.dp).clip(RoundedCornerShape(5.dp)).background(brush = Brush.linearGradient(listOf(palette.primary, palette.primary.copy(alpha = 0.5f)))), contentAlignment = Alignment.Center) {
                             Text(title.first().toString(), color = palette.onPrimary, fontSize = 13.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                         }
                         Spacer(Modifier.width(12.dp))
                         Column(Modifier.weight(1f)) {
                             Text(title, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                             Text(sub, color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp)
                         }
                         Box(Modifier.size(28.dp).clip(CircleShape).background(palette.primary.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
@@ -973,7 +968,7 @@ fun RestoreSummaryScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>,
                     Spacer(Modifier.width(12.dp))
                     Column {
                         Text("Ready to restore", color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                         Text("Your library will be overwritten with the backup data.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 11.sp)
                     }
                 }
@@ -981,29 +976,29 @@ fun RestoreSummaryScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>,
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(1.dp)) {
                     Column(Modifier.weight(1f).background(palette.surface3).padding(10.dp)) {
                         Text("$toRestore", color = palette.primary, fontSize = 20.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                         Text("Anime to restore", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                     }
                     Column(Modifier.weight(1f).background(palette.surface3).padding(10.dp)) {
                         Text("$linked", color = palette.primary, fontSize = 20.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                         Text("Auto-linked", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                     }
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(1.dp)) {
                     Column(Modifier.weight(1f).background(palette.surface3).padding(10.dp)) {
                         Text("0", color = palette.primary, fontSize = 20.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                         Text("Manually linked", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                     }
                     Column(Modifier.weight(1f).background(palette.surface3).padding(10.dp)) {
                         Text("$episodes", color = palette.primary, fontSize = 20.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                         Text("Episodes", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -1044,7 +1039,7 @@ fun RestoreProcessingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnim
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Restoring…", color = palette.primary, fontSize = 13.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
                 Spacer(Modifier.width(8.dp))
                 repeat(3) { Box(Modifier.size(6.dp).clip(CircleShape).background(palette.primary)); Spacer(Modifier.width(4.dp)) }
             }
@@ -1079,7 +1074,7 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
         // Fixed header (poison red heading + subtitle)
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text("Choose Your Poison", color = Color(0xFFFF6B6B), fontSize = 28.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(top = 8.dp))
+        fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(top = 8.dp))
             Text("Ads keep the app free. Let's make them non-intrusive — pick your daily dose.", color = Color(0xFFD9A0A0), fontSize = 14.sp, modifier = Modifier.padding(top = 2.dp))
         }
         // Scrollable content
@@ -1110,7 +1105,7 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
             when (step) {
                 0 -> {
                     Text("What should we call it?", color = Color(0xFFD9A0A0), fontSize = 11.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+        fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
                     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(999.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(999.dp)).padding(4.dp)) {
                         AdName.values().forEach { name ->
                             Row(
@@ -1119,7 +1114,7 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(name.label, color = if (adSettings.name == name) palette.onPrimary else Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -1127,7 +1122,7 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
                 }
                 1 -> {
                     Text("How many per day?", color = Color(0xFFD9A0A0), fontSize = 11.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+        fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
                     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(999.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(999.dp)).padding(4.dp)) {
                         listOf(1, 2, 3).forEach { n ->
                             Row(
@@ -1136,7 +1131,7 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text("$n ${if (n == 1) "ad" else "ads"}", color = if (adSettings.frequency == n) palette.onPrimary else Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -1144,14 +1139,14 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
                 }
                 2 -> {
                     Text("When should they appear?", color = Color(0xFFD9A0A0), fontSize = 11.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+        fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         AdTiming.values().forEach { t ->
                             Box(
                                 Modifier.clip(RoundedCornerShape(999.dp)).background(if (adSettings.timing == t) palette.primary else palette.surface2).border(1.dp, if (adSettings.timing == t) palette.primary else palette.surface3, RoundedCornerShape(999.dp)).clickable { onUpdate(adSettings.copy(timing = t)) }.padding(horizontal = 14.dp, vertical = 8.dp)
                             ) {
                                 Text(t.label, color = if (adSettings.timing == t) palette.onPrimary else Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                             }
                         }
                     }
@@ -1183,10 +1178,10 @@ fun FinishScreen(palette: WizardPalette, state: WizardState, onRestart: () -> Un
                 Icon(Icons.Default.Star, null, tint = palette.primary, modifier = Modifier.size(14.dp))
                 Spacer(Modifier.width(6.dp))
                 Text("Setup complete", color = palette.primary, fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold)
+        fontWeight = FontWeight.ExtraBold)
             }
             Text("You're all set!", color = palette.primary, fontSize = 28.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(top = 8.dp))
+        fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(top = 8.dp))
             Text(
                 "Hope you have a beautiful journey ahead. Explore thousands of titles, track your progress, and never miss a new episode.",
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
@@ -1203,27 +1198,27 @@ fun FinishScreen(palette: WizardPalette, state: WizardState, onRestart: () -> Un
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("Theme", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 12.sp)
                     Text("${PaletteNames[state.paletteIndex]} · ${state.themeMode.label.lowercase()}", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("Anime folder", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 12.sp)
                     Text(if (state.folderSelected) "Connected" else "Skipped", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("Library restored", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 12.sp)
                     Text("${state.linkedAnime.count { it.linked } + 239} anime", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("Ads", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 12.sp)
                     Text("${state.adSettings.frequency}/day · ${state.adSettings.timing.label}", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                 }
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Text("Daily dose", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 12.sp)
                     Text(state.adSettings.name.label, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-                fontWeight = FontWeight.Bold)
+        fontWeight = FontWeight.Bold)
                 }
             }
         }
