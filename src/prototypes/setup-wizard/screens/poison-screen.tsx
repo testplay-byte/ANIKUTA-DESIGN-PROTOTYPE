@@ -23,45 +23,62 @@ interface PoisonScreenProps {
 
 const TOTAL_STEPS = 3;
 
-/** A single poison bottle SVG. */
+/** A single poison bottle SVG (v2: more spin, liquid, bubbles, better skull). */
 function PoisonBottle({ delay = "0s" }: { delay?: string }) {
   return (
-    <svg className="poison-bottle" viewBox="0 0 100 140" aria-hidden="true" style={{ animationDelay: delay }}>
-      <path d="M38 30 L38 44 Q30 50 30 62 L30 120 Q30 130 40 130 L60 130 Q70 130 70 120 L70 62 Q70 50 62 44 L62 30 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinejoin="round" />
-      <rect x="38" y="14" width="24" height="18" rx="2" fill="var(--color-surface-4)" stroke="var(--color-primary)" strokeWidth="1.5" />
-      <rect x="36" y="8" width="28" height="8" rx="2" fill="var(--color-primary)" />
-      <rect x="36" y="74" width="28" height="34" rx="3" fill="var(--color-bg)" opacity="0.9" />
-      <circle cx="50" cy="86" r="6" fill="var(--color-primary)" />
-      <rect x="46" y="92" width="8" height="5" rx="1" fill="var(--color-primary)" />
-      <circle cx="48" cy="86" r="1.3" fill="var(--color-bg)" />
-      <circle cx="52" cy="86" r="1.3" fill="var(--color-bg)" />
-      <path d="M34 70 Q34 60 40 58 L40 120 Q34 120 34 110 Z" fill="var(--color-primary)" opacity="0.25" />
-    </svg>
-  );
-}
-
-/** A single poison pill (capsule). */
-function PoisonPill({ delay = "0s" }: { delay?: string }) {
-  return (
-    <div className="poison-pill" style={{ animationDelay: delay }}>
-      <div className="poison-pill__cap" />
-      <div className="poison-pill__body">
-        <div className="poison-pill__line" />
-      </div>
+    <div style={{ position: "relative", animationDelay: delay }} className="poison-bottle-v2">
+      <svg viewBox="0 0 100 140" width="100%" height="100%" aria-hidden="true" style={{ overflow: "visible" }}>
+        {/* bottle body */}
+        <path d="M38 30 L38 44 Q30 50 30 62 L30 120 Q30 130 40 130 L60 130 Q70 130 70 120 L70 62 Q70 50 62 44 L62 30 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinejoin="round" />
+        {/* neck + cap */}
+        <rect x="38" y="14" width="24" height="18" rx="2" fill="var(--color-surface-4)" stroke="var(--color-primary)" strokeWidth="1.5" />
+        <rect x="36" y="8" width="28" height="8" rx="2" fill="var(--color-primary)" />
+        {/* liquid inside (bottom ~60% of the bottle) */}
+        <clipPath id={`bottle-clip-${delay}`}>
+          <path d="M38 30 L38 44 Q30 50 30 62 L30 120 Q30 130 40 130 L60 130 Q70 130 70 120 L70 62 Q70 50 62 44 L62 30 Z" />
+        </clipPath>
+        <rect x="30" y="70" width="40" height="60" fill="var(--color-primary)" opacity="0.45" clipPath={`url(#bottle-clip-${delay})`} />
+        {/* liquid surface wave */}
+        <path d="M30 72 Q40 68 50 72 Q60 76 70 72 L70 76 Q60 80 50 76 Q40 72 30 76 Z" fill="var(--color-primary)" opacity="0.6" clipPath={`url(#bottle-clip-${delay})`} />
+        {/* label */}
+        <rect x="36" y="78" width="28" height="32" rx="3" fill="var(--color-bg)" opacity="0.92" />
+        {/* skull (better) */}
+        <circle cx="50" cy="90" r="7" fill="var(--color-primary)" />
+        <rect x="45" y="97" width="10" height="6" rx="1.5" fill="var(--color-primary)" />
+        <circle cx="47.5" cy="90" r="1.6" fill="var(--color-bg)" />
+        <circle cx="52.5" cy="90" r="1.6" fill="var(--color-bg)" />
+        <path d="M48 95 L50 97 L52 95" fill="none" stroke="var(--color-bg)" strokeWidth="0.8" strokeLinecap="round" />
+      </svg>
+      {/* rising bubbles */}
+      <span className="poison-bubble-v2" style={{ width: 6, height: 6, left: "42%", bottom: "30%", animationDelay: "0s" }} />
+      <span className="poison-bubble-v2" style={{ width: 4, height: 4, left: "55%", bottom: "25%", animationDelay: "0.8s" }} />
+      <span className="poison-bubble-v2" style={{ width: 7, height: 7, left: "48%", bottom: "20%", animationDelay: "1.6s" }} />
+      <span className="poison-bubble-v2" style={{ width: 3, height: 3, left: "58%", bottom: "35%", animationDelay: "2.2s" }} />
     </div>
   );
 }
 
-/** Renders the appropriate visual: N bottles or N pills. */
+/** A single poison pill (v2: proper half-split, plus icon, random rotation). */
+function PoisonPill({ delay = "0s" }: { delay?: string }) {
+  return (
+    <div className="poison-pill-v2" style={{ animationDelay: delay }} aria-hidden="true">
+      <div className="poison-pill-v2__half poison-pill-v2__half--left" />
+      <div className="poison-pill-v2__half poison-pill-v2__half--right" />
+      <span className="poison-pill-v2__plus">+</span>
+    </div>
+  );
+}
+
+/** Renders the appropriate visual: N bottles or N pills (with z-index hierarchy). */
 function PoisonVisual({ name, count }: { name: AdName; count: number }) {
   const items = Array.from({ length: count });
   return (
     <div className="poison-hero" key={`${name}-${count}`} aria-hidden="true">
       <span className="poison-glow" />
-      <div className="poison-visual-row">
+      <div className="poison-visual-row--v2">
         {name === "poison"
-          ? items.map((_, i) => <PoisonBottle key={i} delay={`${i * 0.2}s`} />)
-          : items.map((_, i) => <PoisonPill key={i} delay={`${i * 0.15}s`} />)}
+          ? items.map((_, i) => <PoisonBottle key={i} delay={`${i * 0.3}s`} />)
+          : items.map((_, i) => <PoisonPill key={i} delay={`${i * 0.4}s`} />)}
       </div>
     </div>
   );
@@ -78,10 +95,8 @@ export function PoisonScreen({ active, onNext, onBack, adSettings, updateAdSetti
     }
   }
 
-  // The visual count: on step 0 (name) show 1 bottle or 3 pills; on step 1+2 show N (frequency).
-  const visualCount = step === 0
-    ? (adSettings.name === "pills" ? 3 : 1)
-    : adSettings.frequency;
+  // The visual count: on step 0 (name) show 1; on step 1+2 show N (frequency).
+  const visualCount = step === 0 ? 1 : adSettings.frequency;
   // On step 0, show the currently-selected name's visual (bottle or pills).
   const visualName = adSettings.name;
 

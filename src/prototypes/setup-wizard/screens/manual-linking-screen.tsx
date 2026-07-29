@@ -120,9 +120,9 @@ export function ManualLinkingScreen({ active, onNext, onBack, palette, linkedAni
         </button>
       </div>
 
-      {/* Search overlay — v3: complete redo, search bar lower with cancel + search buttons */}
+      {/* Search overlay — v4: cancel INSIDE bar, search = icon only, no left search icon */}
       {searchOpen && (
-        <div className="search-overlay search-overlay--v3">
+        <div className="search-overlay search-overlay--v4">
           <div className="search-overlay__topbar">
             <button className="search-overlay__back" onClick={() => { setSearchOpen(false); setSelectedAnimeId(null); }} aria-label="Close search">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -132,47 +132,33 @@ export function ManualLinkingScreen({ active, onNext, onBack, palette, linkedAni
             <h2 className="search-overlay__title">Find a match</h2>
           </div>
 
-          <div className="search-bar-block">
-            <div className="search-overlay__info">
-              Linking: <b>{selectedAnime?.backupName}</b>
-            </div>
-            <div className="search-input-row">
-              <div className="search-overlay__input-wrap">
-                <span className="search-overlay__input-icon">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-                  </svg>
-                </span>
-                <input
-                  type="text"
-                  className="search-overlay__input"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search for anime…"
-                  autoFocus
-                />
-              </div>
-              <button
-                className="search-btn"
-                onClick={() => {/* search is live-filtered; this is a visual button */}}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-                </svg>
-                Search
-              </button>
-              <button
-                className="cancel-btn"
-                onClick={() => { setSearchOpen(false); setSelectedAnimeId(null); }}
-              >
-                Cancel
-              </button>
-            </div>
+          <div className="search-info">
+            Linking: <b>{selectedAnime?.backupName}</b>
           </div>
 
-          <div className="search-overlay__results">
+          <div className="search-bar-shell">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search for anime…"
+              autoFocus
+            />
+            {searchQuery ? (
+              <button className="search-cancel-btn" onClick={() => setSearchQuery("")} aria-label="Clear search">
+                Cancel
+              </button>
+            ) : null}
+            <button className="search-icon-btn" aria-label="Search">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="search-results">
             {filteredResults.length === 0 ? (
-              <div className="search-overlay__empty">No results found. Try a different search.</div>
+              <div className="search-empty">No results found. Try a different search.</div>
             ) : (
               filteredResults.map((result, i) => (
                 <button

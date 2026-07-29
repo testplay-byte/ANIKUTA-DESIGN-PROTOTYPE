@@ -49,7 +49,7 @@ export function FinishScreen({ active, onRestart, palette, themeMode, folderSele
             Setup complete
           </span>
           <h1 className="finish-hero__title">You&apos;re all set!</h1>
-          <p className="finish-hero__sub">Your anime journey begins now. Explore thousands of titles, track your progress, and never miss a new episode.</p>
+          <p className="finish-hero__sub">Hope you have a beautiful journey ahead. Explore thousands of titles, track your progress, and never miss a new episode.</p>
         </div>
 
         <div className="wizard-body">

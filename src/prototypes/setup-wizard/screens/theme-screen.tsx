@@ -49,7 +49,7 @@ export function ThemeScreen({ active, onNext, onBack, themeMode, setThemeMode, p
         <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
           <h2 className="wizard-descriptive-title">Choose your theme</h2>
           <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>
-            Pick a mode and a color. You can change this anytime in settings.
+            Pick a mode and a color and we are set with it.
           </p>
         </div>
 
