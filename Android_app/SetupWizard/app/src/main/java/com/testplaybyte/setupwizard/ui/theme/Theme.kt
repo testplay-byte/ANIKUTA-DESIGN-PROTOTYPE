@@ -101,7 +101,7 @@ fun SetupWizardTheme(
         lightColorScheme(
             primary = palette.primary,
             onPrimary = palette.onPrimary,
-            primaryContainer = Color(0xFFDF5B0),
+            primaryContainer = Color(0xFFDFF5B0),
             onPrimaryContainer = palette.onPrimaryContainer,
             background = LightBg,
             surface = LightSurface1,

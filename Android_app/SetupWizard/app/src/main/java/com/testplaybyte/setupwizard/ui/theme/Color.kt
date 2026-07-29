@@ -49,3 +49,28 @@ val TextMutedDark = Color(0xFF49454F)
 val LightBg = Color(0xFFF5FDF0)
 val LightSurface1 = Color(0xFFEFF8E8)
 val LightSurface2 = Color(0xFFE5F2D8)
+
+// Poison (red) palette — forced on the Choose Your Poison screen
+val PoisonPrimary = Color(0xFFFF5252)
+val PoisonOnPrimary = Color(0xFF1A0000)
+val PoisonPrimaryContainer = Color(0xFF5C1A1A)
+val PoisonOnPrimaryContainer = Color(0xFFFFE5E5)
+val PoisonBg = Color(0xFF1A0808)
+val PoisonSurface1 = Color(0xFF240D0D)
+val PoisonSurface2 = Color(0xFF2E1414)
+val PoisonSurface3 = Color(0xFF3A1C1C)
+val PoisonSurface4 = Color(0xFF462424)
+val PoisonSurface5 = Color(0xFF522C2C)
+
+val PoisonPalette = WizardPalette(
+    primary = PoisonPrimary,
+    onPrimary = PoisonOnPrimary,
+    primaryContainer = PoisonPrimaryContainer,
+    onPrimaryContainer = PoisonOnPrimaryContainer,
+    background = PoisonBg,
+    surface1 = PoisonSurface1,
+    surface2 = PoisonSurface2,
+    surface3 = PoisonSurface3,
+    surface4 = PoisonSurface4,
+    surface5 = PoisonSurface5,
+)
