@@ -46,16 +46,17 @@ function PoisonBottle({ delay = "0s", idx = 0 }: { delay?: string; idx?: number 
         <style>{`
           ${spins[idx % 3]}
           @keyframes ${bubbleId} {
-            0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
-            10% { opacity: 0.95; transform: translate(0, -10px) scale(1); }
-            70% { opacity: 0.85; transform: translate(0, -70px) scale(1); }
-            90% { opacity: 0.6; transform: translate(0, -92px) scale(1.3); }
-            100% { transform: translate(0, -98px) scale(1.6); opacity: 0; }
+            0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+            8% { opacity: 0.9; transform: translate(0, -8px) scale(1); }
+            72% { opacity: 0.9; transform: translate(0, -78px) scale(1); }
+            82% { opacity: 0.9; transform: translate(0, -90px) scale(1.1); }
+            88% { opacity: 0; transform: translate(0, -92px) scale(2.2); }
+            100% { opacity: 0; transform: translate(0, -92px) scale(2.2); }
           }
-          .${bubbleId}-b1 { animation: ${bubbleId} 3.5s ease-in infinite; }
-          .${bubbleId}-b2 { animation: ${bubbleId} 3.5s ease-in infinite 0.9s; }
-          .${bubbleId}-b3 { animation: ${bubbleId} 3.5s ease-in infinite 1.8s; }
-          .${bubbleId}-b4 { animation: ${bubbleId} 3.5s ease-in infinite 2.5s; }
+          .${bubbleId}-b1 { animation: ${bubbleId} 3.2s ease-out infinite; }
+          .${bubbleId}-b2 { animation: ${bubbleId} 3.2s ease-out infinite 0.8s; }
+          .${bubbleId}-b3 { animation: ${bubbleId} 3.2s ease-out infinite 1.6s; }
+          .${bubbleId}-b4 { animation: ${bubbleId} 3.2s ease-out infinite 2.4s; }
           @media (prefers-reduced-motion: reduce) { .${bubbleId}-b1, .${bubbleId}-b2, .${bubbleId}-b3, .${bubbleId}-b4 { animation: none !important; opacity: 0.7 !important; } }
         `}</style>
         {/* bottle body */}
