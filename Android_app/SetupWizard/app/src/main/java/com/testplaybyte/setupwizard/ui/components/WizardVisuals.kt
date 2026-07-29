@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.geometry.*
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import com.testplaybyte.setupwizard.ui.theme.WizardPalette
@@ -131,14 +132,14 @@ fun RestoreVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
         glow(cx, cy, 62f*u, palette.primary, 0.3f)
         // Dashed ring (approximate with arc)
         val sweep = 300f
-        drawArc(palette.primary.copy(alpha = 0.4f), spin, sweep, false, Stroke(1.5f*u), Offset(26f*u, 26f*u), Size(148f*u, 148f*u))
+        drawArc(color = palette.primary.copy(alpha = 0.4f), startAngle = spin, sweepAngle = sweep, useCenter = false, topLeft = Offset(26f*u, 26f*u), size = Size(148f*u, 148f*u), style = Stroke(1.5f*u))
         // File
         rr(palette.surface3, 70f*u, (60f+bob)*u, 60f*u, 80f*u, 6f*u, 2f*u)
         rr(palette.primary.copy(alpha = 0.6f), 80f*u, (88f+bob)*u, 40f*u, 4f*u, 2f*u)
         rr(palette.primary.copy(alpha = 0.4f), 80f*u, (98f+bob)*u, 32f*u, 4f*u, 2f*u)
         rr(palette.primary.copy(alpha = 0.4f), 80f*u, (108f+bob)*u, 36f*u, 4f*u, 2f*u)
         // Circular arrows (arc)
-        drawArc(palette.primary, spin + 270f, 60f, false, Stroke(3f*u), Offset(30f*u, 30f*u), Size(140f*u, 140f*u))
+        drawArc(color = palette.primary, startAngle = spin + 270f, sweepAngle = 60f, useCenter = false, topLeft = Offset(30f*u, 30f*u), size = Size(140f*u, 140f*u), style = Stroke(3f*u))
     }
 }
 
@@ -178,7 +179,7 @@ fun ProcessingVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
     Canvas(modifier.fillMaxSize()) {
         val u = minOf(size.width, size.height) / 200f
         drawCircle(palette.primary.copy(alpha = glowA), 60f*u, Offset(100f*u, 100f*u))
-        drawArc(palette.primary.copy(alpha = 0.5f), spin, 300f, false, Stroke(2f*u), Offset(24f*u, 24f*u), Size(152f*u, 152f*u))
+        drawArc(color = palette.primary.copy(alpha = 0.5f), startAngle = spin, sweepAngle = 300f, useCenter = false, topLeft = Offset(24f*u, 24f*u), size = Size(152f*u, 152f*u), style = Stroke(2f*u))
         rr(palette.surface3, 68f*u, 76f*u, 64f*u, 56f*u, 6f*u, 1.5f*u)
         rr(palette.primary.copy(alpha = 0.8f), 76f*u, 90f*u, 48f*u, 4f*u, 2f*u)
         rr(palette.primary.copy(alpha = 0.6f), 76f*u, 102f*u, 40f*u, 4f*u, 2f*u)
@@ -221,7 +222,7 @@ fun RestoreProcessingVisual(palette: WizardPalette, modifier: Modifier = Modifie
     Canvas(modifier.fillMaxSize()) {
         val u = minOf(size.width, size.height) / 200f
         drawCircle(palette.primary.copy(alpha = glowA), 60f*u, Offset(100f*u, 100f*u))
-        drawArc(palette.primary.copy(alpha = 0.5f), spin, 300f, false, Stroke(2f*u), Offset(24f*u, 24f*u), Size(152f*u, 152f*u))
+        drawArc(color = palette.primary.copy(alpha = 0.5f), startAngle = spin, sweepAngle = 300f, useCenter = false, topLeft = Offset(24f*u, 24f*u), size = Size(152f*u, 152f*u), style = Stroke(2f*u))
         // Source card
         rr(palette.surface3, 40f*u, 50f*u, 44f*u, 60f*u, 6f*u, 1.5f*u)
         rr(palette.primary.copy(alpha = 0.5f), 46f*u, 56f*u, 32f*u, 22f*u, 3f*u)
@@ -257,7 +258,7 @@ fun DatabaseVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
         drawRect(palette.primaryContainer, Offset(56f*u, (56f+float)*u), Size(88f*u, 76f*u))
         drawLine(palette.primary, Offset(56f*u, (56f+float)*u), Offset(56f*u, (132f+float)*u), 2.5f*u)
         drawLine(palette.primary, Offset(144f*u, (56f+float)*u), Offset(144f*u, (132f+float)*u), 2.5f*u)
-        drawArc(palette.primary, 0f, 180f, false, Stroke(2.5f*u), Offset(56f*u, (108f+float)*u), Size(88f*u, 48f*u))
+        drawArc(color = palette.primary, startAngle = 0f, sweepAngle = 180f, useCenter = false, topLeft = Offset(56f*u, (108f+float)*u), size = Size(88f*u, 48f*u), style = Stroke(2.5f*u))
         // Rings
         drawOval(palette.primary.copy(alpha = 0.5f), Offset(56f*u, (66f+float)*u), Size(88f*u, 24f*u), style = Stroke(1.5f*u))
         drawOval(palette.primary.copy(alpha = 0.4f), Offset(56f*u, (88f+float)*u), Size(88f*u, 24f*u), style = Stroke(1.5f*u))
