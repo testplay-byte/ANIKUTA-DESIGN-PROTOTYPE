@@ -16,7 +16,7 @@
 
 ### Copy-paste command (success)
 ```bash
-curl -H "Title: ANIKUTA-DESIGN-PROTOTYPE" -H "Tags: white_check_mark" \
+curl -H "Title: ANDROID-PROTOTYPE" -H "Tags: white_check_mark" \
   -d "🟩🟩🟩🟩🟩🟩🟩🟩
 
 Task complete: <one-line summary>.
@@ -69,22 +69,22 @@ Anyone (the user) subscribes to this topic at `https://ntfy.sh/TASKISDONE` (web,
 
 ### Success (green)
 ```bash
-curl -H "Title: ANIKUTA-DESIGN-PROTOTYPE" \
+curl -H "Title: ANDROID-PROTOTYPE" \
      -H "Tags: white_check_mark" \
      -d "🟩🟩🟩🟩🟩🟩🟩🟩
 
-Task complete: set up the ANIKUTA-DESIGN-PROTOTYPE repository.
+Task complete: set up the ANDROID-PROTOTYPE repository.
 - Folder structure with navigation.md in every directory
 - GitHub Pages auto-deploy configured
 - Initial commit pushed to main
-Live: https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/
+Live: https://testplay-byte.github.io/ANDROID-PROTOTYPE/
 Next: awaiting your first prototype brief." \
      https://ntfy.sh/TASKISDONE
 ```
 
 ### Error (red)
 ```bash
-curl -H "Title: ANIKUTA-DESIGN-PROTOTYPE" -H "Tags: warning" \
+curl -H "Title: ANDROID-PROTOTYPE" -H "Tags: warning" \
      -d "🟥🟥🟥🟥🟥🟥🟥🟥
 
 Issue: GitHub Pages deploy failed on the latest push.
@@ -95,7 +95,7 @@ Fixing now; no action needed yet." \
 
 ### Stopping for input (blue)
 ```bash
-curl -H "Title: ANIKUTA-DESIGN-PROTOTYPE" -H "Tags: question" \
+curl -H "Title: ANDROID-PROTOTYPE" -H "Tags: question" \
      -d "🟦🟦🟦🟦🟦🟦🟦🟦
 
 Paused: need your decision on the food-delivery prototype primary color.
@@ -106,7 +106,7 @@ Reply with A or B to continue." \
 
 ### In progress (orange) — use rarely
 ```bash
-curl -H "Title: ANIKUTA-DESIGN-PROTOTYPE" -H "Tags: hourglass" \
+curl -H "Title: ANDROID-PROTOTYPE" -H "Tags: hourglass" \
      -d "🟧🟧🟧🟧🟧🟧🟧🟧
 
 Building the onboarding prototype (3 screens).

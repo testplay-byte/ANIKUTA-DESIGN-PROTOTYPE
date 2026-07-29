@@ -142,4 +142,4 @@ import { DeviceThemeProvider, DeviceFrame, Screen, Stage, BottomNav } from "@/pr
 </DeviceThemeProvider>
 ```
 
-See `app/prototypes/anime-app/` as the reference implementation.
+See `app/prototypes/search-page/` as the reference implementation.

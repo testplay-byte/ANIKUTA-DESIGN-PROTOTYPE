@@ -1,6 +1,6 @@
 # docs/design-systems/material-3-expressive/color-system.md
 
-> The Material 3 color system used by the anime-app prototype. Every hex value here is copied from the source prototype — these are the canonical tokens, not approximations.
+> The Material 3 color system used by the `search-page` prototype. Every hex value here is copied from `prototypes/search-page/styles.css` — these are the canonical tokens, not approximations.
 
 ---
 
@@ -88,7 +88,7 @@ M3 uses **named roles**, not raw hex, in CSS. Always reference the role token; n
 | `--color-primary-fg`         | `#381e72`   | `#ffffff`  | Text/icon color **on top of** `--color-primary`.                     |
 | `--color-primary-container`  | `#4f378b`   | `#eaddff`  | Tonal container for the primary. Active bottom-nav item, active filter chips, active source toggle. |
 | `--color-on-primary-container` | `#eaddff` | `#21005d`  | Text/icon color **on top of** `--color-primary-container`.           |
-| `--color-secondary`          | `#ccc2dc`   | `#625b71`  | Less prominent accent. (Reserved — not heavily used in anime-app.) |
+| `--color-secondary`          | `#ccc2dc`   | `#625b71`  | Less prominent accent. (Reserved — not heavily used in search-page.) |
 | `--color-secondary-container` | `#4a4458`  | `#e8def8`  | Tonal container for secondary.                                       |
 | `--color-tertiary`           | `#efb8c8`   | `#7d5260`  | Pinkish accent. Used in sidepanel mini-bars and tertiary highlights. |
 | `--color-tertiary-container` | `#633b48`   | `#ffd8e4`  | Tonal container for tertiary.                                        |

@@ -31,7 +31,7 @@ export function HomeScreen({ active, onOpenAnime }: HomeScreenProps) {
   const { settings } = useSettings();
   const { trending, seasonal, topRated, loading } = useHomeData();
   const { items: historyItems } = useHistory();
-  const { contentRef, topbarRef, collapsed } = useCollapsingHeader();
+  const { contentRef, collapsed } = useCollapsingHeader();
 
   return (
     <section
@@ -40,9 +40,8 @@ export function HomeScreen({ active, onOpenAnime }: HomeScreenProps) {
       aria-label="Home"
       aria-hidden={!active}
     >
-      <div ref={topbarRef} className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
+      <div className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
         <h1 className={styles.topbarTitle}>Anime</h1>
-        <div className="topbarBlur" aria-hidden="true" />
       </div>
       <div ref={contentRef} className={styles.content}>
         {/* Hero / Trending */}

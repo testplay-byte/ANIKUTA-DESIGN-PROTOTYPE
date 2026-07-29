@@ -14,7 +14,7 @@
 | `navigation.md`  | This file — the root index.                                     |
 | `CHANGELOG.md`   | Running log of notable changes (append on every task).          |
 | `package.json`   | Next.js 16 + React 19 + TypeScript 5 dependencies.              |
-| `next.config.ts` | Next.js config: static export (`output:'export'`), `basePath:'/ANIKUTA-DESIGN-PROTOTYPE'`. |
+| `next.config.ts` | Next.js config: static export (`output:'export'`), `basePath:'/ANDROID-PROTOTYPE'`. |
 | `tsconfig.json`  | TypeScript config (`@/*`→`src/*`, `@app/*`→`app/*`).            |
 | `.gitignore`     | Git ignore rules (node_modules, out, .next).                    |
 
@@ -26,7 +26,7 @@
 |-------------------|--------------------------------------------------------------------|---------------------------|
 | `app/`            | Next.js App Router routes (thin): dashboard + prototype routes.    | [`STARTUP.md`](./STARTUP.md) §3 |
 | `src/`            | Source code: `proto-kit/` (shared design system) + `prototypes/` (prototype screens/components/hooks/lib) + `dashboard/`. | [`STARTUP.md`](./STARTUP.md) §3 |
-| `public/`         | Static files served verbatim by Next.js (`assets/`). | — |
+| `public/`         | Static files served verbatim by Next.js (legacy `_template/` + `assets/`). | — |
 | `templates/`      | Reusable UI fragments (agent reference, not served).               | [`templates/navigation.md`](./templates/navigation.md) |
 | `archive/`        | Backup of pre-Next.js static site (zip + legacy prototype files).  | [`archive/STATIC-V1-MANIFEST.md`](./archive/STATIC-V1-MANIFEST.md) |
 | `Android_app/`    | **Native Android apps** (Kotlin + Compose). APKs built via GitHub Actions. | [`Android_app/navigation.md`](./Android_app/navigation.md) |
@@ -44,7 +44,7 @@
 | **See the full repo map**               | [`docs/repo-map.md`](./docs/repo-map.md)                              |
 | Find a specific prototype               | `app/prototypes/<name>/` + `src/prototypes/<name>/`                   |
 | **Build a new prototype (detailed)**    | [`docs/prototype-blueprint.md`](./docs/prototype-blueprint.md)        |
-| Start a new prototype (high-level)      | Study `app/prototypes/anime-app/` as the reference pattern          |
+| Start a new prototype (high-level)      | Study `app/prototypes/search-page/` as the reference pattern          |
 | Learn the tech stack                    | [`docs/tech-stack.md`](./docs/tech-stack.md)                          |
 | Learn the UI/UX design standards        | [`docs/design-standards.md`](./docs/design-standards.md)              |
 | Read the prototype template rules       | [`docs/template-rules.md`](./docs/template-rules.md)                  |

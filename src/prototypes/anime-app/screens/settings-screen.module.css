@@ -1,13 +1,10 @@
 /* SettingsScreen — appearance + display + animations + data + about. */
 
 .topbar {
-  position: relative;
-  overflow: visible;
   padding: var(--sp-2) var(--sp-3) var(--sp-1);
   flex: 0 0 auto;
   background: var(--color-bg);
   transition: padding var(--dur-3) var(--ease-emphasized);
-  z-index: 2;
 }
 
 .topbarTitle {

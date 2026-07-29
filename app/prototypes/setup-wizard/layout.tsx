@@ -3,7 +3,7 @@ import "../../../src/proto-kit/tokens/tokens.css";
 import "../../../src/prototypes/setup-wizard/setup-wizard.css";
 
 export const metadata: Metadata = {
-  title: "Setup Wizard — ANIKUTA-DESIGN-PROTOTYPE",
+  title: "Setup Wizard — ANDROID-PROTOTYPE",
 };
 
 export default function Layout({

@@ -10,11 +10,13 @@
 
 | Route | Name | Status | Source |
 |-------|------|--------|--------|
+| `/prototypes/search-page/` | Search Page | approved | `app/prototypes/search-page/` + `src/prototypes/search-page/` |
 | `/prototypes/anime-app/` | Anime App | review | `app/prototypes/anime-app/` + `src/prototypes/anime-app/` |
-| `/prototypes/setup-wizard/` | Setup Wizard | review | `app/prototypes/setup-wizard/` + `src/prototypes/setup-wizard/` |
 
 ## Legacy (served from public/)
 
-No legacy static prototypes remain. The `_template/` and `search-page/` static versions have been removed.
+| Folder | What |
+|--------|------|
+| `_template/` | Old static HTML starter template. Linked from the dashboard but NOT the primary starting point — use `src/proto-kit/` + the search-page pattern instead. |
 
 Old static versions of search-page + anime-app are in `archive/legacy/`.

@@ -25,7 +25,7 @@ interface ScheduleScreenProps {
 
 export function ScheduleScreen({ active, onOpenAnime }: ScheduleScreenProps) {
   const { days, loading, error } = useSchedule();
-  const { contentRef, topbarRef, collapsed } = useCollapsingHeader();
+  const { contentRef, collapsed } = useCollapsingHeader();
   const [selectedDay, setSelectedDay] = useState(0);
   const listRef = useRef<HTMLDivElement | null>(null);
 
@@ -45,9 +45,8 @@ export function ScheduleScreen({ active, onOpenAnime }: ScheduleScreenProps) {
       aria-label="Schedule"
       aria-hidden={!active}
     >
-      <div ref={topbarRef} className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
+      <div className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
         <h1 className={styles.topbarTitle}>Schedule</h1>
-        <div className="topbarBlur" aria-hidden="true" />
       </div>
 
       {/* Day selector — horizontal, scrollable, today highlighted */}

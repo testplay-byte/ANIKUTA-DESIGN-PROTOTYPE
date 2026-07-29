@@ -1,8 +1,8 @@
 {
-  "name": "anikuta-design-prototype",
+  "name": "android-prototype",
   "version": "2.0.0",
   "private": true,
-  "description": "Interactive mobile UI prototypes for Anikuta — Next.js static export, deployed to GitHub Pages.",
+  "description": "Interactive mobile UI prototypes — Next.js static export, deployed to GitHub Pages.",
   "scripts": {
     "dev": "next dev",
     "build": "next build",

@@ -2,14 +2,11 @@
    Clean, flat design — no tray backgrounds, just sections with headers. */
 
 .topbar {
-  position: relative;
-  overflow: visible;
   padding: var(--sp-2) var(--sp-3) var(--sp-1);
   flex: 0 0 auto;
   background: var(--color-bg);
   transition: padding var(--dur-3) var(--ease-emphasized);
   animation: heroTitleIn var(--dur-4) var(--ease-emphasized-decel);
-  z-index: 2;
 }
 
 @keyframes heroTitleIn {

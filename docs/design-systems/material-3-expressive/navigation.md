@@ -1,14 +1,14 @@
 # docs/design-systems/material-3-expressive/navigation.md
 
-> Index of every Material 3 Expressive design-system doc in this folder. These files are the **authoritative token + spec reference** for any prototype built on the M3 dark-purple theme (e.g. `app/prototypes/anime-app/`).
+> Index of every Material 3 Expressive design-system doc in this folder. These files are the **authoritative token + spec reference** for any prototype built on the M3 dark-purple theme (e.g. `prototypes/search-page/`).
 >
-> Read the relevant file before touching CSS variables, motion, or component styling in an M3 prototype. The values here are copied verbatim from the source prototype — do not "improve" or "approximate" them.
+> Read the relevant file before touching CSS variables, motion, or component styling in an M3 prototype. The values here are copied verbatim from `prototypes/search-page/styles.css` — do not "improve" or "approximate" them.
 
 ---
 
 ## Why this folder exists
 
-The repo's top-level `docs/design-standards.md` covers general mobile UI/UX rules (frame, status bar, spacing scale, type scale). This folder goes deeper into the **Material 3 Expressive** system that the anime-app prototype uses, with exact hex values, token names, CSS code samples, and the reasoning behind each rule.
+The repo's top-level `docs/design-standards.md` covers general mobile UI/UX rules (frame, status bar, spacing scale, type scale). This folder goes deeper into the **Material 3 Expressive** system that the `search-page` prototype uses, with exact hex values, token names, CSS code samples, and the reasoning behind each rule.
 
 If `design-standards.md` and a file here ever disagree, **this folder wins** for M3 prototypes. File an issue in the worklog if you spot a conflict.
 
@@ -25,7 +25,7 @@ If `design-standards.md` and a file here ever disagree, **this folder wins** for
 | `elevation.md`            | M3 tonal elevation system (5 surface tiers), why `box-shadow` is reserved for the device frame ONLY, CSS custom-property implementation patterns. |
 | `motion.md`               | M3 easing curves (standard, emphasized, emphasized-decel), duration tokens (100–500ms), staggered card fade-in (40ms per card), sheet slide-up (500ms), chip-in animation, skeleton shimmer. |
 | `components.md`           | M3 component specs: buttons (filled / outlined / tonal), cards, chips (filter + assist), search bar, floating bottom nav, filter bottom sheet (accordion + flat toggle), segmented buttons, dropdown menus. |
-| `layout-patterns.md`      | Layout patterns used in the anime app: collapsing header, floating bottom nav, section trays, recent-searches collapse toggle, blur-gradient on scroll. |
+| `layout-patterns.md`      | Layout patterns used in the search page: collapsing header, floating bottom nav, section trays, recent-searches collapse toggle, blur-gradient on scroll. |
 
 ---
 
@@ -43,11 +43,12 @@ If `design-standards.md` and a file here ever disagree, **this folder wins** for
 
 ## Source of truth
 
-Every value in these docs is lifted from the source prototype. If you change a token in a prototype, **update the corresponding doc here in the same commit** so the system stays in sync.
+Every value in these docs is lifted from `prototypes/search-page/styles.css` (v3 redesign). If you change a token in a prototype, **update the corresponding doc here in the same commit** so the system stays in sync.
 
 The reference prototype lives at:
-- Code: `app/prototypes/anime-app/` + `src/prototypes/anime-app/`
-- Live: <https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/anime-app/>
+- Code: `prototypes/search-page/{index.html, styles.css, script.js}`
+- Live: <https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/>
+- README: `prototypes/search-page/README.md`
 
 ---
 
@@ -78,4 +79,4 @@ Full color tokens (dark + light) live in [`color-system.md`](./color-system.md).
 
 ---
 
-*Last updated: Repository renamed to ANIKUTA-DESIGN-PROTOTYPE. Reference prototype is now anime-app.*
+*Last updated: design system documentation pass.*

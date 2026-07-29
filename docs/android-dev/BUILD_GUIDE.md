@@ -110,7 +110,7 @@ The workflow is at `.github/workflows/build-apk.yml`. It:
 6. Uploads the APK as an artifact (`anime-app-apk`)
 
 **To download the APK:**
-1. Go to https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions
+1. Go to https://github.com/testplay-byte/ANDROID-PROTOTYPE/actions
 2. Click the latest "Build Android APK" run
 3. Download the `anime-app-apk` artifact
 4. Unzip → `app-debug.apk`

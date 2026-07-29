@@ -10,7 +10,7 @@
 - Read [`STARTUP.md`](../STARTUP.md), [`docs/tech-stack.md`](./tech-stack.md), and [`docs/template-rules.md`](./template-rules.md).
 - Confirm the prototype brief from the user: which screens, what interactions, what vibe.
 - Pick a `kebab-case` name that describes the app/flow. Example: `food-delivery-checkout`.
-- Skim the reference prototype: `app/prototypes/anime-app/` + `src/prototypes/anime-app/`.
+- Skim the reference prototype: `app/prototypes/search-page/` + `src/prototypes/search-page/`.
 
 ---
 
@@ -19,7 +19,7 @@
 Each prototype lives in two places (a thin Next.js route + the prototype source):
 
 ```bash
-cd /home/z/ANIKUTA-DESIGN-PROTOTYPE
+cd /home/z/DESIGN-PROTOTYPE
 
 # 1. Next.js route (thin shell — layout.tsx + page.tsx):
 mkdir -p app/prototypes/<your-name>
@@ -48,7 +48,7 @@ See [`docs/prototype-blueprint.md`](./prototype-blueprint.md) for the full step-
 
 1. Start from the proto-kit shell in `page.tsx` (`<DeviceThemeProvider>` → `<Stage>` → `<DeviceFrame>` → `<Screen>` + `<BottomNav>`).
 2. Implement each screen as **one file** in `src/prototypes/<your-name>/screens/`. Each screen is a self-contained React component with its own `.module.css`.
-3. Wire up navigation between screens with **hash routing** in `page.tsx` (`useState` + `popstate` listener + `history.pushState`). See `app/prototypes/anime-app/page.tsx` for the pattern.
+3. Wire up navigation between screens with **hash routing** in `page.tsx` (`useState` + `popstate` listener + `history.pushState`). See `app/prototypes/search-page/page.tsx` for the pattern.
 4. Make it **interactive**: taps, transitions, form inputs, toggles, loading states. A static screen is not acceptable here.
 5. Respect [`design-standards.md`](./design-standards.md) and [`template-rules.md`](./template-rules.md): 44px touch targets, mobile type scale, theme scoped to `.device`, etc.
 6. Use the shared tokens (`var(--color-bg)`, `var(--sp-4)`, `var(--r-md)`, …) — never hardcode colors/spacing.
@@ -78,15 +78,15 @@ Status values: `in-progress`, `review`, `approved`, `archived`.
 ## 5. Build & verify locally BEFORE pushing
 
 ```bash
-cd /home/z/ANIKUTA-DESIGN-PROTOTYPE
+cd /home/z/DESIGN-PROTOTYPE
 npm install            # if deps changed
 npm run build          # must succeed with no type errors (CI runs the same)
 
 # Preview with the correct basePath:
-mkdir -p /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE
-cp -r out/* /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/
+mkdir -p /tmp/preview/ANDROID-PROTOTYPE
+cp -r out/* /tmp/preview/ANDROID-PROTOTYPE/
 cd /tmp/preview && python3 -m http.server 3001
-# → http://localhost:3001/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<your-name>/
+# → http://localhost:3001/ANDROID-PROTOTYPE/prototypes/<your-name>/
 ```
 
 Click through every flow you built. The build must pass locally — CI runs the same `npm ci → next build` pipeline and will fail the deploy on type errors.
@@ -108,7 +108,7 @@ GitHub Actions runs `npm ci → next build → deploy out/`. See [`github-pages.
 ## 7. Verify the live prototype
 
 1. Wait ~60s after push.
-2. Open `https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<your-name>/`.
+2. Open `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/<your-name>/`.
 3. Click through every flow you built. If something is broken, fix and re-push.
 
 ---
@@ -141,7 +141,7 @@ Send an `ntfy.sh` notification per [`notification-protocol.md`](./notification-p
 ## 11. The non-negotiable checklist (before you push)
 
 - [ ] `npm run build` succeeds locally with no type errors.
-- [ ] Previewed at `/tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<name>/` — all screens + interactions work.
+- [ ] Previewed at `/tmp/preview/ANDROID-PROTOTYPE/prototypes/<name>/` — all screens + interactions work.
 - [ ] Prototype is **interactive**, not static.
 - [ ] Prototype's `navigation.md` and `README.md` are filled in.
 - [ ] Prototypes index + dashboard card added/updated.

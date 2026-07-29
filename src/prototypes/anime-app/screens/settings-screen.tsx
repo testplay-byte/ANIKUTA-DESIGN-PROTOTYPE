@@ -32,7 +32,7 @@ export function SettingsScreen({ active }: SettingsScreenProps) {
   const { settings, update, toggleSingleLine } = useSettings();
   const { clear: clearLibrary } = useLibrary();
   const { clear: clearHistory } = useHistory();
-  const { contentRef, topbarRef, collapsed } = useCollapsingHeader();
+  const { contentRef, collapsed } = useCollapsingHeader();
 
   function handleClearHistory() {
     if (typeof window !== "undefined" && window.confirm("Clear all watch history?")) {
@@ -52,9 +52,8 @@ export function SettingsScreen({ active }: SettingsScreenProps) {
       aria-label="Settings"
       aria-hidden={!active}
     >
-      <div ref={topbarRef} className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
+      <div className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
         <h1 className={styles.topbarTitle}>Settings</h1>
-        <div className="topbarBlur" aria-hidden="true" />
       </div>
       <div ref={contentRef} className={styles.content}>
         {/* Appearance */}

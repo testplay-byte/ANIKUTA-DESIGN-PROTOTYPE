@@ -18,7 +18,6 @@
  * instead of being a no-op.
  */
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useCollapsingHeader } from "../hooks/use-collapsing-header";
 import { SourceToggle } from "../components/source-toggle";
 import { SearchBar } from "../components/search-bar";
 import { AnimeCard } from "../components/anime-card";
@@ -53,7 +52,7 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
 
   const [sheetOpen, setSheetOpen] = useState(false);
   const [sortOpen, setSortOpen] = useState(false);
-  const { contentRef, topbarRef, collapsed } = useCollapsingHeader();
+  const [collapsed, setCollapsed] = useState(false);
 
   const { recents, add, remove, clear } = useRecentSearches();
   const { media, loading, error } = useAniListSearch({
@@ -64,6 +63,7 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
   });
 
   const inputRef = useRef<HTMLInputElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // Add to recents 500ms after the user stops typing.
   useEffect(() => {
@@ -72,7 +72,12 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
     return () => clearTimeout(t);
   }, [query, add]);
 
-  // Collapsing header + blur is handled by useCollapsingHeader hook.
+  // Collapse the topbar when the content area is scrolled past 20px.
+  function handleScroll(e: React.UIEvent<HTMLDivElement>) {
+    const st = e.currentTarget.scrollTop;
+    if (st > 20 && !collapsed) setCollapsed(true);
+    else if (st <= 20 && collapsed) setCollapsed(false);
+  }
 
   // Close the sort dropdown on any outside click.
   useEffect(() => {
@@ -186,23 +191,20 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
       aria-label="Search"
       aria-hidden={!active}
     >
-      {/* Top bar — collapses on scroll, with gradient blur */}
-      <div ref={topbarRef} className={styles.topbarWrap}>
-        <div
-          className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}
-        >
-          <div className={styles.topbarRow}>
-            <h1 className={styles.topbarTitle}>Search</h1>
-            <SourceToggle source={source} onChange={handleSourceChange} />
-            <SearchBar
-              value={query}
-              onChange={handleQueryChange}
-              onClear={handleClearQuery}
-              inputRef={inputRef}
-            />
-          </div>
+      {/* Top bar — collapses on scroll */}
+      <div
+        className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}
+      >
+        <div className={styles.topbarRow}>
+          <h1 className={styles.topbarTitle}>Search</h1>
+          <SourceToggle source={source} onChange={handleSourceChange} />
+          <SearchBar
+            value={query}
+            onChange={handleQueryChange}
+            onClear={handleClearQuery}
+            inputRef={inputRef}
+          />
         </div>
-        <div className="topbarBlur" aria-hidden="true" />
       </div>
 
       {/* Active filter chips */}
@@ -296,7 +298,8 @@ export function SearchScreen({ active, onOpenAnime }: SearchScreenProps) {
       {/* Content — scrollable, owns the collapse trigger */}
       <div
         ref={contentRef}
-        className={styles.content}
+        className={`${styles.content} ${collapsed ? styles.contentIsCollapsed : ""}`}
+        onScroll={handleScroll}
       >
         {showRecent && (
           <RecentSearches
