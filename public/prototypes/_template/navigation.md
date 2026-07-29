@@ -9,7 +9,7 @@
 
 A fully interactive phone-frame prototype with 4 navigable screens, side info panels, scoped theming, click-drag scrolling, and mobile fullscreen. This is the starting point for every new prototype.
 
-**Live:** https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/_template/
+**Live:** https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/_template/
 
 ---
 

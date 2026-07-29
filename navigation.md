@@ -14,7 +14,7 @@
 | `navigation.md`  | This file — the root index.                                     |
 | `CHANGELOG.md`   | Running log of notable changes (append on every task).          |
 | `package.json`   | Next.js 16 + React 19 + TypeScript 5 dependencies.              |
-| `next.config.ts` | Next.js config: static export (`output:'export'`), `basePath:'/ANDROID-PROTOTYPE'`. |
+| `next.config.ts` | Next.js config: static export (`output:'export'`), `basePath:'/ANIKUTA-DESIGN-PROTOTYPE'`. |
 | `tsconfig.json`  | TypeScript config (`@/*`→`src/*`, `@app/*`→`app/*`).            |
 | `.gitignore`     | Git ignore rules (node_modules, out, .next).                    |
 

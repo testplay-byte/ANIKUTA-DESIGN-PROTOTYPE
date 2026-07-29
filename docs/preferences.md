@@ -9,7 +9,7 @@
 
 ### Top navigation
 - **Two disconnected pill containers** — NOT a full-width bar.
-- Left pill: brand logo + "ANDROID-PROTOTYPE" name + subtitle.
+- Left pill: brand logo + "ANIKUTA-DESIGN-PROTOTYPE" name + subtitle.
 - Right pill: Repo button + theme toggle.
 - Each pill has: `border-radius: 12px`, `border: 1px solid border`, `background: card/90`, `backdrop-filter: blur(12px)`, `box-shadow: shadow-sm`, `padding`.
 - Nothing connects the two pills — page background flows between them.

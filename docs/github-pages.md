@@ -23,13 +23,13 @@ There IS a build step now (the migration from static HTML to Next.js). The outpu
 
 ## URLs
 
-- **Repo:** `https://github.com/testplay-byte/ANDROID-PROTOTYPE`
-- **Pages base:** `https://testplay-byte.github.io/ANDROID-PROTOTYPE/`
-- **Dashboard (homepage gallery):** `https://testplay-byte.github.io/ANDROID-PROTOTYPE/` (built from `app/page.tsx`)
-- **A prototype:** `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/<name>/`
-- **A specific asset:** `https://testplay-byte.github.io/ANDROID-PROTOTYPE/<path/under/public/>`
+- **Repo:** `https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE`
+- **Pages base:** `https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/`
+- **Dashboard (homepage gallery):** `https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/` (built from `app/page.tsx`)
+- **A prototype:** `https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<name>/`
+- **A specific asset:** `https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/<path/under/public/>`
 
-> The `basePath: '/ANDROID-PROTOTYPE'` in `next.config.ts` makes every URL in the build start with `/ANDROID-PROTOTYPE`, matching the Pages project URL. Always preview locally from `/tmp/preview/ANDROID-PROTOTYPE/` to reproduce this basePath (see below).
+> The `basePath: '/ANIKUTA-DESIGN-PROTOTYPE'` in `next.config.ts` makes every URL in the build start with `/ANIKUTA-DESIGN-PROTOTYPE`, matching the Pages project URL. Always preview locally from `/tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/` to reproduce this basePath (see below).
 
 ---
 
@@ -87,7 +87,7 @@ A lightweight dashboard at the Pages root lists all prototypes with cards. Built
 
 ## Preview locally (with correct basePath)
 
-The `basePath: '/ANDROID-PROTOTYPE'` means assets won't resolve if you serve `./out/` from the repo root. Always preview from a `/tmp/preview/ANDROID-PROTOTYPE/` directory:
+The `basePath: '/ANIKUTA-DESIGN-PROTOTYPE'` means assets won't resolve if you serve `./out/` from the repo root. Always preview from a `/tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/` directory:
 
 ```bash
 cd /home/z/DESIGN-PROTOTYPE
@@ -95,11 +95,11 @@ npm install
 npm run build          # → ./out
 
 # Reproduce the production basePath:
-mkdir -p /tmp/preview/ANDROID-PROTOTYPE
-cp -r out/* /tmp/preview/ANDROID-PROTOTYPE/
+mkdir -p /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE
+cp -r out/* /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/
 cd /tmp/preview && python3 -m http.server 3001
-# → http://localhost:3001/ANDROID-PROTOTYPE/
-# → http://localhost:3001/ANDROID-PROTOTYPE/prototypes/<name>/
+# → http://localhost:3001/ANIKUTA-DESIGN-PROTOTYPE/
+# → http://localhost:3001/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<name>/
 ```
 
 (You can also `npm run dev` for hot reload during development — Next.js handles the basePath automatically. But always do a final `next build` + preview before pushing.)
@@ -113,9 +113,9 @@ cd /tmp/preview && python3 -m http.server 3001
 | 404 at Pages URL                             | Wait 60s; check Actions tab for a failed run; confirm source = Actions. |
 | CI fails on `npm ci`                         | `package-lock.json` must be committed (it was gitignored before — that broke CI). |
 | CI fails on `next build`                     | Check the build log for TypeScript errors. `typescript.ignoreBuildErrors: false` — type errors fail the build. |
-| Assets 404 in production but work in `npm run dev` | You're hitting the `basePath` mismatch. All URLs in the build start with `/ANDROID-PROTOTYPE`. |
+| Assets 404 in production but work in `npm run dev` | You're hitting the `basePath` mismatch. All URLs in the build start with `/ANIKUTA-DESIGN-PROTOTYPE`. |
 | Prototype CSS missing                        | Confirm the prototype's `layout.tsx` imports `tokens.css` and its own CSS. |
-| Images broken                                | Use `next/image` is disabled (`images.unoptimized: true`). Use plain `<img>` with paths under `public/` (served at `/ANDROID-PROTOTYPE/...`). |
+| Images broken                                | Use `next/image` is disabled (`images.unoptimized: true`). Use plain `<img>` with paths under `public/` (served at `/ANIKUTA-DESIGN-PROTOTYPE/...`). |
 | Old static prototypes 404                    | They live in `public/prototypes/` and are copied verbatim into `out/prototypes/`. Confirm the folder exists. |
 | Workflow not running                         | Ensure `.github/workflows/deploy.yml` is on `main`.                 |
 | Workflow fails on permissions                | Confirm repo Settings → Actions → General → Workflow permissions = read+write. |
@@ -131,4 +131,4 @@ A successful run prints the Pages URL in its summary.
 
 ---
 
-*Last updated: Next.js migration (Phase 4) — deployment now has a build step (`npm ci → next build → deploy out/`). `package-lock.json` MUST be committed. basePath is `/ANDROID-PROTOTYPE`.*
+*Last updated: Next.js migration (Phase 4) — deployment now has a build step (`npm ci → next build → deploy out/`). `package-lock.json` MUST be committed. basePath is `/ANIKUTA-DESIGN-PROTOTYPE`.*

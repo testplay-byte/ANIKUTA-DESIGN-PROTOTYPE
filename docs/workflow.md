@@ -83,10 +83,10 @@ npm install            # if deps changed
 npm run build          # must succeed with no type errors (CI runs the same)
 
 # Preview with the correct basePath:
-mkdir -p /tmp/preview/ANDROID-PROTOTYPE
-cp -r out/* /tmp/preview/ANDROID-PROTOTYPE/
+mkdir -p /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE
+cp -r out/* /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/
 cd /tmp/preview && python3 -m http.server 3001
-# → http://localhost:3001/ANDROID-PROTOTYPE/prototypes/<your-name>/
+# → http://localhost:3001/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<your-name>/
 ```
 
 Click through every flow you built. The build must pass locally — CI runs the same `npm ci → next build` pipeline and will fail the deploy on type errors.
@@ -108,7 +108,7 @@ GitHub Actions runs `npm ci → next build → deploy out/`. See [`github-pages.
 ## 7. Verify the live prototype
 
 1. Wait ~60s after push.
-2. Open `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/<your-name>/`.
+2. Open `https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<your-name>/`.
 3. Click through every flow you built. If something is broken, fix and re-push.
 
 ---
@@ -141,7 +141,7 @@ Send an `ntfy.sh` notification per [`notification-protocol.md`](./notification-p
 ## 11. The non-negotiable checklist (before you push)
 
 - [ ] `npm run build` succeeds locally with no type errors.
-- [ ] Previewed at `/tmp/preview/ANDROID-PROTOTYPE/prototypes/<name>/` — all screens + interactions work.
+- [ ] Previewed at `/tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<name>/` — all screens + interactions work.
 - [ ] Prototype is **interactive**, not static.
 - [ ] Prototype's `navigation.md` and `README.md` are filled in.
 - [ ] Prototypes index + dashboard card added/updated.

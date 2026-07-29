@@ -3,7 +3,7 @@ import "../../../src/proto-kit/tokens/tokens.css";
 import "../../../src/prototypes/search-page/search-page.css";
 
 export const metadata: Metadata = {
-  title: "Search Page — ANDROID-PROTOTYPE",
+  title: "Search Page — ANIKUTA-DESIGN-PROTOTYPE",
 };
 
 /**

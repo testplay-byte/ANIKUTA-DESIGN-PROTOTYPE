@@ -8,11 +8,11 @@
 
 ## What this repo is (30 seconds)
 
-**ANDROID-PROTOTYPE** — a mobile UI prototyping workspace. We build **interactive, fully functional mobile app UI prototypes** (phone-frame mockups with real navigation, scrolling, toggles, etc.) and deploy them via **GitHub Pages**. The project is a **Next.js 16 static export** (App Router + TypeScript + CSS Modules): each prototype is a self-contained folder of React components, and `next build` produces pure static HTML/CSS/JS that GitHub Pages serves directly. No server, no backend.
+**ANIKUTA-DESIGN-PROTOTYPE** — a mobile UI prototyping workspace. We build **interactive, fully functional mobile app UI prototypes** (phone-frame mockups with real navigation, scrolling, toggles, etc.) and deploy them via **GitHub Pages**. The project is a **Next.js 16 static export** (App Router + TypeScript + CSS Modules): each prototype is a self-contained folder of React components, and `next build` produces pure static HTML/CSS/JS that GitHub Pages serves directly. No server, no backend.
 
-- **Repo:** https://github.com/testplay-byte/ANDROID-PROTOTYPE
-- **Live:** https://testplay-byte.github.io/ANDROID-PROTOTYPE/
-- **Reference prototype:** https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/ (study its code at `app/prototypes/search-page/` + `src/prototypes/search-page/`)
+- **Repo:** https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE
+- **Live:** https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/
+- **Reference prototype:** https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/search-page/ (study its code at `app/prototypes/search-page/` + `src/prototypes/search-page/`)
 
 ---
 
@@ -59,15 +59,15 @@ cd /home/z/DESIGN-PROTOTYPE
 npm install
 npm run build          # static export → ./out
 
-# Preview with correct basePath (/ANDROID-PROTOTYPE):
-mkdir -p /tmp/preview/ANDROID-PROTOTYPE
-cp -r out/* /tmp/preview/ANDROID-PROTOTYPE/
+# Preview with correct basePath (/ANIKUTA-DESIGN-PROTOTYPE):
+mkdir -p /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE
+cp -r out/* /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/
 cd /tmp/preview && python3 -m http.server 3001
-# → open http://localhost:3001/ANDROID-PROTOTYPE/
-# → prototype: http://localhost:3001/ANDROID-PROTOTYPE/prototypes/<name>/
+# → open http://localhost:3001/ANIKUTA-DESIGN-PROTOTYPE/
+# → prototype: http://localhost:3001/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<name>/
 ```
 
-The `basePath: '/ANDROID-PROTOTYPE'` in `next.config.ts` keeps URLs identical to production. Always preview from `/tmp/preview/ANDROID-PROTOTYPE/` — serving `./out/` directly from the repo root will give you 404s for assets.
+The `basePath: '/ANIKUTA-DESIGN-PROTOTYPE'` in `next.config.ts` keeps URLs identical to production. Always preview from `/tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/` — serving `./out/` directly from the repo root will give you 404s for assets.
 
 ---
 
@@ -81,14 +81,14 @@ The `basePath: '/ANDROID-PROTOTYPE'` in `next.config.ts` keeps URLs identical to
 | Fix a bug in the shared frame/nav | Edit `src/proto-kit/`, rebuild, push, notify |
 | Add a shared component | Put it in `src/proto-kit/` (frame/nav/stage/tokens) or `templates/` (UI fragments) |
 | Deploy | Just push to `main` — GitHub Actions runs `npm ci → next build → deploy out/` |
-| Preview locally | `npm run build`, copy `out/*` to `/tmp/preview/ANDROID-PROTOTYPE/`, serve with `python3 -m http.server 3001` |
+| Preview locally | `npm run build`, copy `out/*` to `/tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/`, serve with `python3 -m http.server 3001` |
 
 ---
 
 ## The mandatory checklist before you push
 
 - [ ] `npm run build` succeeds locally and `./out/` contains the prototype
-- [ ] Previewed at `/tmp/preview/ANDROID-PROTOTYPE/prototypes/<name>/` — all screens + interactions work
+- [ ] Previewed at `/tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<name>/` — all screens + interactions work
 - [ ] Navigation files updated (if structure changed)
 - [ ] `CHANGELOG.md` has a new entry
 - [ ] No secrets / absolute paths / backend calls

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "ANDROID-PROTOTYPE — Mobile UI Prototypes",
+  title: "ANIKUTA-DESIGN-PROTOTYPE — Mobile UI Prototypes",
   description:
     "Interactive, fully functional mobile UI prototypes — viewable in the browser, deployed via GitHub Pages.",
 };

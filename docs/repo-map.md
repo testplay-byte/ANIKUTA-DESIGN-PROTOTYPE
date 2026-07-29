@@ -8,7 +8,7 @@
 ## Full tree
 
 ```
-ANDROID-PROTOTYPE/
+ANIKUTA-DESIGN-PROTOTYPE/
 │
 ├── STARTUP.md                  ← READ FIRST. Master context for any agent.
 ├── README.md                   ← Public GitHub landing page.
@@ -16,7 +16,7 @@ ANDROID-PROTOTYPE/
 ├── CHANGELOG.md                ← Running log of all changes (newest first).
 ├── package.json                ← Next.js 16 + React 19 + TypeScript 5 deps.
 ├── package-lock.json           ← Pinned deps — MUST be committed (CI uses npm ci).
-├── next.config.ts              ← output:'export', basePath:'/ANDROID-PROTOTYPE', trailingSlash.
+├── next.config.ts              ← output:'export', basePath:'/ANIKUTA-DESIGN-PROTOTYPE', trailingSlash.
 ├── tsconfig.json               ← TS config (@/*→src/*, @app/*→app/*).
 ├── next-env.d.ts               ← Next.js TypeScript ambient decls (auto-generated).
 ├── .gitignore                  ← Ignores node_modules, out, .next.

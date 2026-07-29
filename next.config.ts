@@ -1,13 +1,13 @@
 import type { NextConfig } from "next";
 
 /**
- * Next.js config for ANDROID-PROTOTYPE.
+ * Next.js config for ANIKUTA-DESIGN-PROTOTYPE.
  *
  * Deploys as a STATIC EXPORT to GitHub Pages at:
- *   https://testplay-byte.github.io/ANDROID-PROTOTYPE/
+ *   https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/
  *
  * - output: 'export'  → produces static HTML/CSS/JS in ./out (no server needed)
- * - basePath          → the repo is a project page, served under /ANDROID-PROTOTYPE
+ * - basePath          → the repo is a project page, served under /ANIKUTA-DESIGN-PROTOTYPE
  * - trailingSlash     → directory-style URLs (out/prototypes/x/ → /prototypes/x/)
  * - images.unoptimized → required for static export (no Next image server)
  *
@@ -17,7 +17,7 @@ import type { NextConfig } from "next";
  */
 const nextConfig: NextConfig = {
   output: "export",
-  basePath: "/ANDROID-PROTOTYPE",
+  basePath: "/ANIKUTA-DESIGN-PROTOTYPE",
   trailingSlash: true,
   images: {
     unoptimized: true,

@@ -37,4 +37,4 @@ See [`docs/prototype-blueprint.md`](../../docs/prototype-blueprint.md) for the f
 
 ## Live preview
 
-https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/_template/
+https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/_template/

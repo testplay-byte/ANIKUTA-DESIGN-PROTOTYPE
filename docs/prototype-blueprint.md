@@ -69,7 +69,7 @@ import "../../../src/proto-kit/tokens/tokens.css";
 import "../../../src/prototypes/<your-name>/<your-name>.css";
 
 export const metadata: Metadata = {
-  title: "<Your Name> — ANDROID-PROTOTYPE",
+  title: "<Your Name> — ANIKUTA-DESIGN-PROTOTYPE",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -291,7 +291,7 @@ Put reusable logic in the right subfolder:
 | … | … |
 
 ## Live URL
-https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/<your-name>/
+https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<your-name>/
 ```
 
 ### 8.2 `README.md`
@@ -312,10 +312,10 @@ cd /home/z/DESIGN-PROTOTYPE
 npm run build          # must succeed with no type errors
 
 # Preview with the correct basePath:
-mkdir -p /tmp/preview/ANDROID-PROTOTYPE
-cp -r out/* /tmp/preview/ANDROID-PROTOTYPE/
+mkdir -p /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE
+cp -r out/* /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/
 cd /tmp/preview && python3 -m http.server 3001
-# → open http://localhost:3001/ANDROID-PROTOTYPE/prototypes/<your-name>/
+# → open http://localhost:3001/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<your-name>/
 ```
 
 Click through every screen, test every interaction. The build MUST succeed locally before pushing — CI runs the same `next build` and will fail the deploy on type errors.
@@ -336,7 +336,7 @@ git push origin main
 ```
 
 Wait ~60s for the GitHub Actions deploy, then open:
-`https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/<your-name>/`
+`https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<your-name>/`
 
 Click through every screen again on the live URL. If something's broken, fix and re-push.
 
@@ -347,13 +347,13 @@ Click through every screen again on the live URL. If something's broken, fix and
 Send an ntfy.sh notification (🟩 green for success):
 
 ```bash
-curl -H "Title: ANDROID-PROTOTYPE" \
+curl -H "Title: ANIKUTA-DESIGN-PROTOTYPE" \
   -d "🟩🟩🟩🟩🟩🟩🟩🟩
 
 Prototype ready: <your-name>.
 - <N> screens: <list>
 - <key interactions>
-Live: https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/<your-name>/
+Live: https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<your-name>/
 Status: awaiting your review." \
   https://ntfy.sh/TASKISDONE
 ```
@@ -366,8 +366,8 @@ Status: awaiting your review." \
 |---------|-----|
 | Whole page turns dark when app toggle pressed | `data-theme` must be on `.device`, not `<html>`. Use `<DeviceThemeProvider>` — don't set it manually. See [`docs/theme-architecture.md`](./theme-architecture.md). |
 | `npm run build` fails on type errors | TypeScript strictness is on (`ignoreBuildErrors: false`). Fix the types — don't loosen the config. |
-| Assets 404 in production | Use plain `<img>` with paths under `public/` (served at `/ANDROID-PROTOTYPE/...`). `next/image` is disabled. |
-| Prototype works in `npm run dev` but 404s in production | The `basePath: '/ANDROID-PROTOTYPE'` is applied at build time. Preview from `/tmp/preview/ANDROID-PROTOTYPE/` to reproduce it. |
+| Assets 404 in production | Use plain `<img>` with paths under `public/` (served at `/ANIKUTA-DESIGN-PROTOTYPE/...`). `next/image` is disabled. |
+| Prototype works in `npm run dev` but 404s in production | The `basePath: '/ANIKUTA-DESIGN-PROTOTYPE'` is applied at build time. Preview from `/tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/` to reproduce it. |
 | Scrollbar visible | Add `scrollbar-width: none` + `::-webkit-scrollbar { display: none }` to your scrollable containers. |
 | Text gets selected on drag | Don't remove `.device { user-select: none; }`. Don't add global `selectstart` listeners (they block scrolling). |
 | Side panels disappear | They're hidden on <1024px (via `<Stage>`). Test on a wide viewport. |

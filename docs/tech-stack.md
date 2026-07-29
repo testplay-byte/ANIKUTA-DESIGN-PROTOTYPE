@@ -11,7 +11,7 @@
 | Framework      | Next.js 16 (App Router) + TypeScript 5              | Component model, type safety, hot reload in dev; static export in prod.              |
 | React          | React 19 (client components for state/interaction)  | Modern hooks, concurrent rendering; only the parts that need interactivity ship JS.  |
 | Export         | `output: 'export'` in `next.config.ts`              | Produces pure static HTML/CSS/JS in `./out` — GitHub Pages serves it directly, no server. |
-| basePath       | `/ANDROID-PROTOTYPE`                                | Matches the GitHub Pages project URL; keeps links identical in dev and prod.         |
+| basePath       | `/ANIKUTA-DESIGN-PROTOTYPE`                                | Matches the GitHub Pages project URL; keeps links identical in dev and prod.         |
 | Styling        | CSS Modules (scoped per component, `.module.css`)   | Locally-scoped class names, no runtime, easy to audit, no naming collisions.         |
 | Shared tokens  | `src/proto-kit/tokens/tokens.css`                   | Single source of truth for type/spacing/radius/motion + M3 color roles + stage tokens. Imported once per prototype layout. |
 | Frame          | `proto-kit` `<DeviceFrame>` (bezel + status bar)    | Defined ONCE in `src/proto-kit/device-frame/`, inherited by every prototype. Frame inverts by theme. |
@@ -72,12 +72,12 @@ npm install
 # Build the static export → ./out
 npm run build
 
-# Preview with the correct basePath (/ANDROID-PROTOTYPE):
-mkdir -p /tmp/preview/ANDROID-PROTOTYPE
-cp -r out/* /tmp/preview/ANDROID-PROTOTYPE/
+# Preview with the correct basePath (/ANIKUTA-DESIGN-PROTOTYPE):
+mkdir -p /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE
+cp -r out/* /tmp/preview/ANIKUTA-DESIGN-PROTOTYPE/
 cd /tmp/preview && python3 -m http.server 3001
-# → http://localhost:3001/ANDROID-PROTOTYPE/
-# → http://localhost:3001/ANDROID-PROTOTYPE/prototypes/<name>/
+# → http://localhost:3001/ANIKUTA-DESIGN-PROTOTYPE/
+# → http://localhost:3001/ANIKUTA-DESIGN-PROTOTYPE/prototypes/<name>/
 ```
 
 CI runs the same `npm ci → next build` pipeline (see `.github/workflows/deploy.yml`).

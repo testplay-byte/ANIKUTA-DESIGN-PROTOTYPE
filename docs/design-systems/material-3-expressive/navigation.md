@@ -47,7 +47,7 @@ Every value in these docs is lifted from `prototypes/search-page/styles.css` (v3
 
 The reference prototype lives at:
 - Code: `prototypes/search-page/{index.html, styles.css, script.js}`
-- Live: <https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/>
+- Live: <https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/search-page/>
 - README: `prototypes/search-page/README.md`
 
 ---

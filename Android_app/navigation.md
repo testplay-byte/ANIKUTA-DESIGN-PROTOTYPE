@@ -8,7 +8,13 @@
 
 | Folder | App | Status | Tech |
 |--------|-----|--------|------|
-| `Anime_App/` | Anime App | initial build | Kotlin + Compose + M3 + AniList |
+| `Anime_App/` | Anime App | initial build | Kotlin + Compose + M3 + AniList + Ktor + Coil + DataStore |
+| `SetupWizard/` | Setup Wizard | initial build | Kotlin + Compose + M3 (no networking, in-memory state) |
+
+> Each app has its own GitHub Actions workflow that builds a separate debug APK:
+> `Anime_App` → `.github/workflows/build-apk.yml` (artifact `anime-app-apk`),
+> `SetupWizard` → `.github/workflows/build-setup-wizard-apk.yml` (artifact `setup-wizard-apk`).
+> Multiple prototypes → multiple `app/prototypes/<name>/` folders; multiple APKs → multiple `Android_app/<App>/` folders + multiple workflows.
 
 ## Structure (per app)
 

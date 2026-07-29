@@ -1,4 +1,4 @@
-# ANDROID-PROTOTYPE
+# ANIKUTA-DESIGN-PROTOTYPE
 
 > A mobile UI prototyping workspace. We design **interactive, fully functional mobile app interfaces** and deploy them as live prototypes via **GitHub Pages**.
 
@@ -25,11 +25,11 @@ Each prototype is a **self-contained folder of React components** (one file per 
 
 Prototypes are deployed to GitHub Pages automatically on every push to `main`.
 
-- **Dashboard (homepage gallery):** [https://testplay-byte.github.io/ANDROID-PROTOTYPE/](https://testplay-byte.github.io/ANDROID-PROTOTYPE/)
-- **Search page prototype:** [https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/)
-- **Anime app prototype:** [https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/anime-app/](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/anime-app/)
+- **Dashboard (homepage gallery):** [https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/](https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/)
+- **Search page prototype:** [https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/search-page/](https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/search-page/)
+- **Anime app prototype:** [https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/anime-app/](https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/anime-app/)
 
-A prototype at `app/prototypes/my-app/` is reachable at `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/my-app/`.
+A prototype at `app/prototypes/my-app/` is reachable at `https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/prototypes/my-app/`.
 
 ---
 
@@ -48,7 +48,7 @@ A prototype at `app/prototypes/my-app/` is reachable at `https://testplay-byte.g
 ├── archive/                # Backup of the pre-Next.js static site
 ├── docs/                   # All documentation (17 files)
 ├── templates/              # Reusable UI fragments (agent reference)
-├── next.config.ts          # output:'export', basePath:'/ANDROID-PROTOTYPE'
+├── next.config.ts          # output:'export', basePath:'/ANIKUTA-DESIGN-PROTOTYPE'
 └── package.json            # Next.js 16 + React 19 + TypeScript 5
 ```
 

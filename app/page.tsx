@@ -7,7 +7,7 @@ export default function Page() {
       {/* =================== Top navigation (split) =================== */}
       <header className="topnav">
         <div className="topnav__inner">
-          <a className="brand" href="./" aria-label="ANDROID-PROTOTYPE home">
+          <a className="brand" href="./" aria-label="ANIKUTA-DESIGN-PROTOTYPE home">
             <span className="brand__logo" aria-hidden="true">
               <svg
                 width="20"
@@ -25,14 +25,14 @@ export default function Page() {
               </svg>
             </span>
             <span className="brand__text">
-              <span className="brand__name">ANDROID-PROTOTYPE</span>
+              <span className="brand__name">ANIKUTA-DESIGN-PROTOTYPE</span>
               <span className="brand__sub">mobile UI · prototypes · design</span>
             </span>
           </a>
           <nav className="navpill" aria-label="Site">
             <a
               className="navbtn"
-              href="https://github.com/testplay-byte/ANDROID-PROTOTYPE"
+              href="https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub repository"
