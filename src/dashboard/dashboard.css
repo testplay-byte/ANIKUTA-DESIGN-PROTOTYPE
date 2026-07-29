@@ -270,6 +270,33 @@
     .openlink svg { transition: transform .15s ease; }
     .openlink:hover svg { transform: translateX(3px); }
 
+    /* APK download button — sits above the prototype info, clearly visible.
+       Links to the GitHub Actions workflow runs (latest run → Artifacts). */
+    .apk-download {
+      display: inline-flex; align-items: center; gap: 8px;
+      align-self: flex-start;
+      font-size: 12px; font-weight: 700; letter-spacing: .01em;
+      padding: 7px 13px; border-radius: 999px;
+      background: color-mix(in srgb, var(--chart-3) 14%, transparent);
+      color: var(--chart-3);
+      border: 1px solid color-mix(in srgb, var(--chart-3) 40%, transparent);
+      text-decoration: none;
+      transition: background .15s ease, transform .15s ease, box-shadow .15s ease;
+    }
+    .apk-download:hover {
+      background: color-mix(in srgb, var(--chart-3) 22%, transparent);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px color-mix(in srgb, var(--chart-3) 25%, transparent);
+    }
+    .apk-download:active { transform: translateY(0) scale(.98); }
+    .apk-download svg { flex: 0 0 auto; }
+    .apk-download__label { display: flex; flex-direction: column; line-height: 1.15; }
+    .apk-download__label b { font-weight: 800; font-size: 12px; }
+    .apk-download__label small { font-size: 10px; font-weight: 600; opacity: .8; }
+    @media (min-width: 760px) {
+      .show__info--right .apk-download { align-self: flex-end; }
+    }
+
     /* the phone silhouette (decorative) */
     .phone {
       width: 150px; height: 300px; flex: 0 0 auto; position: relative; margin: 0 auto;

@@ -916,6 +916,34 @@ export default function Page() {
             {/* ===== Anime App (Material 3 Expressive, 6 screens) ===== */}
             <article className="show">
               <div className="show__info show__info--left">
+                <a
+                  className="apk-download"
+                  href="https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions/workflows/build-apk.yml"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Download Anime App APK (GitHub Actions → Artifacts)"
+                  title="APK built by GitHub Actions — open the latest successful run and download the anime-app-apk artifact."
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <path d="M7 10l5 5 5-5" />
+                    <path d="M12 15V3" />
+                  </svg>
+                  <span className="apk-download__label">
+                    <b>Download APK</b>
+                    <small>Android · GitHub Actions</small>
+                  </span>
+                </a>
                 <span className="tag tag--status">review</span>
                 <h3 className="show__name">Anime App</h3>
                 <p className="show__desc">
@@ -1175,16 +1203,47 @@ export default function Page() {
               </div>
             </article>
 
-            {/* ===== Setup Wizard (animated 8-step setup wizard) ===== */}
+            {/* ===== Setup Wizard (animated setup wizard) ===== */}
             <article className="show">
               <div className="show__info show__info--left">
+                <a
+                  className="apk-download"
+                  href="https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions/workflows/build-setup-wizard-apk.yml"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Download Setup Wizard APK (GitHub Actions → Artifacts)"
+                  title="APK built by GitHub Actions — open the latest successful run and download the setup-wizard-apk artifact."
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <path d="M7 10l5 5 5-5" />
+                    <path d="M12 15V3" />
+                  </svg>
+                  <span className="apk-download__label">
+                    <b>Download APK</b>
+                    <small>Android · GitHub Actions</small>
+                  </span>
+                </a>
                 <span className="tag tag--status">review</span>
                 <h3 className="show__name">Setup Wizard</h3>
                 <p className="show__desc">
-                  An animated 8-step setup wizard for an anime app. Material 3
-                  Expressive with a lime (#b3f35a) primary color. Theme
-                  switching, folder selection, permissions, backup restore,
-                  and a cute animated cat companion.
+                  An animated setup wizard for an anime app. Material 3
+                  Expressive with a lime (#b3f35a) primary color and
+                  switchable palettes. Theme selection, folder selection,
+                  permissions, a full backup-restore flow with anime linking,
+                  an ad-preferences ("Choose Your Poison") step, and a setup
+                  complete screen. Each screen has its own hash route
+                  (#welcome, #theme, …) like the anime app.
                 </p>
                 <div className="tags">
                   <span className="tag">Material 3</span>
@@ -1346,7 +1405,7 @@ export default function Page() {
                 </div>
                 <div className="kv">
                   <div className="kv__row">
-                    <b>8</b>&nbsp;screens
+                    <b>15</b>&nbsp;screens
                   </div>
                   <div className="kv__row">
                     <b>Lime</b>&nbsp;theme
