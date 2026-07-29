@@ -349,22 +349,13 @@ fun PoisonPillVisual(palette: WizardPalette, idx: Int = 0, modifier: Modifier = 
         val pillW = minOf(100.dp.toPx(), w * 0.7f)
         val pillH = minOf(42.dp.toPx(), h * 0.3f)
         val cx = w / 2f; val cy = h / 2f
-        val rad = kotlin.math.cos(rot * 3.14159 / 180)
-        val sinR = kotlin.math.sin(rot * 3.14159 / 180)
-        // Left half (red)
-        val p1 = Path().apply {
-            moveTo(cx, cy - pillH/2)
-            addOval(Rect(cx - pillW/2, cy - pillH/2, cx, cy + pillH/2))
-            close()
-        }
-        drawPath(p1, palette.primary)
-        // Right half (dark) — draw as clipped rect
-        val p2 = Path().apply {
-            moveTo(cx, cy - pillH/2)
-            addOval(Rect(cx, cy - pillH/2, cx + pillW/2, cy + pillH/2))
-            close()
-        }
-        drawPath(p2, palette.surface5)
+        val r = pillH / 2f
+        // Left half (red) — rounded left + rect to center
+        drawCircle(palette.primary, r, Offset(cx - pillW/2 + r, cy))
+        drawRect(palette.primary, Offset(cx - pillW/2 + r, cy - r), Size(pillW/2 - r, pillH))
+        // Right half (dark) — rounded right + rect from center
+        drawRect(palette.surface5, Offset(cx, cy - r), Size(pillW/2 - r, pillH))
+        drawCircle(palette.surface5, r, Offset(cx + pillW/2 - r, cy))
         // Plus on red half
         val plusCx = cx - pillW / 4f
         drawLine(palette.onPrimary, Offset(plusCx, cy - 8.dp.toPx()), Offset(plusCx, cy + 8.dp.toPx()), 3.dp.toPx())
