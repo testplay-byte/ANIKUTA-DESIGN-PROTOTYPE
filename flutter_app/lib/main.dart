@@ -992,10 +992,10 @@ class _LinkingScreenState extends State<_LinkingScreen> {
                   Expanded(child: ElevatedButton(onPressed: () => setState(() => _popupId = null), style: ElevatedButton.styleFrom(backgroundColor: widget.p.s3, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999))), child: const Text('Keep linked', style: TextStyle(fontWeight: FontWeight.bold)))),
                   const SizedBox(width: 12),
                   Expanded(child: ElevatedButton(onPressed: () { widget.onUnlink(_popupId!); setState(() => _popupId = null); }, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF2B8B5), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999))), child: const Text('Mark as not linked', style: TextStyle(fontWeight: FontWeight.bold)))),
-                ])),
+                ]),
               ])),
             ),
-          ),
+          )),
     ]);
   }
 }
@@ -1135,6 +1135,7 @@ class _RestoreSummaryScreen extends StatelessWidget {
           Container(padding: const EdgeInsets.all(11), decoration: BoxDecoration(color: p.primary.withOpacity(0.07), borderRadius: BorderRadius.circular(16), border: Border.all(color: p.primary.withOpacity(0.33))),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.info, color: p.primary, size: 20), const SizedBox(width: 10), Expanded(child: Text('This will overwrite any existing library data. The restore process may take a few moments.', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)))]),
         ]),
+      )),
       _ActionRow(onBack: onBack, onNext: onNext, nextText: 'Restore Now', p: p),
     ]);
   }
