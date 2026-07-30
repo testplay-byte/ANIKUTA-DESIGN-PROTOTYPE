@@ -1,4 +1,5 @@
 // ANIKUTA mock data models
+import 'package:flutter/material.dart';
 
 enum AnimeFormat { tv, movie, ova, ona, special, music }
 enum AnimeStatus { releasing, finished, notYetReleased, cancelled }
