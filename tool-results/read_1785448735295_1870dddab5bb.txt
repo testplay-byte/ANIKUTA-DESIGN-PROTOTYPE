@@ -1,0 +1,1292 @@
+     1→import 'package:flutter/material.dart';
+     2→import 'theme/anikuta_theme.dart';
+     3→import 'data/mock_data.dart';
+     4→import 'models/anime_models.dart';
+     5→import 'widgets/anikuta_widgets.dart';
+     6→
+     7→void main() {
+     8→  runApp(const AnikutaApp());
+     9→}
+    10→
+    11→class AnikutaApp extends StatelessWidget {
+    12→  const AnikutaApp({super.key});
+    13→
+    14→  @override
+    15→  Widget build(BuildContext context) {
+    16→    return MaterialApp(
+    17→      title: 'ANIKUTA',
+    18→      debugShowCheckedModeBanner: false,
+    19→      theme: AnikutaTheme.darkTheme,
+    20→      home: const AnikutaMainScreen(),
+    21→    );
+    22→  }
+    23→}
+    24→
+    25→class AnikutaMainScreen extends StatefulWidget {
+    26→  const AnikutaMainScreen({super.key});
+    27→
+    28→  @override
+    29→  State<AnikutaMainScreen> createState() => _AnikutaMainScreenState();
+    30→}
+    31→
+    32→class _AnikutaMainScreenState extends State<AnikutaMainScreen> {
+    33→  int _navIndex = 0;
+    34→  int? _detailAnimeId;
+    35→  int? _watchAnimeId;
+    36→  String? _pushedScreen; // 'search', 'history', 'my', 'backup', 'downloads', 'extensions'
+    37→
+    38→  void _onNavTap(int index) {
+    39→    setState(() {
+    40→      _navIndex = index;
+    41→      _detailAnimeId = null;
+    42→      _watchAnimeId = null;
+    43→      _pushedScreen = null;
+    44→    });
+    45→  }
+    46→
+    47→  void _openAnime(int id) {
+    48→    setState(() => _detailAnimeId = id);
+    49→  }
+    50→
+    51→  void _openWatch(int id) {
+    52→    setState(() => _watchAnimeId = id);
+    53→  }
+    54→
+    55→  void _openPushed(String screen) {
+    56→    setState(() => _pushedScreen = screen);
+    57→  }
+    58→
+    59→  void _pop() {
+    60→    setState(() {
+    61→      if (_watchAnimeId != null) {
+    62→        _watchAnimeId = null;
+    63→      } else if (_detailAnimeId != null) {
+    64→        _detailAnimeId = null;
+    65→      } else if (_pushedScreen != null) {
+    66→        _pushedScreen = null;
+    67→      }
+    68→    });
+    69→  }
+    70→
+    71→  @override
+    72→  Widget build(BuildContext context) {
+    73→    // Determine what to show
+    74→    Widget content;
+    75→    bool showNav = true;
+    76→
+    77→    if (_watchAnimeId != null) {
+    78→      content = WatchScreen(animeId: _watchAnimeId!, onBack: _pop);
+    79→      showNav = false;
+    80→    } else if (_detailAnimeId != null) {
+    81→      content = DetailScreen(
+    82→        animeId: _detailAnimeId!,
+    83→        onBack: _pop,
+    84→        onOpenWatch: (id) => setState(() => _watchAnimeId = id),
+    85→      );
+    86→      showNav = false;
+    87→    } else if (_pushedScreen != null) {
+    88→      switch (_pushedScreen!) {
+    89→        case 'search':
+    90→          content = SearchScreen(onBack: _pop, onOpenAnime: _openAnime);
+    91→          break;
+    92→        case 'history':
+    93→          content = HistoryScreen(onBack: _pop, onOpenWatch: _openWatch);
+    94→          break;
+    95→        case 'my':
+    96→          content = const ProfileScreen();
+    97→          break;
+    98→        case 'backup':
+    99→          content = const BackupScreen();
+   100→          break;
+   101→        case 'downloads':
+   102→          content = const DownloadsScreen();
+   103→          break;
+   104→        case 'extensions':
+   105→          content = const ExtensionsScreen();
+   106→          break;
+   107→        default:
+   108→          content = _buildTabScreen();
+   109→      }
+   110→      showNav = false;
+   111→    } else {
+   112→      content = _buildTabScreen();
+   113→    }
+   114→
+   115→    return Scaffold(
+   116→      body: SafeArea(
+   117→        top: false,
+   118→        child: Stack(
+   119→          children: [
+   120→            content,
+   121→            if (showNav)
+   122→              Positioned(
+   123→                left: 0,
+   124→                right: 0,
+   125→                bottom: 0,
+   126→                child: AnikutaBottomNav(
+   127→                  currentIndex: _navIndex,
+   128→                  onTap: _onNavTap,
+   129→                ),
+   130→              ),
+   131→          ],
+   132→        ),
+   133→      ),
+   134→    );
+   135→  }
+   136→
+   137→  Widget _buildTabScreen() {
+   138→    switch (_navIndex) {
+   139→      case 0:
+   140→        return HomeScreen(
+   141→          onOpenAnime: _openAnime,
+   142→          onOpenSearch: () => _openPushed('search'),
+   143→          onOpenHistory: () => _openPushed('history'),
+   144→          onOpenWatch: _openWatch,
+   145→        );
+   146→      case 1:
+   147→        return LibraryScreen(onOpenAnime: _openAnime);
+   148→      case 2:
+   149→        return UpdatesScreen(onOpenAnime: _openAnime);
+   150→      case 3:
+   151→        return MoreScreen(
+   152→          onOpenBackup: () => _openPushed('backup'),
+   153→          onOpenDownloads: () => _openPushed('downloads'),
+   154→          onOpenExtensions: () => _openPushed('extensions'),
+   155→          onOpenProfile: () => _openPushed('my'),
+   156→        );
+   157→      default:
+   158→        return Container();
+   159→    }
+   160→  }
+   161→}
+   162→
+   163→// ==================== HOME SCREEN ====================
+   164→class HomeScreen extends StatelessWidget {
+   165→  final ValueChanged<int> onOpenAnime;
+   166→  final VoidCallback onOpenSearch;
+   167→  final VoidCallback onOpenHistory;
+   168→  final ValueChanged<int> onOpenWatch;
+   169→
+   170→  const HomeScreen({
+   171→    super.key,
+   172→    required this.onOpenAnime,
+   173→    required this.onOpenSearch,
+   174→    required this.onOpenHistory,
+   175→    required this.onOpenWatch,
+   176→  });
+   177→
+   178→  @override
+   179→  Widget build(BuildContext context) {
+   180→    final hero = allAnime[0];
+   181→    return Container(
+   182→      color: AnikutaColors.background,
+   183→      child: CustomScrollView(
+   184→        slivers: [
+   185→          SliverAppBar(
+   186→            expandedHeight: 80,
+   187→            pinned: true,
+   188→            backgroundColor: AnikutaColors.background,
+   189→            automaticallyImplyLeading: false,
+   190→            title: const Text('Home', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800)),
+   191→            actions: [
+   192→              IconButton(onPressed: onOpenSearch, icon: const Icon(Icons.search, color: AnikutaColors.onBackground)),
+   193→              IconButton(onPressed: onOpenHistory, icon: const Icon(Icons.history, color: AnikutaColors.onBackground)),
+   194→            ],
+   195→          ),
+   196→          // Trending hero
+   197→          SliverToBoxAdapter(
+   198→            child: Padding(
+   199→              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+   200→              child: GestureDetector(
+   201→                onTap: () => onOpenAnime(hero.id),
+   202→                child: ClipRRect(
+   203→                  borderRadius: BorderRadius.circular(16),
+   204→                  child: SizedBox(
+   205→                    height: 180,
+   206→                    child: Stack(
+   207→                      fit: StackFit.expand,
+   208→                      children: [
+   209→                        Container(
+   210→                          decoration: BoxDecoration(
+   211→                            gradient: LinearGradient(
+   212→                              begin: Alignment.topLeft,
+   213→                              end: Alignment.bottomRight,
+   214→                              colors: hero.coverColors,
+   215→                            ),
+   216→                          ),
+   217→                          child: Center(child: Text(hero.letter, style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 80, fontWeight: FontWeight.w900))),
+   218→                        ),
+   219→                        Container(
+   220→                          decoration: BoxDecoration(
+   221→                            gradient: LinearGradient(
+   222→                              begin: Alignment.topCenter,
+   223→                              end: Alignment.bottomCenter,
+   224→                              colors: [Colors.transparent, Colors.black.withOpacity(0.7)],
+   225→                            ),
+   226→                          ),
+   227→                        ),
+   228→                        Positioned(
+   229→                          top: 12,
+   230→                          left: 12,
+   231→                          child: Container(
+   232→                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+   233→                            decoration: BoxDecoration(
+   234→                              color: AnikutaColors.primary,
+   235→                              borderRadius: BorderRadius.circular(4),
+   236→                            ),
+   237→                            child: Text('TRENDING #1', style: TextStyle(color: AnikutaColors.onPrimary, fontSize: 10, fontWeight: FontWeight.w900)),
+   238→                          ),
+   239→                        ),
+   240→                        Positioned(
+   241→                          bottom: 12,
+   242→                          left: 12,
+   243→                          right: 12,
+   244→                          child: Column(
+   245→                            crossAxisAlignment: CrossAxisAlignment.start,
+   246→                            children: [
+   247→                              Text(hero.title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
+   248→                              const SizedBox(height: 4),
+   249→                              Row(
+   250→                                children: [
+   251→                                  const Icon(Icons.star, color: AnikutaColors.warn, size: 14),
+   252→                                  const SizedBox(width: 4),
+   253→                                  Text('${(hero.averageScore / 10).toStringAsFixed(1)}', style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.bold)),
+   254→                                  const SizedBox(width: 8),
+   255→                                  Text('${hero.episodes} eps', style: const TextStyle(color: Colors.white54, fontSize: 12, fontWeight: FontWeight.bold)),
+   256→                                ],
+   257→                              ),
+   258→                            ],
+   259→                          ),
+   260→                        ),
+   261→                      ],
+   262→                    ),
+   263→                  ),
+   264→                ),
+   265→              ),
+   266→            ),
+   267→          ),
+   268→          // Continue Watching
+   269→          SliverToBoxAdapter(
+   270→            child: SectionHeader(text: 'Continue Watching'),
+   271→          ),
+   272→          SliverToBoxAdapter(
+   273→            child: SizedBox(
+   274→              height: 140,
+   275→              child: ListView.builder(
+   276→                scrollDirection: Axis.horizontal,
+   277→                padding: const EdgeInsets.symmetric(horizontal: 16),
+   278→                itemCount: continueWatching.length,
+   279→                itemBuilder: (context, i) {
+   280→                  final cw = continueWatching[i];
+   281→                  return GestureDetector(
+   282→                    onTap: () => onOpenWatch(cw.animeId),
+   283→                    child: Container(
+   284→                      width: 220,
+   285→                      margin: const EdgeInsets.only(right: 10),
+   286→                      child: ClipRRect(
+   287→                        borderRadius: BorderRadius.circular(10),
+   288→                        child: Stack(
+   289→                          fit: StackFit.expand,
+   290→                          children: [
+   291→                            Container(
+   292→                              decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: cw.bannerColors)),
+   293→                              child: Center(child: Text(cw.letter, style: TextStyle(color: Colors.white.withOpacity(0.2), fontSize: 50, fontWeight: FontWeight.w900))),
+   294→                            ),
+   295→                            Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Colors.black54]))),
+   296→                            Positioned(
+   297→                              top: 8,
+   298→                              right: 8,
+   299→                              child: Container(
+   300→                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+   301→                                decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(4)),
+   302→                                child: Text('EP ${cw.episode}', style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+   303→                              ),
+   304→                            ),
+   305→                            Positioned(
+   306→                              bottom: 8,
+   307→                              left: 8,
+   308→                              right: 8,
+   309→                              child: Column(
+   310→                                crossAxisAlignment: CrossAxisAlignment.start,
+   311→                                children: [
+   312→                                  Text(cw.title, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+   313→                                  const SizedBox(height: 6),
+   314→                                  ClipRRect(
+   315→                                    borderRadius: BorderRadius.circular(2),
+   316→                                    child: LinearProgressIndicator(
+   317→                                      value: cw.progress,
+   318→                                      backgroundColor: Colors.white24,
+   319→                                      valueColor: AlwaysStoppedAnimation(AnikutaColors.primary),
+   320→                                    ),
+   321→                                  ),
+   322→                                ],
+   323→                              ),
+   324→                            ),
+   325→                          ],
+   326→                        ),
+   327→                      ),
+   328→                    ),
+   329→                  );
+   330→                },
+   331→              ),
+   332→            ),
+   333→          ),
+   334→          // Popular This Season
+   335→          SliverToBoxAdapter(child: SectionHeader(text: 'Popular This Season')),
+   336→          SliverPadding(
+   337→            padding: const EdgeInsets.symmetric(horizontal: 16),
+   338→            sliver: SliverGrid(
+   339→              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+   340→                crossAxisCount: 3,
+   341→                childAspectRatio: 0.55,
+   342→                crossAxisSpacing: 10,
+   343→                mainAxisSpacing: 10,
+   344→              ),
+   345→              delegate: SliverChildBuilderDelegate(
+   346→                (context, i) => AnimeCard(anime: allAnime[i], onTap: () => onOpenAnime(allAnime[i].id)),
+   347→                childCount: 6,
+   348→              ),
+   349→            ),
+   350→          ),
+   351→          // Top Rated
+   352→          SliverToBoxAdapter(child: SectionHeader(text: 'Top Rated')),
+   353→          SliverPadding(
+   354→            padding: const EdgeInsets.symmetric(horizontal: 16),
+   355→            sliver: SliverGrid(
+   356→              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+   357→                crossAxisCount: 3,
+   358→                childAspectRatio: 0.55,
+   359→                crossAxisSpacing: 10,
+   360→                mainAxisSpacing: 10,
+   361→              ),
+   362→              delegate: SliverChildBuilderDelegate(
+   363→                (context, i) => AnimeCard(anime: allAnime[i + 6], onTap: () => onOpenAnime(allAnime[i + 6].id)),
+   364→                childCount: 6,
+   365→              ),
+   366→            ),
+   367→          ),
+   368→          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+   369→        ],
+   370→      ),
+   371→    );
+   372→  }
+   373→}
+   374→
+   375→// ==================== LIBRARY SCREEN ====================
+   376→class LibraryScreen extends StatelessWidget {
+   377→  final ValueChanged<int> onOpenAnime;
+   378→  const LibraryScreen({super.key, required this.onOpenAnime});
+   379→
+   380→  @override
+   381→  Widget build(BuildContext context) {
+   382→    final libAnime = allAnime.where((a) => a.inLibrary).toList();
+   383→    return Container(
+   384→      color: AnikutaColors.background,
+   385→      child: Column(
+   386→        children: [
+   387→          Padding(
+   388→            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 16, left: 16, right: 16),
+   389→            child: Row(
+   390→              children: [
+   391→                const Text('Library', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: AnikutaColors.onBackground)),
+   392→                const Spacer(),
+   393→                IconButton(onPressed: () {}, icon: const Icon(Icons.tune, color: AnikutaColors.onSurfaceVariant)),
+   394→              ],
+   395→            ),
+   396→          ),
+   397→          Padding(
+   398→            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+   399→            child: SegmentedToggle(options: ['All', 'Watching', 'Completed', 'Plan'], selected: 0, onChanged: (i) {}),
+   400→          ),
+   401→          Expanded(
+   402→            child: GridView.builder(
+   403→              padding: const EdgeInsets.all(16).copyWith(bottom: 100),
+   404→              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+   405→                crossAxisCount: 3,
+   406→                childAspectRatio: 0.55,
+   407→                crossAxisSpacing: 10,
+   408→                mainAxisSpacing: 10,
+   409→              ),
+   410→              itemCount: libAnime.length,
+   411→              itemBuilder: (context, i) => AnimeCard(anime: libAnime[i], onTap: () => onOpenAnime(libAnime[i].id)),
+   412→            ),
+   413→          ),
+   414→        ],
+   415→      ),
+   416→    );
+   417→  }
+   418→}
+   419→
+   420→// ==================== SEARCH SCREEN ====================
+   421→class SearchScreen extends StatelessWidget {
+   422→  final VoidCallback onBack;
+   423→  final ValueChanged<int> onOpenAnime;
+   424→  const SearchScreen({super.key, required this.onBack, required this.onOpenAnime});
+   425→
+   426→  @override
+   427→  Widget build(BuildContext context) {
+   428→    return Container(
+   429→      color: AnikutaColors.background,
+   430→      child: Column(
+   431→        children: [
+   432→          Padding(
+   433→            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8, left: 8, right: 16),
+   434→            child: Row(
+   435→              children: [
+   436→                IconButton(onPressed: onBack, icon: const Icon(Icons.arrow_back, color: AnikutaColors.onBackground)),
+   437→                Expanded(
+   438→                  child: Container(
+   439→                    height: 44,
+   440→                    decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(999)),
+   441→                    child: const TextField(
+   442→                      decoration: InputDecoration(
+   443→                        hintText: 'Search anime…',
+   444→                        hintStyle: TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 14),
+   445→                        prefixIcon: Icon(Icons.search, color: AnikutaColors.onSurfaceVariant, size: 20),
+   446→                        border: InputBorder.none,
+   447→                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
+   448→                      ),
+   449→                      style: TextStyle(color: AnikutaColors.onBackground, fontSize: 14),
+   450→                    ),
+   451→                  ),
+   452→                ),
+   453→              ],
+   454→            ),
+   455→          ),
+   456→          Padding(
+   457→            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+   458→            child: SegmentedToggle(options: ['AniList', 'Extension'], selected: 0, onChanged: (i) {}),
+   459→          ),
+   460→          Padding(
+   461→            padding: const EdgeInsets.symmetric(horizontal: 16),
+   462→            child: SizedBox(
+   463→              height: 32,
+   464→              child: ListView(
+   465→                scrollDirection: Axis.horizontal,
+   466→                children: ['Action', 'Comedy', 'Drama', 'Fantasy', 'Horror', 'Romance', 'Sci-Fi']
+   467→                    .map((g) => Container(
+   468→                          margin: const EdgeInsets.only(right: 6),
+   469→                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+   470→                          decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(999)),
+   471→                          child: Text(g, style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold)),
+   472→                        ))
+   473→                    .toList(),
+   474→              ),
+   475→            ),
+   476→          ),
+   477→          Expanded(
+   478→            child: GridView.builder(
+   479→              padding: const EdgeInsets.all(16).copyWith(bottom: 20),
+   480→              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, childAspectRatio: 0.55, crossAxisSpacing: 10, mainAxisSpacing: 10),
+   481→              itemCount: allAnime.length,
+   482→              itemBuilder: (context, i) => AnimeCard(anime: allAnime[i], onTap: () => onOpenAnime(allAnime[i].id)),
+   483→            ),
+   484→          ),
+   485→        ],
+   486→      ),
+   487→    );
+   488→  }
+   489→}
+   490→
+   491→// ==================== DETAIL SCREEN ====================
+   492→class DetailScreen extends StatelessWidget {
+   493→  final int animeId;
+   494→  final VoidCallback onBack;
+   495→  final ValueChanged<int> onOpenWatch;
+   496→  const DetailScreen({super.key, required this.animeId, required this.onBack, required this.onOpenWatch});
+   497→
+   498→  @override
+   499→  Widget build(BuildContext context) {
+   500→    final anime = getAnimeById(animeId);
+   501→    if (anime == null) return const SizedBox.shrink();
+   502→    final episodes = getEpisodesForAnime(animeId);
+   503→    return Container(
+   504→      color: AnikutaColors.background,
+   505→      child: CustomScrollView(
+   506→        slivers: [
+   507→          // Blurred cover header
+   508→          SliverAppBar(
+   509→            expandedHeight: 280,
+   510→            pinned: false,
+   511→            backgroundColor: AnikutaColors.background,
+   512→            leading: IconButton(onPressed: onBack, icon: const Icon(Icons.arrow_back, color: Colors.white)),
+   513→            actions: [
+   514→              IconButton(onPressed: () {}, icon: const Icon(Icons.bookmark_border, color: Colors.white)),
+   515→              IconButton(onPressed: () {}, icon: const Icon(Icons.share, color: Colors.white)),
+   516→            ],
+   517→            flexibleSpace: FlexibleSpaceBar(
+   518→              background: Stack(
+   519→                fit: StackFit.expand,
+   520→                children: [
+   521→                  Container(
+   522→                    decoration: BoxDecoration(
+   523→                      gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: anime.coverColors),
+   524→                    ),
+   525→                    child: Center(child: Text(anime.letter, style: TextStyle(color: Colors.white.withOpacity(0.15), fontSize: 100, fontWeight: FontWeight.w900))),
+   526→                  ),
+   527→                  Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.black26, AnikutaColors.background]))),
+   528→                ],
+   529→              ),
+   530→            ),
+   531→          ),
+   532→          // Title + meta
+   533→          SliverToBoxAdapter(
+   534→            child: Padding(
+   535→              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+   536→              child: Column(
+   537→                crossAxisAlignment: CrossAxisAlignment.start,
+   538→                children: [
+   539→                  Row(
+   540→                    crossAxisAlignment: CrossAxisAlignment.start,
+   541→                    children: [
+   542→                      // Cover thumbnail
+   543→                      ClipRRect(
+   544→                        borderRadius: BorderRadius.circular(10),
+   545→                        child: SizedBox(
+   546→                          width: 90,
+   547→                          height: 130,
+   548→                          child: Container(
+   549→                            decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: anime.coverColors)),
+   550→                            child: Center(child: Text(anime.letter, style: const TextStyle(color: Colors.white54, fontSize: 32, fontWeight: FontWeight.w900))),
+   551→                          ),
+   552→                        ),
+   553→                      ),
+   554→                      const SizedBox(width: 12),
+   555→                      Expanded(
+   556→                        child: Column(
+   557→                          crossAxisAlignment: CrossAxisAlignment.start,
+   558→                          children: [
+   559→                            Text(anime.title, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: AnikutaColors.onBackground)),
+   560→                            const SizedBox(height: 6),
+   561→                            Row(children: [
+   562→                              const Icon(Icons.star, color: AnikutaColors.warn, size: 14),
+   563→                              const SizedBox(width: 4),
+   564→                              Text('${(anime.averageScore / 10).toStringAsFixed(1)}', style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold)),
+   565→                              const SizedBox(width: 8),
+   566→                              Text('${anime.format} · ${anime.episodes} eps', style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold)),
+   567→                            ]),
+   568→                            const SizedBox(height: 4),
+   569→                            Text('${anime.studio} · ${anime.season} ${anime.seasonYear}', style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 12, fontWeight: FontWeight.bold)),
+   570→                          ],
+   571→                        ),
+   572→                      ),
+   573→                    ],
+   574→                  ),
+   575→                  const SizedBox(height: 12),
+   576→                  // Genre chips
+   577→                  Wrap(
+   578→                    spacing: 6,
+   579→                    runSpacing: 4,
+   580→                    children: anime.genres.map((g) => Container(
+   581→                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+   582→                      decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(6)),
+   583→                      child: Text(g, style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold)),
+   584→                    )).toList(),
+   585→                  ),
+   586→                  const SizedBox(height: 12),
+   587→                  // Synopsis
+   588→                  const Text('SYNOPSIS', style: TextStyle(color: AnikutaColors.primary, fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+   589→                  const SizedBox(height: 6),
+   590→                  Text(anime.synopsis, style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 13, height: 1.5)),
+   591→                  const SizedBox(height: 16),
+   592→                  // Episodes header
+   593→                  const Text('EPISODES', style: TextStyle(color: AnikutaColors.primary, fontSize: 13, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+   594→                  const SizedBox(height: 8),
+   595→                ],
+   596→              ),
+   597→            ),
+   598→          ),
+   599→          // Episode list
+   600→          SliverList(
+   601→            delegate: SliverChildBuilderDelegate(
+   602→              (context, i) => Padding(
+   603→                padding: const EdgeInsets.symmetric(horizontal: 16),
+   604→                child: EpisodeRow(
+   605→                  episode: episodes[i],
+   606→                  onTap: () => onOpenWatch(animeId),
+   607→                ),
+   608→              ),
+   609→              childCount: episodes.length,
+   610→            ),
+   611→          ),
+   612→          const SliverToBoxAdapter(child: SizedBox(height: 40)),
+   613→        ],
+   614→      ),
+   615→    );
+   616→  }
+   617→}
+   618→
+   619→// ==================== WATCH SCREEN ====================
+   620→class WatchScreen extends StatelessWidget {
+   621→  final int animeId;
+   622→  final VoidCallback onBack;
+   623→  const WatchScreen({super.key, required this.animeId, required this.onBack});
+   624→
+   625→  @override
+   626→  Widget build(BuildContext context) {
+   627→    final anime = getAnimeById(animeId);
+   628→    if (anime == null) return const SizedBox.shrink();
+   629→    final episodes = getEpisodesForAnime(animeId);
+   630→    final currentEp = episodes.isNotEmpty ? episodes[anime.watchedEpisodes.clamp(0, episodes.length - 1)] : null;
+   631→    return Container(
+   632→      color: AnikutaColors.background,
+   633→      child: Column(
+   634→        children: [
+   635→          // Top bar
+   636→          Padding(
+   637→            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 4, left: 4, right: 8),
+   638→            child: Row(
+   639→              children: [
+   640→                IconButton(onPressed: onBack, icon: const Icon(Icons.arrow_back, color: AnikutaColors.onBackground)),
+   641→                Expanded(child: Text(anime.title, style: const TextStyle(color: AnikutaColors.onBackground, fontSize: 16, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis)),
+   642→                IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert, color: AnikutaColors.onSurfaceVariant)),
+   643→              ],
+   644→            ),
+   645→          ),
+   646→          // Mini player
+   647→          Container(
+   648→            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+   649→            decoration: BoxDecoration(
+   650→              color: Colors.black,
+   651→              borderRadius: BorderRadius.circular(8),
+   652→            ),
+   653→            child: AspectRatio(
+   654→              aspectRatio: 16 / 9,
+   655→              child: Stack(
+   656→                alignment: Alignment.center,
+   657→                children: [
+   658→                  Container(
+   659→                    decoration: BoxDecoration(
+   660→                      gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: anime.coverColors),
+   661→                    ),
+   662→                  ),
+   663→                  const Icon(Icons.play_circle_fill, color: Colors.white70, size: 48),
+   664→                  Positioned(
+   665→                    bottom: 4,
+   666→                    right: 4,
+   667→                    child: Container(
+   668→                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+   669→                      decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(4)),
+   670→                      child: const Icon(Icons.fullscreen, color: Colors.white70, size: 16),
+   671→                    ),
+   672→                  ),
+   673→                ],
+   674→              ),
+   675→            ),
+   676→          ),
+   677→          // Episode info
+   678→          if (currentEp != null)
+   679→            Padding(
+   680→              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+   681→              child: Column(
+   682→                crossAxisAlignment: CrossAxisAlignment.start,
+   683→                children: [
+   684→                  Text('EP ${currentEp.number} — ${currentEp.title}', style: const TextStyle(color: AnikutaColors.onBackground, fontSize: 14, fontWeight: FontWeight.bold)),
+   685→                  const SizedBox(height: 4),
+   686→                  Text(currentEp.description, style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 12), maxLines: 2, overflow: TextOverflow.ellipsis),
+   687→                ],
+   688→              ),
+   689→            ),
+   690→          const Divider(color: AnikutaColors.outlineVariant, height: 1),
+   691→          // Episode list
+   692→          Expanded(
+   693→            child: ListView.builder(
+   694→              padding: const EdgeInsets.all(16).copyWith(bottom: 20),
+   695→              itemCount: episodes.length,
+   696→              itemBuilder: (context, i) => EpisodeRow(
+   697→                episode: episodes[i],
+   698→                isCurrent: currentEp != null && episodes[i].number == currentEp.number,
+   699→                onTap: () {},
+   700→              ),
+   701→            ),
+   702→          ),
+   703→        ],
+   704→      ),
+   705→    );
+   706→  }
+   707→}
+   708→
+   709→// ==================== HISTORY SCREEN ====================
+   710→class HistoryScreen extends StatelessWidget {
+   711→  final VoidCallback onBack;
+   712→  final ValueChanged<int> onOpenWatch;
+   713→  const HistoryScreen({super.key, required this.onBack, required this.onOpenWatch});
+   714→
+   715→  @override
+   716→  Widget build(BuildContext context) {
+   717→    return Container(
+   718→      color: AnikutaColors.background,
+   719→      child: Column(
+   720→        children: [
+   721→          Padding(
+   722→            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8, left: 8, right: 16),
+   723→            child: Row(
+   724→              children: [
+   725→                IconButton(onPressed: onBack, icon: const Icon(Icons.arrow_back, color: AnikutaColors.onBackground)),
+   726→                const Text('History', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: AnikutaColors.onBackground)),
+   727→                const Spacer(),
+   728→                IconButton(onPressed: () {}, icon: const Icon(Icons.delete_outline, color: AnikutaColors.onSurfaceVariant)),
+   729→              ],
+   730→            ),
+   731→          ),
+   732→          Expanded(
+   733→            child: ListView(
+   734→              padding: const EdgeInsets.all(16).copyWith(bottom: 20),
+   735→              children: [
+   736→                // Continue Watching section
+   737→                const SectionHeader(text: 'Continue Watching'),
+   738→                SizedBox(
+   739→                  height: 120,
+   740→                  child: ListView.builder(
+   741→                    scrollDirection: Axis.horizontal,
+   742→                    itemCount: continueWatching.length,
+   743→                    itemBuilder: (context, i) {
+   744→                      final cw = continueWatching[i];
+   745→                      return GestureDetector(
+   746→                        onTap: () => onOpenWatch(cw.animeId),
+   747→                        child: Container(
+   748→                          width: 200,
+   749→                          margin: const EdgeInsets.only(right: 10),
+   750→                          child: ClipRRect(
+   751→                            borderRadius: BorderRadius.circular(10),
+   752→                            child: Stack(
+   753→                              fit: StackFit.expand,
+   754→                              children: [
+   755→                                Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: cw.bannerColors))),
+   756→                                Container(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Colors.transparent, Colors.black54]))),
+   757→                                Positioned(
+   758→                                  bottom: 8,
+   759→                                  left: 8,
+   760→                                  right: 8,
+   761→                                  child: Column(
+   762→                                    crossAxisAlignment: CrossAxisAlignment.start,
+   763→                                    children: [
+   764→                                      Text(cw.title, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+   765→                                      Text('EP ${cw.episode}', style: const TextStyle(color: Colors.white70, fontSize: 10, fontWeight: FontWeight.bold)),
+   766→                                    ],
+   767→                                  ),
+   768→                                ),
+   769→                              ],
+   770→                            ),
+   771→                          ),
+   772→                        ),
+   773→                      );
+   774→                    },
+   775→                  ),
+   776→                ),
+   777→                // Today
+   778→                const SectionHeader(text: 'Today'),
+   779→                ...historyEntries.take(2).map((e) => _historyRow(e, () => onOpenWatch(e.animeId))),
+   780→                // Yesterday
+   781→                const SectionHeader(text: 'Yesterday'),
+   782→                ...historyEntries.skip(2).map((e) => _historyRow(e, () => onOpenWatch(e.animeId))),
+   783→              ],
+   784→            ),
+   785→          ),
+   786→        ],
+   787→      ),
+   788→    );
+   789→  }
+   790→
+   791→  Widget _historyRow(HistoryEntry e, VoidCallback onTap) {
+   792→    return GestureDetector(
+   793→      onTap: onTap,
+   794→      child: Container(
+   795→        margin: const EdgeInsets.only(bottom: 8),
+   796→        padding: const EdgeInsets.all(8),
+   797→        decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(10)),
+   798→        child: Row(
+   799→          children: [
+   800→            ClipRRect(
+   801→              borderRadius: BorderRadius.circular(6),
+   802→              child: SizedBox(
+   803→                width: 64,
+   804→                height: 40,
+   805→                child: Container(
+   806→                  decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: e.thumbColors)),
+   807→                  child: Center(child: Text(e.thumbLetter, style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 14, fontWeight: FontWeight.w900))),
+   808→                ),
+   809→              ),
+   810→            ),
+   811→            const SizedBox(width: 10),
+   812→            Expanded(
+   813→              child: Column(
+   814→                crossAxisAlignment: CrossAxisAlignment.start,
+   815→                children: [
+   816→                  Text(e.title, style: const TextStyle(color: AnikutaColors.onBackground, fontSize: 13, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+   817→                  Text('EP ${e.episode} · ${e.timeAgo}', style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold)),
+   818→                ],
+   819→              ),
+   820→            ),
+   821→          ],
+   822→        ),
+   823→      ),
+   824→    );
+   825→  }
+   826→}
+   827→
+   828→// ==================== UPDATES SCREEN ====================
+   829→class UpdatesScreen extends StatelessWidget {
+   830→  final ValueChanged<int> onOpenAnime;
+   831→  const UpdatesScreen({super.key, required this.onOpenAnime});
+   832→
+   833→  @override
+   834→  Widget build(BuildContext context) {
+   835→    return Container(
+   836→      color: AnikutaColors.background,
+   837→      child: Column(
+   838→        children: [
+   839→          Padding(
+   840→            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 16, left: 16, right: 16),
+   841→            child: const Row(
+   842→              children: [
+   843→                Text('Updates', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: AnikutaColors.onBackground)),
+   844→              ],
+   845→            ),
+   846→          ),
+   847→          Padding(
+   848→            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+   849→            child: SegmentedToggle(options: ['Updates', 'Schedule'], selected: 0, onChanged: (i) {}),
+   850→          ),
+   851→          Expanded(
+   852→            child: ListView.builder(
+   853→              padding: const EdgeInsets.all(16).copyWith(bottom: 100),
+   854→              itemCount: updatesList.length,
+   855→              itemBuilder: (context, i) {
+   856→                final u = updatesList[i];
+   857→                return GestureDetector(
+   858→                  onTap: () => onOpenAnime(u.animeId),
+   859→                  child: Container(
+   860→                    margin: const EdgeInsets.only(bottom: 8),
+   861→                    padding: const EdgeInsets.all(10),
+   862→                    decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(12)),
+   863→                    child: Row(
+   864→                      children: [
+   865→                        ClipRRect(
+   866→                          borderRadius: BorderRadius.circular(6),
+   867→                          child: SizedBox(
+   868→                            width: 48,
+   869→                            height: 64,
+   870→                            child: Container(
+   871→                              decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: u.coverColors)),
+   872→                              child: Center(child: Text(u.letter, style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 16, fontWeight: FontWeight.w900))),
+   873→                            ),
+   874→                          ),
+   875→                        ),
+   876→                        const SizedBox(width: 10),
+   877→                        Expanded(
+   878→                          child: Column(
+   879→                            crossAxisAlignment: CrossAxisAlignment.start,
+   880→                            children: [
+   881→                              Text(u.title, style: const TextStyle(color: AnikutaColors.onBackground, fontSize: 13, fontWeight: FontWeight.bold), maxLines: 1, overflow: TextOverflow.ellipsis),
+   882→                              Text('EP ${u.episode} · ${u.timeAgo}', style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold)),
+   883→                              const SizedBox(height: 4),
+   884→                              Row(
+   885→                                children: [
+   886→                                  if (u.subAvailable) Container(padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1), margin: const EdgeInsets.only(right: 4), decoration: BoxDecoration(color: AnikutaColors.primaryContainer, borderRadius: BorderRadius.circular(4)), child: const Text('SUB', style: TextStyle(color: AnikutaColors.onPrimaryContainer, fontSize: 9, fontWeight: FontWeight.bold))),
+   887→                                  if (u.dubAvailable) Container(padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1), decoration: BoxDecoration(color: AnikutaColors.secondaryContainer, borderRadius: BorderRadius.circular(4)), child: const Text('DUB', style: TextStyle(color: AnikutaColors.secondary, fontSize: 9, fontWeight: FontWeight.bold))),
+   888→                                  if (u.isNew) const Padding(padding: EdgeInsets.only(left: 4), child: Text('NEW', style: TextStyle(color: AnikutaColors.primary, fontSize: 9, fontWeight: FontWeight.bold))),
+   889→                                ],
+   890→                              ),
+   891→                            ],
+   892→                          ),
+   893→                        ),
+   894→                      ],
+   895→                    ),
+   896→                  ),
+   897→                );
+   898→              },
+   899→            ),
+   900→          ),
+   901→        ],
+   902→      ),
+   903→    );
+   904→  }
+   905→}
+   906→
+   907→// ==================== MORE SCREEN ====================
+   908→class MoreScreen extends StatelessWidget {
+   909→  final VoidCallback onOpenBackup;
+   910→  final VoidCallback onOpenDownloads;
+   911→  final VoidCallback onOpenExtensions;
+   912→  final VoidCallback onOpenProfile;
+   913→  const MoreScreen({super.key, required this.onOpenBackup, required this.onOpenDownloads, required this.onOpenExtensions, required this.onOpenProfile});
+   914→
+   915→  @override
+   916→  Widget build(BuildContext context) {
+   917→    return Container(
+   918→      color: AnikutaColors.background,
+   919→      child: Column(
+   920→        children: [
+   921→          Padding(
+   922→            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 16, left: 16, right: 16),
+   923→            child: const Text('More', style: TextStyle(fontSize: 36, fontWeight: FontWeight.w800, color: AnikutaColors.onBackground)),
+   924→          ),
+   925→          Expanded(
+   926→            child: ListView(
+   927→              padding: const EdgeInsets.all(16).copyWith(bottom: 100),
+   928→              children: [
+   929→                _settingsSection('APPEARANCE', [
+   930→                  _settingsRow(Icons.palette, 'Theme', 'Dark'),
+   931→                  _settingsRow(Icons.font_download, 'Font', 'Inter'),
+   932→                ]),
+   933→                _settingsSection('DATA', [
+   934→                  _settingsRow(Icons.backup, 'Backup & Restore', null, onTap: onOpenBackup),
+   935→                  _settingsRow(Icons.download, 'Downloads', null, onTap: onOpenDownloads),
+   936→                  _settingsRow(Icons.extension, 'Extensions', null, onTap: onOpenExtensions),
+   937→                ]),
+   938→                _settingsSection('ACCOUNT', [
+   939→                  _settingsRow(Icons.person, 'Profile', null, onTap: onOpenProfile),
+   940→                  _settingsRow(Icons.link, 'Trackers', 'AniList, MAL'),
+   941→                ]),
+   942→                _settingsSection('ABOUT', [
+   943→                  _settingsRow(Icons.info, 'About ANIKUTA', 'v1.0.0'),
+   944→                ]),
+   945→              ],
+   946→            ),
+   947→          ),
+   948→        ],
+   949→      ),
+   950→    );
+   951→  }
+   952→
+   953→  Widget _settingsSection(String title, List<Widget> rows) {
+   954→    return Column(
+   955→      crossAxisAlignment: CrossAxisAlignment.start,
+   956→      children: [
+   957→        Padding(
+   958→          padding: const EdgeInsets.only(top: 16, bottom: 8),
+   959→          child: Text(title, style: const TextStyle(color: AnikutaColors.primary, fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 0.8)),
+   960→        ),
+   961→        Container(
+   962→          decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(12)),
+   963→          child: Column(children: rows),
+   964→        ),
+   965→      ],
+   966→    );
+   967→  }
+   968→
+   969→  Widget _settingsRow(IconData icon, String title, String? subtitle, {VoidCallback? onTap}) {
+   970→    return ListTile(
+   971→      leading: Icon(icon, color: AnikutaColors.primary, size: 22),
+   972→      title: Text(title, style: const TextStyle(color: AnikutaColors.onBackground, fontSize: 14, fontWeight: FontWeight.bold)),
+   973→      subtitle: subtitle != null ? Text(subtitle, style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 12)) : null,
+   974→      trailing: const Icon(Icons.chevron_right, color: AnikutaColors.onSurfaceVariant, size: 20),
+   975→      onTap: onTap,
+   976→    );
+   977→  }
+   978→}
+   979→
+   980→// ==================== PROFILE SCREEN ====================
+   981→class ProfileScreen extends StatelessWidget {
+   982→  const ProfileScreen({super.key});
+   983→
+   984→  @override
+   985→  Widget build(BuildContext context) {
+   986→    return Container(
+   987→      color: AnikutaColors.background,
+   988→      child: Column(
+   989→        children: [
+   990→          Padding(
+   991→            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 16, left: 16, right: 16),
+   992→            child: const Text('My Profile', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: AnikutaColors.onBackground)),
+   993→          ),
+   994→          Expanded(
+   995→            child: ListView(
+   996→              padding: const EdgeInsets.all(16).copyWith(bottom: 20),
+   997→              children: [
+   998→                _statCard('Total Anime', '247'),
+   999→                _statCard('Episodes Watched', '1,432'),
+  1000→                _statCard('Hours Watched', '578'),
+  1001→                const SizedBox(height: 16),
+  1002→                const SectionHeader(text: 'Genre Distribution'),
+  1003→                _barChart(['Action', 'Drama', 'Comedy', 'Fantasy', 'Supernatural'], [30, 25, 20, 15, 10]),
+  1004→                const SectionHeader(text: 'Status Breakdown'),
+  1005→                _barChart(['Watching', 'Completed', 'Plan', 'Dropped'], [45, 120, 70, 12]),
+  1006→                const SectionHeader(text: 'Score Distribution'),
+  1007→                _barChart(['1-3', '4-6', '7-8', '9-10'], [5, 30, 120, 92]),
+  1008→              ],
+  1009→            ),
+  1010→          ),
+  1011→        ],
+  1012→      ),
+  1013→    );
+  1014→  }
+  1015→
+  1016→  Widget _statCard(String label, String value) {
+  1017→    return Container(
+  1018→      margin: const EdgeInsets.only(bottom: 8),
+  1019→      padding: const EdgeInsets.all(14),
+  1020→      decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(12)),
+  1021→      child: Row(
+  1022→        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  1023→        children: [
+  1024→          Text(label, style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.bold)),
+  1025→          Text(value, style: const TextStyle(color: AnikutaColors.primary, fontSize: 20, fontWeight: FontWeight.w800)),
+  1026→        ],
+  1027→      ),
+  1028→    );
+  1029→  }
+  1030→
+  1031→  Widget _barChart(List<String> labels, List<int> values) {
+  1032→    final max = values.reduce((a, b) => a > b ? a : b);
+  1033→    return Container(
+  1034→      padding: const EdgeInsets.all(14),
+  1035→      decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(12)),
+  1036→      child: Column(
+  1037→        children: List.generate(labels.length, (i) {
+  1038→          return Padding(
+  1039→            padding: const EdgeInsets.only(bottom: 8),
+  1040→            child: Row(
+  1041→              children: [
+  1042→                SizedBox(width: 80, child: Text(labels[i], style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold))),
+  1043→                const SizedBox(width: 8),
+  1044→                Expanded(
+  1045→                  child: ClipRRect(
+  1046→                    borderRadius: BorderRadius.circular(4),
+  1047→                    child: LinearProgressIndicator(
+  1048→                      value: values[i] / max,
+  1049→                      backgroundColor: AnikutaColors.surface4,
+  1050→                      valueColor: AlwaysStoppedAnimation(AnikutaColors.primary),
+  1051→                      minHeight: 12,
+  1052→                    ),
+  1053→                  ),
+  1054→                ),
+  1055→                const SizedBox(width: 8),
+  1056→                SizedBox(width: 30, child: Text('${values[i]}', style: const TextStyle(color: AnikutaColors.onBackground, fontSize: 11, fontWeight: FontWeight.bold), textAlign: TextAlign.right)),
+  1057→              ],
+  1058→            ),
+  1059→          );
+  1060→        }),
+  1061→      ),
+  1062→    );
+  1063→  }
+  1064→}
+  1065→
+  1066→// ==================== BACKUP SCREEN ====================
+  1067→class BackupScreen extends StatelessWidget {
+  1068→  const BackupScreen({super.key});
+  1069→
+  1070→  @override
+  1071→  Widget build(BuildContext context) {
+  1072→    return Container(
+  1073→      color: AnikutaColors.background,
+  1074→      child: Column(
+  1075→        children: [
+  1076→          Padding(
+  1077→            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8, left: 8, right: 16),
+  1078→            child: Row(
+  1079→              children: [
+  1080→                IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.arrow_back, color: AnikutaColors.onBackground)),
+  1081→                const Text('Backup & Restore', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AnikutaColors.onBackground)),
+  1082→              ],
+  1083→            ),
+  1084→          ),
+  1085→          Expanded(
+  1086→            child: ListView(
+  1087→              padding: const EdgeInsets.all(16).copyWith(bottom: 20),
+  1088→              children: [
+  1089→                const SectionHeader(text: 'Backup & Restore'),
+  1090→                Container(
+  1091→                  padding: const EdgeInsets.all(14),
+  1092→                  decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(12)),
+  1093→                  child: Column(
+  1094→                    crossAxisAlignment: CrossAxisAlignment.start,
+  1095→                    children: [
+  1096→                      Row(children: [const Icon(Icons.cloud, color: AnikutaColors.primary), const SizedBox(width: 8), const Text('Backup & Restore', style: TextStyle(color: AnikutaColors.onBackground, fontSize: 14, fontWeight: FontWeight.bold))]),
+  1097→                      const SizedBox(height: 4),
+  1098→                      const Text('Create a backup or restore from file.', style: TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 12)),
+  1099→                      const SizedBox(height: 10),
+  1100→                      Row(
+  1101→                        children: [
+  1102→                          Expanded(child: ElevatedButton(onPressed: () {}, style: ElevatedButton.styleFrom(backgroundColor: AnikutaColors.primary, foregroundColor: AnikutaColors.onPrimary), child: const Text('Create Backup', style: TextStyle(fontWeight: FontWeight.bold)))),
+  1103→                          const SizedBox(width: 8),
+  1104→                          Expanded(child: OutlinedButton(onPressed: () {}, style: OutlinedButton.styleFrom(foregroundColor: AnikutaColors.primary), child: const Text('Restore', style: TextStyle(fontWeight: FontWeight.bold)))),
+  1105→                        ],
+  1106→                      ),
+  1107→                    ],
+  1108→                  ),
+  1109→                ),
+  1110→                const SectionHeader(text: 'Auto-backup'),
+  1111→                Container(
+  1112→                  padding: const EdgeInsets.all(14),
+  1113→                  decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(12)),
+  1114→                  child: Column(
+  1115→                    children: [
+  1116→                      Row(
+  1117→                        children: [
+  1118→                          const Icon(Icons.schedule, color: AnikutaColors.primary),
+  1119→                          const SizedBox(width: 8),
+  1120→                          const Expanded(child: Text('Automatic backups', style: TextStyle(color: AnikutaColors.onBackground, fontSize: 14, fontWeight: FontWeight.bold))),
+  1121→                          Switch(value: true, onChanged: (v) {}),
+  1122→                        ],
+  1123→                      ),
+  1124→                      const SizedBox(height: 8),
+  1125→                      SegmentedToggle(options: ['6h', '12h', '24h', 'Weekly'], selected: 2, onChanged: (i) {}),
+  1126→                    ],
+  1127→                  ),
+  1128→                ),
+  1129→              ],
+  1130→            ),
+  1131→          ),
+  1132→        ],
+  1133→      ),
+  1134→    );
+  1135→  }
+  1136→}
+  1137→
+  1138→// ==================== DOWNLOADS SCREEN ====================
+  1139→class DownloadsScreen extends StatelessWidget {
+  1140→  const DownloadsScreen({super.key});
+  1141→
+  1142→  @override
+  1143→  Widget build(BuildContext context) {
+  1144→    return Container(
+  1145→      color: AnikutaColors.background,
+  1146→      child: Column(
+  1147→        children: [
+  1148→          Padding(
+  1149→            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8, left: 8, right: 16),
+  1150→            child: Row(
+  1151→              children: [
+  1152→                IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.arrow_back, color: AnikutaColors.onBackground)),
+  1153→                const Text('Downloads', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AnikutaColors.onBackground)),
+  1154→              ],
+  1155→            ),
+  1156→          ),
+  1157→          Expanded(
+  1158→            child: ListView.builder(
+  1159→              padding: const EdgeInsets.all(16).copyWith(bottom: 20),
+  1160→              itemCount: downloadsList.length,
+  1161→              itemBuilder: (context, i) {
+  1162→                final d = downloadsList[i];
+  1163→                return Container(
+  1164→                  margin: const EdgeInsets.only(bottom: 8),
+  1165→                  padding: const EdgeInsets.all(10),
+  1166→                  decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(12)),
+  1167→                  child: Row(
+  1168→                    children: [
+  1169→                      ClipRRect(
+  1170→                        borderRadius: BorderRadius.circular(6),
+  1171→                        child: SizedBox(
+  1172→                          width: 48,
+  1173→                          height: 64,
+  1174→                          child: Container(
+  1175→                            decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: d.coverColors)),
+  1176→                            child: Center(child: Text(d.letter, style: TextStyle(color: Colors.white.withOpacity(0.3), fontSize: 16, fontWeight: FontWeight.w900))),
+  1177→                          ),
+  1178→                        ),
+  1179→                      ),
+  1180→                      const SizedBox(width: 10),
+  1181→                      Expanded(
+  1182→                        child: Column(
+  1183→                          crossAxisAlignment: CrossAxisAlignment.start,
+  1184→                          children: [
+  1185→                            Text('${d.title} · EP ${d.episode}', style: const TextStyle(color: AnikutaColors.onBackground, fontSize: 13, fontWeight: FontWeight.bold)),
+  1186→                            Text('${d.size} · ${d.status}', style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold)),
+  1187→                            if (d.progress < 100) ...[
+  1188→                              const SizedBox(height: 4),
+  1189→                              ClipRRect(
+  1190→                                borderRadius: BorderRadius.circular(2),
+  1191→                                child: LinearProgressIndicator(value: d.progress / 100, backgroundColor: AnikutaColors.surface4, valueColor: AlwaysStoppedAnimation(AnikutaColors.primary), minHeight: 4),
+  1192→                              ),
+  1193→                            ],
+  1194→                          ],
+  1195→                        ),
+  1196→                      ),
+  1197→                      if (d.status == 'completed') const Icon(Icons.check_circle, color: AnikutaColors.primary, size: 20),
+  1198→                    ],
+  1199→                  ),
+  1200→                );
+  1201→              },
+  1202→            ),
+  1203→          ),
+  1204→        ],
+  1205→      ),
+  1206→    );
+  1207→  }
+  1208→}
+  1209→
+  1210→// ==================== EXTENSIONS SCREEN ====================
+  1211→class ExtensionsScreen extends StatelessWidget {
+  1212→  const ExtensionsScreen({super.key});
+  1213→
+  1214→  @override
+  1215→  Widget build(BuildContext context) {
+  1216→    final trusted = extensionsList.where((e) => e.isTrustedSource).toList();
+  1217→    final installed = extensionsList.where((e) => e.installed && !e.isTrustedSource).toList();
+  1218→    final available = extensionsList.where((e) => !e.installed).toList();
+  1219→
+  1220→    return Container(
+  1221→      color: AnikutaColors.background,
+  1222→      child: Column(
+  1223→        children: [
+  1224→          Padding(
+  1225→            padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8, left: 8, right: 16),
+  1226→            child: Row(
+  1227→              children: [
+  1228→                IconButton(onPressed: () => Navigator.of(context).pop(), icon: const Icon(Icons.arrow_back, color: AnikutaColors.onBackground)),
+  1229→                const Text('Extensions', style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: AnikutaColors.onBackground)),
+  1230→              ],
+  1231→            ),
+  1232→          ),
+  1233→          Padding(
+  1234→            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  1235→            child: SegmentedToggle(options: ['Anime', 'Manga'], selected: 0, onChanged: (i) {}),
+  1236→          ),
+  1237→          Expanded(
+  1238→            child: ListView(
+  1239→              padding: const EdgeInsets.all(16).copyWith(bottom: 20),
+  1240→              children: [
+  1241→                const SectionHeader(text: 'Trusted Sources'),
+  1242→                ...trusted.map((e) => _extRow(e)),
+  1243→                const SectionHeader(text: 'Installed'),
+  1244→                ...installed.map((e) => _extRow(e)),
+  1245→                const SectionHeader(text: 'Available'),
+  1246→                ...available.map((e) => _extRow(e)),
+  1247→              ],
+  1248→            ),
+  1249→          ),
+  1250→        ],
+  1251→      ),
+  1252→    );
+  1253→  }
+  1254→
+  1255→  Widget _extRow(Extension e) {
+  1256→    return Container(
+  1257→      margin: const EdgeInsets.only(bottom: 6),
+  1258→      padding: const EdgeInsets.all(10),
+  1259→      decoration: BoxDecoration(color: AnikutaColors.surface2, borderRadius: BorderRadius.circular(10)),
+  1260→      child: Row(
+  1261→        children: [
+  1262→          Container(
+  1263→            width: 40,
+  1264→            height: 40,
+  1265→            decoration: BoxDecoration(
+  1266→              gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: e.iconColors),
+  1267→              borderRadius: BorderRadius.circular(12),
+  1268→            ),
+  1269→            child: Center(child: Text(e.iconLetter, style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w900))),
+  1270→          ),
+  1271→          const SizedBox(width: 10),
+  1272→          Expanded(
+  1273→            child: Column(
+  1274→              crossAxisAlignment: CrossAxisAlignment.start,
+  1275→              children: [
+  1276→                Text(e.name, style: const TextStyle(color: AnikutaColors.onBackground, fontSize: 13, fontWeight: FontWeight.bold)),
+  1277→                Text('${e.lang} · v${e.version}', style: const TextStyle(color: AnikutaColors.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.bold)),
+  1278→              ],
+  1279→            ),
+  1280→          ),
+  1281→          if (e.installed && !e.isTrustedSource)
+  1282→            IconButton(onPressed: () {}, icon: const Icon(Icons.shield, color: AnikutaColors.primary, size: 18))
+  1283→          else if (!e.installed)
+  1284→            IconButton(onPressed: () {}, icon: const Icon(Icons.download, color: AnikutaColors.primary, size: 18))
+  1285→          else
+  1286→            const Icon(Icons.check_circle, color: AnikutaColors.primary, size: 18),
+  1287→        ],
+  1288→      ),
+  1289→    );
+  1290→  }
+  1291→}
+  1292→
