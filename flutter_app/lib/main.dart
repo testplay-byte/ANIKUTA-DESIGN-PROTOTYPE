@@ -946,7 +946,7 @@ class _LinkingScreenState extends State<_LinkingScreen> {
                 child: Column(children: [
                   Text('${item.$2}', style: TextStyle(color: item.$3, fontSize: 18, fontWeight: FontWeight.w800)),
                   Text(item.$1, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 8, fontWeight: FontWeight.bold)),
-                ])),
+                ]))),
               )),
           ]),
         ]),
@@ -1038,7 +1038,6 @@ class _ManualScreenState extends State<_ManualScreen> {
                   Expanded(child: Text(a.backupName, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis)),
                   Container(width: 28, height: 28, decoration: BoxDecoration(shape: BoxShape.circle, color: widget.p.primary.withOpacity(0.16)), child: Icon(Icons.add, color: widget.p.primary, size: 16)),
                 ])),
-              ),
             ),
         ]),
       )),
