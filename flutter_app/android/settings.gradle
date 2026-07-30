@@ -1,5 +1,4 @@
 pluginManagement {
-    def flutterProjectRoot = gradle.parentProject ? gradle.parentProject.projectDir : gradle.ext.flutterProjectDir
     repositories {
         google()
         mavenCentral()
