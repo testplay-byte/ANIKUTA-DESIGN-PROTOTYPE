@@ -23,15 +23,8 @@ jobs:
         run: |
           cd flutter_app
           flutter create --org com.testplaybyte --project-name anikuta --platforms android .
-          # Print what flutter create generated for debugging
-          echo "=== settings.gradle ==="
-          cat android/settings.gradle 2>/dev/null || echo "not found"
-          echo "=== settings.gradle.kts ==="
-          cat android/settings.gradle.kts 2>/dev/null || echo "not found"
-          # Fix Kotlin version in ALL gradle files (both .gradle and .gradle.kts)
-          find android -type f \( -name "*.gradle" -o -name "*.gradle.kts" \) -exec sed -i 's/1\.7\.1/1.9.0/g' {} \;
-          echo "=== after fix ==="
-          cat android/settings.gradle 2>/dev/null || cat android/settings.gradle.kts 2>/dev/null
+          # Fix Kotlin version: flutter create generates "1.7.10", we need "1.9.0"
+          find android -type f \( -name "*.gradle" -o -name "*.gradle.kts" \) -exec sed -i 's/1\.7\.10/1.9.0/g' {} \;
           flutter pub get
 
       - name: Build APK
