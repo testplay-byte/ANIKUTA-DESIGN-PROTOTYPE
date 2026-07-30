@@ -462,8 +462,8 @@ class _PoisonBottlePainter extends CustomPainter {
     canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(30, 30, 40, 90), const Radius.circular(12)), Paint()..color = p.primaryContainer);
     canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(30, 30, 40, 90), const Radius.circular(12)), Paint()..color = p.primary..style = PaintingStyle.stroke..strokeWidth = 2.5);
     // neck + cap
-    canvas.drawRRect(const RRect.fromLTRBR(38, 14, 62, 32, const Radius.circular(2)), Paint()..color = p.s4);
-    canvas.drawRRect(const RRect.fromLTRBR(36, 8, 64, 16, const Radius.circular(2)), Paint()..color = p.primary);
+    canvas.drawRRect(RRect.fromLTRBR(38, 14, 62, 32, const Radius.circular(2)), Paint()..color = p.s4);
+    canvas.drawRRect(RRect.fromLTRBR(36, 8, 64, 16, const Radius.circular(2)), Paint()..color = p.primary);
     // liquid
     canvas.drawRect(const Rect.fromLTWH(30, 72, 40, 48), Paint()..color = p.primary.withOpacity(0.55));
     // label
@@ -598,7 +598,7 @@ class _WelcomeScreen extends StatelessWidget {
                   child: Icon(item.$2, color: p.primary, size: 18)),
                 const SizedBox(width: 12),
                 Text(item.$1, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
-              ]),
+              ])),
             ),
         ]),
       )),
@@ -627,12 +627,12 @@ class _ThemeScreen extends StatelessWidget {
           Container(width: 130, height: 240, margin: const EdgeInsets.only(bottom: 12),
             decoration: BoxDecoration(color: Colors.black, borderRadius: BorderRadius.circular(18), border: Border.all(color: p.s5, width: 3)),
             child: Container(margin: const EdgeInsets.all(5), decoration: BoxDecoration(color: p.bg, borderRadius: BorderRadius.circular(14)),
-              child: Column(padding: const EdgeInsets.only(top: 22), children: [
+              child: Padding(padding: const EdgeInsets.only(top: 22), child: Column(children: [
                 Container(width: double.infinity, height: 42, margin: const EdgeInsets.symmetric(horizontal: 9, vertical: 6), decoration: BoxDecoration(color: p.primary.withOpacity(0.5), borderRadius: BorderRadius.circular(10))),
                 for (int i = 0; i < 3; i++) Container(width: 100, height: 8, margin: const EdgeInsets.symmetric(vertical: 3), decoration: BoxDecoration(color: p.s3, borderRadius: BorderRadius.circular(999))),
                 const SizedBox(height: 4),
                 Row(children: List.generate(3, (i) => Expanded(child: Container(height: 42, margin: const EdgeInsets.symmetric(horizontal: 2), decoration: BoxDecoration(color: p.s4, borderRadius: BorderRadius.circular(6)))))),
-              ]),
+              ])),
             ),
           ),
           const Text('Choose your theme', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white)),
@@ -652,7 +652,7 @@ class _ThemeScreen extends StatelessWidget {
                     Container(width: 44, height: 44, decoration: BoxDecoration(shape: BoxShape.circle, gradient: LinearGradient(colors: [pal.primary, pal.primary.withOpacity(0.7)]))),
                     const SizedBox(height: 8),
                     Text(pal.name, style: TextStyle(color: active ? pal.primary : Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
-                  ]),
+                  ])),
                 ),
               );
             },
@@ -699,7 +699,7 @@ class _FolderScreen extends StatelessWidget {
                   Text(scanning ? 'Scanning...' : '247 items - ready', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)),
                 ])),
                 if (!scanning) Icon(Icons.check_circle, color: p.primary),
-              ]),
+              ])),
             ),
         ]),
       )),
@@ -742,7 +742,7 @@ class _PermissionsScreen extends StatelessWidget {
                   Text(row.$3, style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
                 ])),
                 Switch(value: perms[row.$1] ?? false, onChanged: row.$1 == 'allFiles' ? null : (_) => onToggle(row.$1), activeColor: p.primary),
-              ]),
+              ])),
             ),
         ]),
       )),
@@ -813,7 +813,7 @@ class _FormatScreen extends StatelessWidget {
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Text('anime_backup_2025-01-15.json', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold)),
                 Text('2.3 MB - JSON (unknown schema)', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)),
-              ]),
+              ])),
             ]),
           ),
         ]),
@@ -892,7 +892,7 @@ class _SummaryScreen extends StatelessWidget {
                   Text(i == 5 ? 'Not supported - will be skipped' : 'Ready to restore', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 11)),
                 ])),
                 Text(items[i].$2, style: TextStyle(color: i == 5 ? const Color(0xFFF2B8B5) : p.primary, fontSize: 18, fontWeight: FontWeight.w800)),
-              ]),
+              ])),
             ),
         ]),
       )),
@@ -952,7 +952,7 @@ class _LinkingScreenState extends State<_LinkingScreen> {
                 child: Column(children: [
                   Text('${item.$2}', style: TextStyle(color: item.$3, fontSize: 18, fontWeight: FontWeight.w800)),
                   Text(item.$1, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 8, fontWeight: FontWeight.bold)),
-                ]),
+                ])),
               )),
           ]),
         ]),
@@ -977,7 +977,7 @@ class _LinkingScreenState extends State<_LinkingScreen> {
                 if (a.linked) Container(width: 30, height: 42, decoration: BoxDecoration(gradient: LinearGradient(colors: [widget.p.primary, widget.p.primary.withOpacity(0.5)]), borderRadius: BorderRadius.circular(5)),
                     child: Center(child: Text(a.backupName[0], style: TextStyle(color: widget.p.onPrimary, fontSize: 14, fontWeight: FontWeight.w800))))
                 else const SizedBox(width: 30, height: 42),
-              ]),
+              ])),
             ),
           );
         },
@@ -999,8 +999,8 @@ class _LinkingScreenState extends State<_LinkingScreen> {
                   Expanded(child: ElevatedButton(onPressed: () => setState(() => _popupId = null), style: ElevatedButton.styleFrom(backgroundColor: widget.p.s3, foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999))), child: const Text('Keep linked', style: TextStyle(fontWeight: FontWeight.bold)))),
                   const SizedBox(width: 12),
                   Expanded(child: ElevatedButton(onPressed: () { widget.onUnlink(_popupId!); setState(() => _popupId = null); }, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF2B8B5), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999))), child: const Text('Mark as not linked', style: TextStyle(fontWeight: FontWeight.bold)))),
-                ]),
-              ]),
+                ])),
+              ])),
             ),
           ))),
         ),
@@ -1045,7 +1045,7 @@ class _ManualScreenState extends State<_ManualScreen> {
                 child: Row(children: [
                   Expanded(child: Text(a.backupName, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis)),
                   Container(width: 28, height: 28, decoration: BoxDecoration(shape: BoxShape.circle, color: widget.p.primary.withOpacity(0.16)), child: Icon(Icons.add, color: widget.p.primary, size: 16)),
-                ]),
+                ])),
               ),
             ),
         ]),
@@ -1090,7 +1090,7 @@ class _ManualScreenState extends State<_ManualScreen> {
                 const SizedBox(width: 12),
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(filtered[i].$1, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), maxLines: 2), Text(filtered[i].$2, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10))])),
                 Container(width: 28, height: 28, decoration: BoxDecoration(shape: BoxShape.circle, color: widget.p.primary.withOpacity(0.16)), child: Icon(Icons.add, color: widget.p.primary, size: 16)),
-              ]),
+              ])),
             ),
           );
         },
@@ -1125,19 +1125,19 @@ class _RestoreSummaryScreen extends StatelessWidget {
                 Container(width: 40, height: 40, decoration: BoxDecoration(color: p.primary.withOpacity(0.16), borderRadius: BorderRadius.circular(12)), child: Icon(Icons.download, color: p.primary)),
                 const SizedBox(width: 12),
                 const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('Ready to restore', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w800)), Text('Your library will be overwritten.', style: TextStyle(color: Colors.white54, fontSize: 11))]),
-              ]),
+              ])),
               const SizedBox(height: 8),
               Row(children: [
                 Expanded(child: Container(padding: const EdgeInsets.all(10), color: p.s3, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('$toRestore', style: TextStyle(color: p.primary, fontSize: 20, fontWeight: FontWeight.w800)), Text('Anime to restore', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold))]))),
                 const SizedBox(width: 1),
                 Expanded(child: Container(padding: const EdgeInsets.all(10), color: p.s3, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('$linked', style: TextStyle(color: p.primary, fontSize: 20, fontWeight: FontWeight.w800)), Text('Auto-linked', style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10, fontWeight: FontWeight.bold))]))),
-              ]),
+              ])),
               const SizedBox(height: 1),
               Row(children: [
                 Expanded(child: Container(padding: const EdgeInsets.all(10), color: p.s3, child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('0', style: TextStyle(color: Color(0xFFB3F35A), fontSize: 20, fontWeight: FontWeight.w800)), Text('Manually linked', style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold))]))),
                 const SizedBox(width: 1),
                 Expanded(child: Container(padding: const EdgeInsets.all(10), color: p.s3, child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text('1,432', style: TextStyle(color: Color(0xFFB3F35A), fontSize: 20, fontWeight: FontWeight.w800)), Text('Episodes', style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.bold))]))),
-              ]),
+              ])),
             ]),
           ),
           const SizedBox(height: 8),
