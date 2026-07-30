@@ -946,7 +946,7 @@ class _LinkingScreenState extends State<_LinkingScreen> {
                 child: Column(children: [
                   Text('${item.$2}', style: TextStyle(color: item.$3, fontSize: 18, fontWeight: FontWeight.w800)),
                   Text(item.$1, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 8, fontWeight: FontWeight.bold)),
-                ])),
+                ]))),
               ]),
           ]),
         ]),
