@@ -2,7 +2,8 @@ name: Build ANIKUTA Flutter APK
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -18,20 +19,15 @@ jobs:
           flutter-version: '3.24.0'
           channel: stable
 
-      - name: Create .gitignore
-        run: |
-          echo "build/" > .gitignore
-          echo ".dart_tool/" >> .gitignore
-
       - name: Install dependencies
-        run: flutter pub get
+        run: cd flutter_app && flutter pub get
 
       - name: Build APK
-        run: flutter build apk --release --no-tree-shake-icons
+        run: cd flutter_app && flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: anikuta-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: anikuta-flutter-apk
+          path: flutter_app/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
