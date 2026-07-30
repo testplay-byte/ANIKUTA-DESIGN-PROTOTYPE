@@ -23,6 +23,8 @@ jobs:
         run: |
           cd flutter_app
           flutter create --org com.testplaybyte --project-name anikuta --platforms android .
+          # Fix Kotlin version to 1.9.0 (flutter create uses 1.7.1 by default)
+          sed -i 's/kotlin_version = "1.7.1"/kotlin_version = "1.9.0"/' android/settings.gradle
           flutter pub get
 
       - name: Build APK
