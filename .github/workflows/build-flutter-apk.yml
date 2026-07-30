@@ -1,4 +1,4 @@
-name: Build ANIKUTA Flutter APK
+name: Build Setup Wizard Flutter APK
 
 on:
   push:
@@ -22,9 +22,15 @@ jobs:
       - name: Generate Android project files
         run: |
           cd flutter_app
-          flutter create --org com.testplaybyte --project-name anikuta --platforms android .
+          # Save our main.dart before flutter create (it overwrites it!)
+          cp lib/main.dart /tmp/main.dart.backup
+          flutter create --org com.testplaybyte --project-name setup_wizard --platforms android .
+          # Restore our main.dart
+          cp /tmp/main.dart.backup lib/main.dart
           # Fix Kotlin version: flutter create generates "1.7.10", we need "1.9.0"
           find android -type f \( -name "*.gradle" -o -name "*.gradle.kts" \) -exec sed -i 's/1\.7\.10/1.9.0/g' {} \;
+          # Fix app label to "Setup Wizard"
+          sed -i 's/android:label="setup_wizard"/android:label="Setup Wizard"/' android/app/src/main/AndroidManifest.xml
           flutter pub get
 
       - name: Build APK
@@ -33,6 +39,6 @@ jobs:
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: anikuta-flutter-apk
+          name: setup-wizard-flutter-apk
           path: flutter_app/build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30
