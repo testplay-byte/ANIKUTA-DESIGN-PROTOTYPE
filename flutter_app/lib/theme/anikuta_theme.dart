@@ -64,7 +64,7 @@ class AnikutaTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
       ),
-      cardTheme: CardThemeData(
+      cardTheme: CardTheme(
         color: AnikutaColors.surface2,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

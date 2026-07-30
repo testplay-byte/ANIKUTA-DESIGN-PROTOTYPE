@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/anikuta_theme.dart';
+import '../models/anime_models.dart';
 
 class GradientCover extends StatelessWidget {
   final List<Color> colors;
@@ -151,9 +152,6 @@ class AnimeCard extends StatelessWidget {
     );
   }
 }
-
-// Import the model
-import '../models/anime_models.dart';
 
 class CollapsingHeader extends StatelessWidget {
   final String title;
