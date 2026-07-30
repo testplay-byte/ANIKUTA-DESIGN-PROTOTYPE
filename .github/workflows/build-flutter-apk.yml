@@ -19,12 +19,17 @@ jobs:
           flutter-version: '3.24.0'
           channel: stable
 
-      - name: Generate Android project files
+      - name: Generate Android project files and fix Kotlin version
         run: |
           cd flutter_app
           flutter create --org com.testplaybyte --project-name anikuta --platforms android .
-          # Fix Kotlin version to 1.9.0 (flutter create uses 1.7.1 by default)
-          sed -i 's/kotlin_version = "1.7.1"/kotlin_version = "1.9.0"/' android/settings.gradle
+          # Fix Kotlin version everywhere (flutter create uses 1.7.1, need 1.9.0+)
+          find android -name "*.gradle" -exec sed -i 's/1\.7\.1/1.9.0/g' {} \;
+          sed -i 's/kotlin_version = "1.9.0"/kotlin_version = "1.9.0"/' android/settings.gradle || true
+          # Also check settings.gradle.kts if it exists
+          sed -i 's/1\.7\.1/1.9.0/g' android/settings.gradle 2>/dev/null || true
+          sed -i 's/1\.7\.1/1.9.0/g' android/settings.gradle.kts 2>/dev/null || true
+          cat android/settings.gradle || cat android/settings.gradle.kts
           flutter pub get
 
       - name: Build APK
