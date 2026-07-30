@@ -1145,7 +1145,7 @@ class _RestoreSummaryScreen extends StatelessWidget {
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.info, color: p.primary, size: 20), const SizedBox(width: 10), Expanded(child: Text('This will overwrite any existing library data. The restore process may take a few moments.', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)))]),
           ),
         ]),
-      )),
+      ),
       _ActionRow(onBack: onBack, onNext: onNext, nextText: 'Restore Now', p: p),
     ]);
   }
