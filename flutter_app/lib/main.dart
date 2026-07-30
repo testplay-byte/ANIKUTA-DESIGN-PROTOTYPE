@@ -599,7 +599,6 @@ class _WelcomeScreen extends StatelessWidget {
                 const SizedBox(width: 12),
                 Text(item.$1, style: const TextStyle(color: Colors.white, fontSize: 17, fontWeight: FontWeight.bold)),
               ])),
-            ),
         ]),
       )),
       _ActionRow(onNext: onNext, nextText: 'Get Started', p: p),
@@ -653,8 +652,7 @@ class _ThemeScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(pal.name, style: TextStyle(color: active ? pal.primary : Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
                   ])),
-                ),
-              );
+                );
             },
           )),
         ]),
@@ -700,7 +698,6 @@ class _FolderScreen extends StatelessWidget {
                 ])),
                 if (!scanning) Icon(Icons.check_circle, color: p.primary),
               ])),
-            ),
         ]),
       )),
       if (scanning) _ActionRow(onBack: onBack, p: p, nextText: 'Scanning...', nextEnabled: false)
@@ -743,7 +740,6 @@ class _PermissionsScreen extends StatelessWidget {
                 ])),
                 Switch(value: perms[row.$1] ?? false, onChanged: row.$1 == 'allFiles' ? null : (_) => onToggle(row.$1), activeColor: p.primary),
               ])),
-            ),
         ]),
       )),
       _ActionRow(onBack: onBack, onNext: onNext, nextText: 'Continue', p: p),
@@ -815,7 +811,6 @@ class _FormatScreen extends StatelessWidget {
                 Text('2.3 MB - JSON (unknown schema)', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)),
               ])),
             ]),
-          ),
         ]),
       )),
       _ActionRow(onBack: onBack, onNext: onNext, nextText: 'Try restoring anyway', p: p),
@@ -893,7 +888,6 @@ class _SummaryScreen extends StatelessWidget {
                 ])),
                 Text(items[i].$2, style: TextStyle(color: i == 5 ? const Color(0xFFF2B8B5) : p.primary, fontSize: 18, fontWeight: FontWeight.w800)),
               ])),
-            ),
         ]),
       )),
       _ActionRow(onBack: onCancel, onNext: onNext, nextText: 'Restore', p: p),
@@ -978,8 +972,7 @@ class _LinkingScreenState extends State<_LinkingScreen> {
                     child: Center(child: Text(a.backupName[0], style: TextStyle(color: widget.p.onPrimary, fontSize: 14, fontWeight: FontWeight.w800))))
                 else const SizedBox(width: 30, height: 42),
               ])),
-            ),
-          );
+            );
         },
       )),
       _ActionRow(onBack: widget.onBack, onNext: widget.onNext, p: widget.p, nextEnabled: allRevealed),
@@ -1002,8 +995,7 @@ class _LinkingScreenState extends State<_LinkingScreen> {
                 ])),
               ])),
             ),
-          ))),
-        ),
+          ),
     ]);
   }
 }
@@ -1091,8 +1083,7 @@ class _ManualScreenState extends State<_ManualScreen> {
                 Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(filtered[i].$1, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold), maxLines: 2), Text(filtered[i].$2, style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 10))])),
                 Container(width: 28, height: 28, decoration: BoxDecoration(shape: BoxShape.circle, color: widget.p.primary.withOpacity(0.16)), child: Icon(Icons.add, color: widget.p.primary, size: 16)),
               ])),
-            ),
-          );
+            );
         },
       )),
     ]);
@@ -1143,9 +1134,7 @@ class _RestoreSummaryScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Container(padding: const EdgeInsets.all(11), decoration: BoxDecoration(color: p.primary.withOpacity(0.07), borderRadius: BorderRadius.circular(16), border: Border.all(color: p.primary.withOpacity(0.33))),
             child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.info, color: p.primary, size: 20), const SizedBox(width: 10), Expanded(child: Text('This will overwrite any existing library data. The restore process may take a few moments.', style: TextStyle(color: Colors.white.withOpacity(0.6), fontSize: 12)))]),
-          ),
         ]),
-      ),
       _ActionRow(onBack: onBack, onNext: onNext, nextText: 'Restore Now', p: p),
     ]);
   }
@@ -1316,7 +1305,6 @@ class _FinishScreen extends StatelessWidget {
               _summaryRow('Ads', '${ads.frequency}/day - ${ads.timing == AdTiming.appOpen ? 'On app open' : ads.timing == AdTiming.episodeStart ? 'On episode start' : 'Both'}'),
               _summaryRow('Daily dose', ads.name == AdName.poison ? 'Daily dose of poison' : 'Daily dose of pills'),
             ]),
-          ),
         ]),
       )),
       _ActionRow(onNext: onRestart, nextText: 'Start Exploring', p: p),
