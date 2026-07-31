@@ -51,7 +51,7 @@ class PermissionsScreen extends StatelessWidget {
             accent: cs.primary,
             onBg: onBg,
             surface: isDark ? palette.surface2 : cs.surface,
-            onChanged: () => controller.togglePermission('installApps'),
+            onChanged: (_) => controller.togglePermission('installApps'),
           ),
           const SizedBox(height: 10),
           _PermRow(
@@ -63,7 +63,7 @@ class PermissionsScreen extends StatelessWidget {
             accent: cs.primary,
             onBg: onBg,
             surface: isDark ? palette.surface2 : cs.surface,
-            onChanged: () => controller.togglePermission('notifications'),
+            onChanged: (_) => controller.togglePermission('notifications'),
           ),
           const SizedBox(height: 10),
           _PermRow(
@@ -75,7 +75,7 @@ class PermissionsScreen extends StatelessWidget {
             accent: cs.primary,
             onBg: onBg,
             surface: isDark ? palette.surface2 : cs.surface,
-            onChanged: () => controller.togglePermission('battery'),
+            onChanged: (_) => controller.togglePermission('battery'),
           ),
           const SizedBox(height: 10),
 
@@ -112,7 +112,7 @@ class _PermRow extends StatelessWidget {
   final Color accent;
   final Color onBg;
   final Color surface;
-  final VoidCallback? onChanged;
+  final ValueChanged<bool>? onChanged;
 
   const _PermRow({
     required this.icon,

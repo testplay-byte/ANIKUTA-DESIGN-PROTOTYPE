@@ -47,11 +47,6 @@ ThemeData buildTheme(WizardPalette palette, Brightness brightness) {
         textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
       ),
     ),
-    cardTheme: CardThemeData(
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      color: brightness == Brightness.dark ? palette.surface2 : palette.bgLight,
-    ),
   );
 }
 

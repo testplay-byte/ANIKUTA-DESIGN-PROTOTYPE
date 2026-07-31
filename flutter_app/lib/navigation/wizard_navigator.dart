@@ -70,7 +70,7 @@ class WizardNav {
   WizardNav._();
 
   /// Push the next step (index + 1). No-op if already at the last step.
-  static void next(BuildContext context, {int currentIndex}) {
+  static void next(BuildContext context, {required int currentIndex}) {
     final nextIndex = (currentIndex + 1).clamp(0, kStepTotal - 1);
     if (nextIndex == currentIndex) return;
     Navigator.of(context).push(

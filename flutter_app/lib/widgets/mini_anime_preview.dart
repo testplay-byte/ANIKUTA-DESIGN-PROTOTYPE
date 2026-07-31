@@ -433,7 +433,7 @@ class _DetailMini extends StatelessWidget {
             decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(4))),
         const SizedBox(height: 8),
         ...List.generate(2, (i) => Container(
-              margin: const EdgeInsets.only(bottom: 4, top: i == 0 ? 0 : 0),
+              margin: EdgeInsets.only(bottom: 4),
               height: 6,
               width: double.infinity,
               decoration: BoxDecoration(color: onSurface.withOpacity(0.15), borderRadius: BorderRadius.circular(3)),

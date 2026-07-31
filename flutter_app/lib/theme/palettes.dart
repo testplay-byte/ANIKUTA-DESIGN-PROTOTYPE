@@ -37,19 +37,21 @@ class WizardPalette {
   });
 }
 
+const WizardPalette kDefaultPalette = WizardPalette(
+  id: 'lime',
+  name: 'Lime',
+  seed: Color(0xFFb3f35a),
+  bgDark: Color(0xFF0a120a),
+  surface1: Color(0xFF0f1a0f),
+  surface2: Color(0xFF142214),
+  surface3: Color(0xFF1a2a1a),
+  surface4: Color(0xFF1f321f),
+  surface5: Color(0xFF253a25),
+  bgLight: Color(0xFFf5fdf0),
+);
+
 const List<WizardPalette> kPalettes = [
-  WizardPalette(
-    id: 'lime',
-    name: 'Lime',
-    seed: Color(0xFFb3f35a),
-    bgDark: Color(0xFF0a120a),
-    surface1: Color(0xFF0f1a0f),
-    surface2: Color(0xFF142214),
-    surface3: Color(0xFF1a2a1a),
-    surface4: Color(0xFF1f321f),
-    surface5: Color(0xFF253a25),
-    bgLight: Color(0xFFf5fdf0),
-  ),
+  kDefaultPalette,
   WizardPalette(
     id: 'teal',
     name: 'Teal',
@@ -111,8 +113,6 @@ const List<WizardPalette> kPalettes = [
     bgLight: Color(0xFFfffaf0),
   ),
 ];
-
-const WizardPalette kDefaultPalette = kPalettes[0];
 
 WizardPalette paletteById(String id) {
   return kPalettes.firstWhere((p) => p.id == id, orElse: () => kDefaultPalette);
