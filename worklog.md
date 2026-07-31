@@ -804,3 +804,39 @@ Stage Summary:
 - APK: 15.9 MB, debug-signed, sideloadable.
 - Run: https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions/runs/30660191177
 - Download: Actions tab → "Build Setup Wizard APK" → latest run → Artifacts → setup-wizard-apk
+
+---
+Task ID: ANDROID-ARM64-CLEANUP
+Agent: main (Z.ai Code)
+Task: Clean up GitHub Actions workflows (only SetupWizard ARM64 should run), remove welcome animation, build ARM64-only APK.
+
+Work Log:
+- Audited all 5 workflows:
+  - build-apk.yml (Anime_App) — has path filter, won't trigger on SetupWizard changes. OK.
+  - build-flutter-apk.yml — triggers on flutter_app/** changes. DISABLED.
+  - build-flutter-windows.yml — triggers on flutter_app/** changes. DISABLED.
+  - build-setup-wizard-apk.yml — triggers on Android_app/SetupWizard/**. This is the one to keep.
+  - deploy.yml (GitHub Pages) — triggered on EVERY push to main (no path filter). Was failing. DISABLED.
+- Disabled 3 workflows by changing their trigger to `workflow_dispatch` only (manual):
+  - build-flutter-apk.yml
+  - build-flutter-windows.yml
+  - deploy.yml
+- Made the SetupWizard APK ARM64-only:
+  - Added `ndk { abiFilters += "arm64-v8a" }` to app/build.gradle.kts defaultConfig.
+  - Added a "Verify APK is ARM64-only" step in the workflow that checks the .so files in the APK.
+  - Verification confirmed: only `lib/arm64-v8a/libandroidx.graphics.path.so` is present (no armeabi-v7a or x86_64).
+- Removed the Welcome screen animation completely:
+  - Deleted the `Box(modifier = Modifier.size(140.dp)) { WelcomeVisual(palette) }` block from WelcomeScreen.
+  - The WelcomeVisual function is kept in WizardVisuals.kt for future re-implementation.
+  - Welcome screen now shows: heading + subtitle + 3 feature cards (no animation).
+- Committed (0daa1aa), pushed to main.
+- Verified: ONLY the "Build Setup Wizard APK" workflow triggered. No deploy.yml, no Flutter runs.
+- CI run 30664522105: SUCCESS ✅
+- Artifact: setup-wizard-apk, 15.9 MB, ARM64-only, debug-signed, sideloadable.
+
+Stage Summary:
+- Only ONE workflow runs on push to main: "Build Setup Wizard APK" (ARM64-only).
+- No more GitHub Pages deploy failures, no Flutter workflow noise.
+- Welcome screen animation completely removed (heading + 3 cards only).
+- APK: 15.9 MB, ARM64-only (arm64-v8a), verified via .so inspection.
+- Run: https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions/runs/30664522105
