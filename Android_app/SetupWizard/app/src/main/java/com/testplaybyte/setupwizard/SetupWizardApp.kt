@@ -409,9 +409,6 @@ fun WelcomeScreen(palette: WizardPalette, onNext: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(140.dp).padding(vertical = 8.dp)) {
-                WelcomeVisual(palette)
-            }
             val items = listOf(
                 "Track what you watch" to Icons.Default.CheckCircle,
                 "Pick up anywhere" to Icons.Default.Sync,

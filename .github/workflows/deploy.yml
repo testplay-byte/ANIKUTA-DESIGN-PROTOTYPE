@@ -2,18 +2,13 @@
 # Builds the Next.js static export and deploys to GitHub Pages.
 # Output: https://testplay-byte.github.io/ANIKUTA-DESIGN-PROTOTYPE/
 #
-# The static export (./out) contains:
-#   - The dashboard (app/page.tsx → out/index.html)
-#   - Next.js prototypes (app/prototypes/* → out/prototypes/*)
-#   - Legacy static prototypes (public/prototypes/* → out/prototypes/*)
-#     These coexist until each is ported to Next.js, then removed from public/.
-#   - Shared assets (public/assets/* → out/assets/*)
+# DISABLED: Previously triggered on every push to main, which caused it to
+# run alongside Android APK builds and fail. Now it only runs when manually
+# triggered via the Actions tab ("Run workflow" button).
 
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:

@@ -14,6 +14,10 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
+        // ARM64-only — produces a smaller APK (covers 99%+ of modern devices).
+        ndk {
+            abiFilters += "arm64-v8a"
+        }
     }
 
     buildTypes {

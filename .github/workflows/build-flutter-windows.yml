@@ -15,13 +15,8 @@
 
 name: Build Setup Wizard Flutter Windows
 
+# Disabled — only runs manually via workflow_dispatch.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'flutter_app/**'
-      - '.github/workflows/build-flutter-windows.yml'
   workflow_dispatch:
 
 jobs:

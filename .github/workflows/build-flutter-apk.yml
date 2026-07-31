@@ -17,13 +17,9 @@
 
 name: Build Setup Wizard Flutter APK
 
+# Disabled — only runs manually via workflow_dispatch.
+# The user currently wants only the native Kotlin Android SetupWizard build.
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'flutter_app/**'
-      - '.github/workflows/build-flutter-apk.yml'
   workflow_dispatch:
 
 jobs:
