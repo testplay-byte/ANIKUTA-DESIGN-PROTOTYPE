@@ -1,5 +1,5 @@
-name: anikuta
-description: ANIKUTA — anime-first app prototype (Flutter)
+name: setup_wizard
+description: "Setup Wizard — an anime app onboarding prototype (Flutter). Walks the user through theme, folder, permissions, optional backup restore, and ad preferences."
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -9,7 +9,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  google_fonts: ^6.2.1
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:

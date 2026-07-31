@@ -1208,11 +1208,11 @@ export default function Page() {
               <div className="show__info show__info--left">
                 <a
                   className="apk-download"
-                  href="https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions/workflows/build-setup-wizard-apk.yml"
+                  href="https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions/workflows/build-flutter-apk.yml"
                   target="_blank"
                   rel="noopener noreferrer"
-                  aria-label="Download Setup Wizard APK (GitHub Actions → Artifacts)"
-                  title="APK built by GitHub Actions — open the latest successful run and download the setup-wizard-apk artifact."
+                  aria-label="Download Setup Wizard Flutter APK (GitHub Actions → Artifacts)"
+                  title="Flutter APK built by GitHub Actions — open the latest successful run and download the setup-wizard-flutter-apk artifact (debug-signed, sideloadable)."
                 >
                   <svg
                     width="16"
@@ -1230,7 +1230,35 @@ export default function Page() {
                     <path d="M12 15V3" />
                   </svg>
                   <span className="apk-download__label">
-                    <b>Download APK</b>
+                    <b>Download APK · Flutter</b>
+                    <small>Android · GitHub Actions</small>
+                  </span>
+                </a>
+                <a
+                  className="apk-download"
+                  href="https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions/workflows/build-setup-wizard-apk.yml"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Download Setup Wizard Kotlin APK (GitHub Actions → Artifacts)"
+                  title="Kotlin APK built by GitHub Actions — open the latest successful run and download the setup-wizard-apk artifact (native Android Compose build)."
+                >
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <path d="M7 10l5 5 5-5" />
+                    <path d="M12 15V3" />
+                  </svg>
+                  <span className="apk-download__label">
+                    <b>Download APK · Kotlin</b>
                     <small>Android · GitHub Actions</small>
                   </span>
                 </a>
