@@ -64,11 +64,22 @@ jobs:
           flutter analyze > analyze.log 2>&1
           echo "=== ANALYZE OUTPUT ==="
           cat analyze.log
-          if grep -E "error •" analyze.log; then
+          # Fail only on errors (error), not warnings/info.
+          # Note: Windows Flutter uses "error -" format, Linux uses "error •"
+          if grep -E "error •|error -" analyze.log; then
             echo "::error::Flutter analyze found errors (see log above)"
             exit 1
           fi
           exit 0
+
+      - name: Patch CMakeLists.txt for Visual Studio 2022
+        shell: bash
+        run: |
+          # Flutter 3.24 generates CMakeLists.txt pinned to "Visual Studio 16 2019".
+          # The windows-latest runner has VS 2022 (version 17). Patch the generator.
+          sed -i 's/Visual Studio 16 2019/Visual Studio 17 2022/g' flutter_app/windows/CMakeLists.txt || true
+          echo "=== Patched CMakeLists.txt (first 10 lines) ==="
+          head -10 flutter_app/windows/CMakeLists.txt
 
       - name: Build Windows app (debug)
         working-directory: flutter_app
