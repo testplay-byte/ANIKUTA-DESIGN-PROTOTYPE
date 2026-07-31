@@ -1,8 +1,12 @@
-// mini_anime_preview.dart — a small phone-shaped frame that auto-cycles
-// through mini representations of: home, library, search, settings, anime
-// detail, and player. Used on the Choose Theme screen.
+// mini_anime_preview.dart — a phone-shaped frame that auto-cycles through
+// mini representations of the anime app's screens (home, library, search,
+// settings, detail, player). Used on the Choose Theme screen.
+//
+// v2: bigger (default 220), faster cycle (2.2s), slide+fade transition
+// (more visibly animated than pure fade), polished phone frame.
 
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
 
 enum _MiniScreen { home, library, search, settings, detail, player }
 
@@ -14,6 +18,15 @@ const _cycleOrder = [
   _MiniScreen.detail,
   _MiniScreen.player,
 ];
+
+const _screenLabels = {
+  _MiniScreen.home: 'Home',
+  _MiniScreen.library: 'Library',
+  _MiniScreen.search: 'Search',
+  _MiniScreen.settings: 'Settings',
+  _MiniScreen.detail: 'Detail',
+  _MiniScreen.player: 'Player',
+};
 
 class MiniAnimePreview extends StatefulWidget {
   final Color primary;
@@ -29,7 +42,7 @@ class MiniAnimePreview extends StatefulWidget {
     required this.surface,
     required this.onSurface,
     required this.surfaceVariant,
-    this.height = 280,
+    this.height = 220,
   });
 
   @override
@@ -38,54 +51,82 @@ class MiniAnimePreview extends StatefulWidget {
 
 class _MiniAnimePreviewState extends State<MiniAnimePreview>
     with TickerProviderStateMixin {
-  late final AnimationController _fade;
-  late final PageController _page;
+  late final AnimationController _transition;
   int _index = 0;
 
   @override
   void initState() {
     super.initState();
-    _fade = AnimationController(
+    _transition = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 450),
       value: 1,
     );
-    _page = PageController();
     _autoCycle();
   }
 
   Future<void> _autoCycle() async {
     while (mounted) {
-      await Future.delayed(const Duration(milliseconds: 2900));
+      await Future.delayed(const Duration(milliseconds: 2200));
       if (!mounted) return;
-      await _fade.reverse();
+      // Slide out
+      await _transition.reverse();
       if (!mounted) return;
       setState(() => _index = (_index + 1) % _cycleOrder.length);
-      await _fade.forward();
+      // Slide in
+      await _transition.forward();
     }
   }
 
   @override
   void dispose() {
-    _fade.dispose();
-    _page.dispose();
+    _transition.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: FadeTransition(
-        opacity: _fade,
-        child: _PhoneFrame(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Phone frame with sliding content
+        _PhoneFrame(
           primary: widget.primary,
           surface: widget.surface,
           onSurface: widget.onSurface,
           surfaceVariant: widget.surfaceVariant,
           height: widget.height,
-          child: _buildScreen(_cycleOrder[_index]),
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.15, 0),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(
+              parent: _transition,
+              curve: Curves.easeOutCubic,
+            )),
+            child: FadeTransition(
+              opacity: _transition,
+              child: _buildScreen(_cycleOrder[_index]),
+            ),
+          ),
         ),
-      ),
+        SizedBox(height: widget.height * 0.04),
+        // Screen label (shows which mini-screen is active)
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          child: Text(
+            _screenLabels[_cycleOrder[_index]]!,
+            key: ValueKey(_index),
+            style: TextStyle(
+              fontFamily: kFontFamily,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: widget.primary,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -95,39 +136,34 @@ class _MiniAnimePreviewState extends State<MiniAnimePreview>
         return _HomeMini(
             primary: widget.primary,
             surface: widget.surface,
-            onSurface: widget.onSurface,
-            surfaceVariant: widget.surfaceVariant);
+            onSurface: widget.onSurface);
       case _MiniScreen.library:
         return _LibraryMini(
             primary: widget.primary,
             surface: widget.surface,
-            onSurface: widget.onSurface,
-            surfaceVariant: widget.surfaceVariant);
+            onSurface: widget.onSurface);
       case _MiniScreen.search:
         return _SearchMini(
             primary: widget.primary,
             surface: widget.surface,
-            onSurface: widget.onSurface,
-            surfaceVariant: widget.surfaceVariant);
+            onSurface: widget.onSurface);
       case _MiniScreen.settings:
         return _SettingsMini(
             primary: widget.primary,
             surface: widget.surface,
-            onSurface: widget.onSurface,
-            surfaceVariant: widget.surfaceVariant);
+            onSurface: widget.onSurface);
       case _MiniScreen.detail:
         return _DetailMini(
             primary: widget.primary,
             surface: widget.surface,
             onSurface: widget.onSurface,
-            surfaceVariant: widget.surfaceVariant);
+            onPrimary: widget.onPrimary);
       case _MiniScreen.player:
         return _PlayerMini(
             primary: widget.primary,
             onPrimary: widget.onPrimary,
             surface: widget.surface,
-            onSurface: widget.onSurface,
-            surfaceVariant: widget.surfaceVariant);
+            onSurface: widget.onSurface);
     }
   }
 }
@@ -152,23 +188,24 @@ class _PhoneFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final w = height * 0.54;
     return Container(
-      width: height * 0.52,
+      width: w,
       height: height,
       decoration: BoxDecoration(
         color: surface,
-        borderRadius: BorderRadius.circular(height * 0.12),
+        borderRadius: BorderRadius.circular(height * 0.11),
         border: Border.all(color: surfaceVariant, width: 2),
         boxShadow: [
           BoxShadow(
-            color: primary.withOpacity(0.18),
+            color: primary.withOpacity(0.20),
             blurRadius: 30,
             spreadRadius: 2,
           ),
         ],
       ),
       padding: EdgeInsets.symmetric(
-          horizontal: height * 0.035, vertical: height * 0.05),
+          horizontal: height * 0.035, vertical: height * 0.045),
       child: ClipRect(child: child),
     );
   }
@@ -176,63 +213,57 @@ class _PhoneFrame extends StatelessWidget {
 
 // ---- Mini screens ----
 
-Widget _bar(String label, Color onSurface, {double h = 14}) {
+Widget _labelBar(String label, Color onSurface) {
   return Container(
-    height: h,
+    height: 12,
     width: double.infinity,
-    margin: const EdgeInsets.only(bottom: 8),
+    margin: const EdgeInsets.only(bottom: 6),
     decoration: BoxDecoration(
       color: onSurface.withOpacity(0.12),
       borderRadius: BorderRadius.circular(4),
     ),
     alignment: Alignment.centerLeft,
-    padding: const EdgeInsets.symmetric(horizontal: 6),
+    padding: const EdgeInsets.symmetric(horizontal: 5),
     child: Text(label,
         style: TextStyle(
             color: onSurface.withOpacity(0.6),
-            fontSize: 8,
+            fontSize: 7,
             fontWeight: FontWeight.w700)),
   );
 }
 
-Widget _poster(Color c, {double w = 38, double h = 54}) {
+Widget _poster(Color c) {
   return Container(
-    width: w,
-    height: h,
-    margin: const EdgeInsets.only(right: 8),
+    width: 34,
+    height: 50,
+    margin: const EdgeInsets.only(right: 6),
     decoration: BoxDecoration(
       color: c,
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: BorderRadius.circular(5),
     ),
   );
 }
 
-/// A poster that fills its parent (for grid cells).
 Widget _posterFill(Color c) {
   return Container(
     decoration: BoxDecoration(
       color: c,
-      borderRadius: BorderRadius.circular(6),
+      borderRadius: BorderRadius.circular(5),
     ),
   );
 }
 
 class _HomeMini extends StatelessWidget {
-  final Color primary, surface, onSurface, surfaceVariant;
-  const _HomeMini({
-    required this.primary,
-    required this.surface,
-    required this.onSurface,
-    required this.surfaceVariant,
-  });
+  final Color primary, surface, onSurface;
+  const _HomeMini({required this.primary, required this.surface, required this.onSurface});
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _bar('Trending now', onSurface),
+        _labelBar('Trending now', onSurface),
         SizedBox(
-          height: 70,
+          height: 58,
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
@@ -243,15 +274,15 @@ class _HomeMini extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(height: 8),
-        _bar('Continue watching', onSurface),
+        const SizedBox(height: 6),
+        _labelBar('Continue watching', onSurface),
         SizedBox(
-          height: 60,
+          height: 48,
           child: ListView(
             scrollDirection: Axis.horizontal,
             children: [
-              _poster(primary.withOpacity(0.5), w: 96, h: 60),
-              _poster(primary.withOpacity(0.3), w: 96, h: 60),
+              _poster(primary.withOpacity(0.5)),
+              _poster(primary.withOpacity(0.3)),
             ],
           ),
         ),
@@ -261,24 +292,19 @@ class _HomeMini extends StatelessWidget {
 }
 
 class _LibraryMini extends StatelessWidget {
-  final Color primary, surface, onSurface, surfaceVariant;
-  const _LibraryMini({
-    required this.primary,
-    required this.surface,
-    required this.onSurface,
-    required this.surfaceVariant,
-  });
+  final Color primary, surface, onSurface;
+  const _LibraryMini({required this.primary, required this.surface, required this.onSurface});
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _bar('Your library', onSurface),
+        _labelBar('Your library', onSurface),
         Expanded(
           child: GridView.count(
             crossAxisCount: 3,
-            mainAxisSpacing: 6,
-            crossAxisSpacing: 6,
+            mainAxisSpacing: 5,
+            crossAxisSpacing: 5,
             childAspectRatio: 0.66,
             children: [
               _posterFill(primary),
@@ -296,50 +322,45 @@ class _LibraryMini extends StatelessWidget {
 }
 
 class _SearchMini extends StatelessWidget {
-  final Color primary, surface, onSurface, surfaceVariant;
-  const _SearchMini({
-    required this.primary,
-    required this.surface,
-    required this.onSurface,
-    required this.surfaceVariant,
-  });
+  final Color primary, surface, onSurface;
+  const _SearchMini({required this.primary, required this.surface, required this.onSurface});
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: 24,
+          height: 20,
           decoration: BoxDecoration(
             color: primary.withOpacity(0.15),
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 6),
           alignment: Alignment.centerLeft,
-          child: Icon(Icons.search, size: 14, color: primary),
+          child: Icon(Icons.search, size: 12, color: primary),
         ),
-        const SizedBox(height: 10),
-        _bar('Results', onSurface),
+        const SizedBox(height: 8),
+        _labelBar('Results', onSurface),
         ...List.generate(3, (i) => Container(
-              margin: const EdgeInsets.only(bottom: 6),
-              height: 34,
+              margin: const EdgeInsets.only(bottom: 5),
+              height: 28,
               decoration: BoxDecoration(
                 color: onSurface.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(7),
               ),
               child: Row(children: [
                 Container(
-                    width: 24,
-                    height: 34,
-                    margin: const EdgeInsets.only(right: 8),
+                    width: 20,
+                    height: 28,
                     decoration: BoxDecoration(
                       color: primary.withOpacity(0.4 + i * 0.1),
                       borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(8), bottomLeft: Radius.circular(8)),
+                          topLeft: Radius.circular(7), bottomLeft: Radius.circular(7)),
                     )),
+                const SizedBox(width: 6),
                 Container(
-                    width: 60,
-                    height: 6,
+                    width: 50,
+                    height: 5,
                     decoration: BoxDecoration(
                         color: onSurface.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(3))),
@@ -351,42 +372,37 @@ class _SearchMini extends StatelessWidget {
 }
 
 class _SettingsMini extends StatelessWidget {
-  final Color primary, surface, onSurface, surfaceVariant;
-  const _SettingsMini({
-    required this.primary,
-    required this.surface,
-    required this.onSurface,
-    required this.surfaceVariant,
-  });
+  final Color primary, surface, onSurface;
+  const _SettingsMini({required this.primary, required this.surface, required this.onSurface});
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _bar('Settings', onSurface),
+        _labelBar('Settings', onSurface),
         ...List.generate(4, (i) => Container(
-              margin: const EdgeInsets.only(bottom: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              margin: const EdgeInsets.only(bottom: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
               decoration: BoxDecoration(
                 color: onSurface.withOpacity(0.06),
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(7),
               ),
               child: Row(
                 children: [
                   Container(
-                      width: 12, height: 12, decoration: BoxDecoration(color: primary.withOpacity(0.6), shape: BoxShape.circle)),
-                  const SizedBox(width: 8),
+                      width: 10, height: 10, decoration: BoxDecoration(color: primary.withOpacity(0.6), shape: BoxShape.circle)),
+                  const SizedBox(width: 6),
                   Expanded(
                       child: Container(
-                          height: 6,
+                          height: 5,
                           decoration: BoxDecoration(color: onSurface.withOpacity(0.25), borderRadius: BorderRadius.circular(3)))),
-                  const SizedBox(width: 6),
+                  const SizedBox(width: 5),
                   Container(
-                    width: 22,
-                    height: 12,
+                    width: 18,
+                    height: 10,
                     decoration: BoxDecoration(
                       color: i < 2 ? primary : onSurface.withOpacity(0.2),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(5),
                     ),
                   ),
                 ],
@@ -398,55 +414,50 @@ class _SettingsMini extends StatelessWidget {
 }
 
 class _DetailMini extends StatelessWidget {
-  final Color primary, surface, onSurface, surfaceVariant;
-  const _DetailMini({
-    required this.primary,
-    required this.surface,
-    required this.onSurface,
-    required this.surfaceVariant,
-  });
+  final Color primary, surface, onSurface, onPrimary;
+  const _DetailMini({required this.primary, required this.surface, required this.onSurface, required this.onPrimary});
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
-          height: 80,
+          height: 64,
           width: double.infinity,
           decoration: BoxDecoration(
             gradient: LinearGradient(
                 colors: [primary, primary.withOpacity(0.4)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight),
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(8),
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Container(
-            height: 12,
-            width: 100,
+            height: 10,
+            width: 80,
             decoration: BoxDecoration(color: onSurface.withOpacity(0.5), borderRadius: BorderRadius.circular(4))),
-        const SizedBox(height: 4),
+        const SizedBox(height: 3),
         Container(
-            height: 8,
-            width: 60,
+            height: 7,
+            width: 50,
             decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(4))),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         ...List.generate(2, (i) => Container(
-              margin: const EdgeInsets.only(bottom: 4),
-              height: 6,
+              margin: const EdgeInsets.only(bottom: 3),
+              height: 5,
               width: double.infinity,
               decoration: BoxDecoration(color: onSurface.withOpacity(0.15), borderRadius: BorderRadius.circular(3)),
             )),
         Container(
-            height: 6, width: 120, decoration: BoxDecoration(color: onSurface.withOpacity(0.15), borderRadius: BorderRadius.circular(3))),
+            height: 5, width: 100, decoration: BoxDecoration(color: onSurface.withOpacity(0.15), borderRadius: BorderRadius.circular(3))),
         const Spacer(),
         Container(
-          height: 22,
+          height: 18,
           width: double.infinity,
-          decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(11)),
+          decoration: BoxDecoration(color: primary, borderRadius: BorderRadius.circular(9)),
           alignment: Alignment.center,
-          child: const Icon(Icons.play_arrow, size: 14, color: Colors.white),
+          child: Icon(Icons.play_arrow, size: 12, color: onPrimary),
         ),
       ],
     );
@@ -454,14 +465,8 @@ class _DetailMini extends StatelessWidget {
 }
 
 class _PlayerMini extends StatelessWidget {
-  final Color primary, onPrimary, surface, onSurface, surfaceVariant;
-  const _PlayerMini({
-    required this.primary,
-    required this.onPrimary,
-    required this.surface,
-    required this.onSurface,
-    required this.surfaceVariant,
-  });
+  final Color primary, onPrimary, surface, onSurface;
+  const _PlayerMini({required this.primary, required this.onPrimary, required this.surface, required this.onSurface});
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -477,24 +482,24 @@ class _PlayerMini extends StatelessWidget {
                       colors: [primary.withOpacity(0.6), primary.withOpacity(0.2)],
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(7),
                 ),
               ),
               Container(
-                width: 40,
-                height: 40,
+                width: 32,
+                height: 32,
                 decoration: BoxDecoration(
                   color: primary,
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.play_arrow, color: onPrimary, size: 24),
+                child: Icon(Icons.play_arrow, color: onPrimary, size: 18),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 6),
         Container(
-          height: 4,
+          height: 3,
           width: double.infinity,
           decoration: BoxDecoration(color: onSurface.withOpacity(0.2), borderRadius: BorderRadius.circular(2)),
           child: FractionallySizedBox(

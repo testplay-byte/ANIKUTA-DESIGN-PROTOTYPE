@@ -2,7 +2,9 @@
 //
 // Mirrors the web prototype's restore-processing-screen.tsx exactly:
 //   - Page heading "Restore Backup".
-//   - Progress ring visual (size 180) with a downloading icon.
+//   - RestoreProcessingVisual (size 180): circular progress ring with 6
+//     flowing particles orbiting inside + a soft pulsing glow + a central
+//     downloading icon.
 //   - Descriptive title "Restoring your library" + dynamic subtitle that
 //     counts the anime being restored.
 //   - Body: a "scanning pill" with 3 animated dots + a cycling status message.
@@ -74,7 +76,7 @@ class _RestoreProcessingScreenState extends State<RestoreProcessingScreen> {
       stepTotal: kStepTotal,
       scrollable: false,
       pageHeading: 'Restore Backup',
-      visual: ProgressRingVisual(
+      visual: RestoreProcessingVisual(
         primary: cs.primary,
         track: cs.surfaceContainerHighest,
         icon: Icons.downloading_rounded,

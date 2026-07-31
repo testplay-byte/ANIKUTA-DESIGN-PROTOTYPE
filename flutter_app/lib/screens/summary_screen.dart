@@ -93,10 +93,10 @@ class _SummaryScreenState extends State<SummaryScreen>
 
     return WizardScaffold(
       pageHeading: 'Restore Backup',
-      visual: ProcessingVisual(
+      visual: SummaryVisual(
         primary: cs.primary,
         surface: isDark ? palette.surface2 : cs.surface,
-        size: 120,
+        size: 140,
       ),
       descriptiveTitle: 'Backup summary',
       body: Column(

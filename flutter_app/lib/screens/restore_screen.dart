@@ -31,7 +31,7 @@ class RestoreScreen extends StatelessWidget {
         primary: cs.primary,
         onPrimary: cs.onPrimary,
         surface: isDark ? palette.surface2 : cs.surface,
-        size: 150,
+        size: 160,
       ),
       descriptiveTitle: 'Restore backup',
       subtitle:

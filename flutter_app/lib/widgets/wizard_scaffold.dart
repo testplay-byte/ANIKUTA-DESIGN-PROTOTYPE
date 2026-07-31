@@ -1,19 +1,17 @@
-// wizard_scaffold.dart — shared layout shell matching the web prototype.
+// wizard_scaffold.dart — shared layout shell (v4).
 //
-// Key design decisions (v3 — addresses user feedback):
-// 1. EDGE-TO-EDGE: the app draws behind the transparent status bar. The
-//    progress bar sits at the very top of the screen, right below the status
-//    bar icons (using viewPadding.top). Bottom actions respect the gesture
-//    nav bar / home indicator (viewPadding.bottom).
-// 2. ADAPTIVE: uses LayoutBuilder to scale visual sizes and spacing based on
-//    available height. Small screens get smaller visuals + tighter spacing.
-// 3. VERTICAL DISTRIBUTION: content area centers vertically when short (so
-//    the visual isn't stuck in the upper half), and scrolls when tall.
-// 4. INTER FONT: all text uses the Inter font family (bundled) so bold
-//    weights 700/800/900 render with real glyph files.
-// 5. REPAINT BOUNDARY: the visual widget is wrapped in RepaintBoundary so
-//    its animation doesn't trigger repaints of the whole screen (smoother).
+// v4 changes (addresses user feedback):
+// 1. PROGRESS BAR AT THE VERY TOP — no top padding at all. The progress bar
+//    fills the full width at y=0, and the transparent status bar is drawn
+//    ON TOP of it. A thin gap is added below the status bar height so the
+//    bar is visible under the status icons.
+// 2. HEADING LINE HEIGHT — increased to 1.25 and added tight letter spacing
+//    so wrapped headings don't overlap.
+// 3. ADAPTIVE — LayoutBuilder scales spacing based on available height.
+// 4. INTER FONT — all TextStyles use fontFamily: kFontFamily.
+// 5. REPAINT BOUNDARY — visual wrapped in RepaintBoundary.
 
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state/wizard_controller.dart';
@@ -37,8 +35,6 @@ class WizardScaffold extends StatelessWidget {
   final int stepIndex;
   final int stepTotal;
   final bool scrollable;
-  /// If true, content is vertically centered (default). If false, content
-  /// starts from the top (for screens with tall lists like linking/manual).
   final bool centerContent;
 
   const WizardScaffold({
@@ -77,32 +73,34 @@ class WizardScaffold extends StatelessWidget {
     final surface3 = isDark ? palette.surface3 : cs.surfaceContainerHighest;
     final surface4 = isDark ? palette.surface4 : cs.surfaceContainerHigh;
 
-    // Edge-to-edge: top padding = status bar, bottom = gesture nav bar.
     final topPad = MediaQuery.viewPaddingOf(context).top;
     final bottomPad = MediaQuery.viewPaddingOf(context).bottom;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      // No SafeArea — we handle padding manually for full control.
+      // No SafeArea — we draw the progress bar at y=0 (behind the status bar).
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // ---- Status bar spacer (transparent, lets bg show through) ----
-          SizedBox(height: topPad),
-          // ---- Progress bar (at the very top, right below status bar) ----
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(999),
+          // ---- Progress bar — FULL WIDTH, AT THE VERY TOP (y=0) ----
+          // The transparent status bar icons are drawn on top of this bar.
+          // Bar height = 3px, positioned at the very top edge.
+          Container(
+            height: 3,
+            width: double.infinity,
+            color: surface3,
+            child: ClipRect(
               child: LinearProgressIndicator(
                 value: stepTotal <= 0 ? 0 : (stepIndex + 1) / stepTotal,
-                minHeight: 4,
-                backgroundColor: surface3,
+                minHeight: 3,
+                backgroundColor: Colors.transparent,
                 valueColor: AlwaysStoppedAnimation(primary),
               ),
             ),
           ),
-          // ---- Content area (fills remaining space, centers or scrolls) ----
+          // ---- Status bar spacer (so content starts below the status icons) ----
+          SizedBox(height: topPad > 0 ? topPad - 3 : 8),
+          // ---- Content area ----
           Expanded(
             child: LayoutBuilder(
               builder: (context, constraints) {
@@ -110,18 +108,18 @@ class WizardScaffold extends StatelessWidget {
                 final w = constraints.maxWidth;
                 return scrollable
                     ? SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
                         child: ConstrainedBox(
-                          constraints: BoxConstraints(minHeight: h - 22),
+                          constraints: BoxConstraints(minHeight: h - 20),
                           child: _buildContent(
                             primary, onText, muted, w, h, centerContent,
                           ),
                         ),
                       )
                     : Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+                        padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
                         child: _buildContent(
-                          primary, onText, muted, w, h - 22, centerContent,
+                          primary, onText, muted, w, h - 20, centerContent,
                         ),
                       );
               },
@@ -138,35 +136,32 @@ class WizardScaffold extends StatelessWidget {
     Color primary, Color onText, Color muted,
     double width, double height, bool center,
   ) {
-    // Scale visual gap based on available height.
     final isSmall = height < 560;
-    final visualGap = isSmall ? 6.0 : 12.0;
+    final visualGap = isSmall ? 8.0 : 14.0;
     final titleGap = isSmall ? 8.0 : 12.0;
 
     return Column(
       mainAxisAlignment: center ? MainAxisAlignment.center : MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Page heading (colored, top-left)
+        // Page heading (colored, top-left) — line-height 1.25 prevents overlap on wrap
         Align(
           alignment: Alignment.centerLeft,
           child: Text(
             pageHeading,
             style: TextStyle(
               fontFamily: kFontFamily,
-              fontSize: xlHeading ? 34 : 28,
+              fontSize: xlHeading ? 32 : 27,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.5,
-              height: 1.1,
+              height: 1.25, // prevents wrapped lines from overlapping
               color: primary,
             ),
           ),
         ),
         if (visual != null) ...[
           SizedBox(height: visualGap),
-          Center(
-            child: RepaintBoundary(child: visual!),
-          ),
+          Center(child: RepaintBoundary(child: visual!)),
         ],
         if (descriptiveTitle != null) ...[
           SizedBox(height: titleGap),
@@ -178,7 +173,7 @@ class WizardScaffold extends StatelessWidget {
               fontSize: 20,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.3,
-              height: 1.2,
+              height: 1.25,
               color: onText,
             ),
           ),
@@ -191,7 +186,7 @@ class WizardScaffold extends StatelessWidget {
             style: TextStyle(
               fontFamily: kFontFamily,
               fontSize: 13,
-              height: 1.45,
+              height: 1.5,
               fontWeight: FontWeight.w400,
               color: muted,
             ),
@@ -415,6 +410,59 @@ class SelectButton extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Shows a centered modal dialog with a frosted-glass (backdrop blur) background.
+/// The background dims + blurs the screen behind it.
+void showFrostedDialog({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool barrierDismissible = true,
+}) {
+  showDialog(
+    context: context,
+    barrierDismissible: barrierDismissible,
+    barrierColor: Colors.transparent, // we draw our own frosted barrier
+    builder: (context) => FrostedDialogWrapper(
+      child: builder(context),
+      dismissible: barrierDismissible,
+    ),
+  );
+}
+
+/// A widget that paints a frosted-glass (backdrop blur) layer over the
+/// screen behind it, then centers a child dialog.
+class FrostedDialogWrapper extends StatelessWidget {
+  final Widget child;
+  final bool dismissible;
+  const FrostedDialogWrapper({
+    super.key,
+    required this.child,
+    this.dismissible = true,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return GestureDetector(
+      onTap: dismissible ? () => Navigator.of(context).pop() : null,
+      child: Container(
+        color: Colors.black.withOpacity(0.2),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+          child: Container(
+            color: (isDark ? Colors.black : Colors.white).withOpacity(0.3),
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 28),
+            child: GestureDetector(
+              onTap: () {}, // swallow taps so they don't close the dialog
+              child: child,
+            ),
+          ),
         ),
       ),
     );

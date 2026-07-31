@@ -78,7 +78,7 @@ class _FolderScreenState extends State<FolderScreen> {
         surface5: palette.surface5,
         background: Theme.of(context).scaffoldBackgroundColor,
         selected: showSelected,
-        size: 180,
+        size: 190,
       ),
       descriptiveTitle: descTitle,
       subtitle: subtitle,

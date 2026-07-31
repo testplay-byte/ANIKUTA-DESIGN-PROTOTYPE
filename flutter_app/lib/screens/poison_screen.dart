@@ -4,14 +4,19 @@
 //   - The whole scaffold is wrapped in a Theme(data: buildPoisonTheme(...))
 //     so the page heading, progress bar, choice cards, summary chip and
 //     primary button all render in the red Material 3 ColorScheme.
-//   - Page heading "Choose Your Poison" (renders in red #ff6b6b).
-//   - No visual.
+//   - Page heading "Choose Your Poison" (renders in red).
+//   - Step 0 (name): a CENTERED PoisonBottleVisual (default) or
+//     PoisonPillVisual (when AdName.pills is selected), both animated
+//     (floating + rotation) and rendered at size 130. The WizardScaffold's
+//     Center wrapper centers them horizontally.
 //   - Multi-step body (3 sub-steps) driven by controller.poisonStep:
 //       0 — Name    : "Daily dose of poison" / "Daily dose of pills"
 //       1 — Frequency: 1 / 2 / 3 ads per day
 //       2 — Timing   : On app open / On episode start / Both
 //   - A 3-dot step indicator (current dot expands to a pill).
-//   - A live summary chip showing controller.adSettings.summary.
+//   - A live summary chip showing a SIMPLIFIED summary line:
+//     "<freq> ads/day · <timing>" (the "Daily dose of poison" prefix is
+//     intentionally dropped — the summary should be glanceable).
 //   - Back goes to the previous sub-step (or pops the screen on step 0).
 //   - Next advances the sub-step (or pushes step 14 on step 2 as "Confirm").
 //
@@ -25,6 +30,7 @@ import '../state/wizard_controller.dart';
 import '../theme/app_theme.dart';
 import '../models/wizard_models.dart';
 import '../widgets/wizard_scaffold.dart';
+import '../widgets/wizard_visuals.dart';
 
 class PoisonScreen extends StatelessWidget {
   const PoisonScreen({super.key});
@@ -42,10 +48,28 @@ class PoisonScreen extends StatelessWidget {
           final muted = onText.withOpacity(0.6);
           final step = controller.poisonStep;
 
+          // Conditional hero visual for step 0 (name selection).
+          // PoisonBottleVisual by default (AdName.poison), PoisonPillVisual
+          // when the user picks "Daily dose of pills". The WizardScaffold
+          // wraps the visual in a Center widget so it renders centered.
+          final Widget? stepVisual = step == 0
+              ? (controller.adSettings.name == AdName.pills
+                  ? PoisonPillVisual(primary: cs.primary, size: 130)
+                  : PoisonBottleVisual(primary: cs.primary, size: 130))
+              : null;
+
+          // Simplified summary: drop the "Daily dose of poison" prefix —
+          // just frequency + timing (e.g. "2 ads/day · On app open").
+          final freq = controller.adSettings.frequency;
+          final freqLabel = '$freq ${freq == 1 ? 'ad' : 'ads'}/day';
+          final simpleSummary =
+              '$freqLabel · ${adTimingLabel(controller.adSettings.timing)}';
+
           return WizardScaffold(
             stepIndex: 13,
             stepTotal: kStepTotal,
             pageHeading: 'Choose Your Poison',
+            visual: stepVisual,
             backLabel: 'Back',
             onBack: () {
               if (controller.poisonStep > 0) {
@@ -139,7 +163,7 @@ class PoisonScreen extends StatelessWidget {
                   ),
                 ],
                 const SizedBox(height: 18),
-                // Live summary chip — always visible across all sub-steps.
+                // Simplified live summary chip — frequency + timing only.
                 Container(
                   padding: const EdgeInsets.symmetric(
                       horizontal: 14, vertical: 12),
@@ -153,7 +177,7 @@ class PoisonScreen extends StatelessWidget {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          controller.adSettings.summary,
+                          simpleSummary,
                           style: TextStyle(
                             fontFamily: kFontFamily,
                             color: onText.withOpacity(0.85),

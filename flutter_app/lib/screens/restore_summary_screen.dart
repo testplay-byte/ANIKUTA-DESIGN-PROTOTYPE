@@ -3,11 +3,15 @@
 // Mirrors the web prototype's restore-summary-screen.tsx exactly:
 //   - Page heading "Restore Backup" (colored, top-left).
 //   - Descriptive title "Restore summary" + subtitle.
-//   - A single hero card (surface2, rounded 20, primary-tinted border) with:
+//   - A single hero card with a surface2 → surface3 gradient (rounded 24,
+//     primary-tinted border, soft primary glow) containing:
 //       * Header row: download icon tile + title/desc.
 //       * 2x2 stat grid (to restore / auto-linked / manually linked / episodes).
 //       * Info note (primary-tinted bg) about overwrite.
 //   - Back (secondary pill) + Restore Now (primary pill).
+//
+// All TextStyles use Inter (fontFamily: kFontFamily) so bold weights resolve
+// to the bundled Inter-Bold/ExtraBold glyph files.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -49,11 +53,22 @@ class RestoreSummaryScreen extends StatelessWidget {
         children: [
           const SizedBox(height: 4),
           Container(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(
-              color: surface2,
-              borderRadius: BorderRadius.circular(20),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [surface2, surface3],
+              ),
+              borderRadius: BorderRadius.circular(24),
               border: Border.all(color: primary.withOpacity(0.33), width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: primary.withOpacity(0.10),
+                  blurRadius: 18,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -63,16 +78,16 @@ class RestoreSummaryScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      width: 44,
-                      height: 44,
+                      width: 48,
+                      height: 48,
                       decoration: BoxDecoration(
-                        color: primary.withOpacity(0.16),
-                        borderRadius: BorderRadius.circular(12),
+                        color: primary.withOpacity(0.18),
+                        borderRadius: BorderRadius.circular(14),
                       ),
                       child: Icon(Icons.download_rounded,
-                          color: primary, size: 22),
+                          color: primary, size: 24),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 14),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,7 +98,7 @@ class RestoreSummaryScreen extends StatelessWidget {
                             style: TextStyle(
                               fontFamily: kFontFamily,
                               color: onText,
-                              fontSize: 18,
+                              fontSize: 19,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.2,
                             ),
@@ -93,8 +108,8 @@ class RestoreSummaryScreen extends StatelessWidget {
                             'Your library will be overwritten.',
                             style: TextStyle(
                               fontFamily: kFontFamily,
-                              color: Colors.white.withOpacity(0.54),
-                              fontSize: 11,
+                              color: muted,
+                              fontSize: 12,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -103,8 +118,8 @@ class RestoreSummaryScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
-                // ---- 2x2 stats grid ----
+                const SizedBox(height: 16),
+                // ---- 2x2 stats grid (larger boxes) ----
                 Row(
                   children: [
                     Expanded(
@@ -116,7 +131,7 @@ class RestoreSummaryScreen extends StatelessWidget {
                         surface3: surface3,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: _StatBox(
                         number: '${controller.linkedCount}',
@@ -128,7 +143,7 @@ class RestoreSummaryScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     Expanded(
@@ -140,7 +155,7 @@ class RestoreSummaryScreen extends StatelessWidget {
                         surface3: surface3,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: _StatBox(
                         number: '1,432',
@@ -152,12 +167,12 @@ class RestoreSummaryScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 14),
                 // ---- Info note ----
                 Container(
-                  padding: const EdgeInsets.all(11),
+                  padding: const EdgeInsets.all(13),
                   decoration: BoxDecoration(
-                    color: primary.withOpacity(0.07),
+                    color: primary.withOpacity(0.08),
                     borderRadius: BorderRadius.circular(16),
                     border:
                         Border.all(color: primary.withOpacity(0.33), width: 1),
@@ -174,7 +189,7 @@ class RestoreSummaryScreen extends StatelessWidget {
                             fontFamily: kFontFamily,
                             color: muted,
                             fontSize: 12,
-                            height: 1.4,
+                            height: 1.45,
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -211,10 +226,10 @@ class _StatBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: surface3,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,18 +240,19 @@ class _StatBox extends StatelessWidget {
             style: TextStyle(
               fontFamily: kFontFamily,
               color: primary,
-              fontSize: 20,
+              fontSize: 24,
               fontWeight: FontWeight.w800,
               height: 1.1,
+              letterSpacing: -0.3,
             ),
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 6),
           Text(
             label,
             style: TextStyle(
               fontFamily: kFontFamily,
               color: muted,
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: FontWeight.w700,
               letterSpacing: 0.3,
             ),

@@ -27,7 +27,7 @@ class FormatScreen extends StatelessWidget {
       visual: FormatVisual(
         primary: cs.primary,
         onPrimary: cs.onPrimary,
-        size: 180,
+        size: 190,
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

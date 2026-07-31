@@ -37,7 +37,7 @@ class ThemeScreen extends StatelessWidget {
         surface: isDark ? palette.surface2 : cs.surface,
         onSurface: cs.onSurface,
         surfaceVariant: cs.surfaceContainerHighest,
-        height: 180,
+        height: 200,
       ),
       descriptiveTitle: 'Choose your theme',
       subtitle: 'Pick a mode and a color and we are set with it.',

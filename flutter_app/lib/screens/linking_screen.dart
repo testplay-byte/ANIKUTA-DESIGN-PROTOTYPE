@@ -160,116 +160,146 @@ class _LinkingScreenState extends State<LinkingScreen> {
 
   void _openUnlinkSheet(BuildContext context, WizardController controller,
       LinkedAnime anime) {
-    showModalBottomSheet(
+    final cs = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final onText = isDark ? Colors.white : Colors.black87;
+    final surface2 = isDark ? controller.palette.surface2 : cs.surface;
+    final surface3 =
+        isDark ? controller.palette.surface3 : cs.surfaceContainerHighest;
+    final surface4 =
+        isDark ? controller.palette.surface4 : cs.surfaceContainerHigh;
+    showFrostedDialog(
       context: context,
-      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      builder: (ctx) => _UnlinkDialog(
+        animeName: anime.backupName,
+        primary: cs.primary,
+        error: cs.error,
+        onText: onText,
+        surface2: surface2,
+        surface3: surface3,
+        surface4: surface4,
+        onKeepLinked: () => Navigator.of(ctx).pop(),
+        onMarkUnlinked: () {
+          controller.unlinkAnime(anime.id);
+          Navigator.of(ctx).pop();
+        },
       ),
-      builder: (ctx) {
-        final cs = Theme.of(ctx).colorScheme;
-        final isDark = Theme.of(ctx).brightness == Brightness.dark;
-        final onText = isDark ? Colors.white : Colors.black87;
-        final muted = onText.withOpacity(0.6);
-        final surface2 = isDark ? controller.palette.surface2 : cs.surface;
-        final surface3 =
-            isDark ? controller.palette.surface3 : cs.surfaceContainerHighest;
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Linked entry',
-                  style: TextStyle(
-                    fontFamily: kFontFamily,
-                    color: muted,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.4,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  anime.backupName,
-                  style: TextStyle(
-                    fontFamily: kFontFamily,
-                    color: onText,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.2,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  'This backup entry has been automatically matched with the anime below. You can keep the link or unlink it to search for a different match.',
-                  style: TextStyle(
-                    fontFamily: kFontFamily,
-                    color: muted,
-                    fontSize: 13,
-                    height: 1.45,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-                const SizedBox(height: 14),
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: surface2,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(Icons.link, color: cs.primary, size: 18),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          anime.matchedName ?? anime.backupName,
-                          style: TextStyle(
-                            fontFamily: kFontFamily,
-                            color: onText,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: PillButton.secondary(
-                        label: 'Keep linked',
-                        onTap: () => Navigator.of(ctx).pop(),
-                        primary: cs.primary,
-                        onText: onText,
-                        surface3: surface3,
-                        surface4: surface3,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: PillButton.primary(
-                        label: 'Mark as not linked',
-                        onTap: () {
-                          controller.unlinkAnime(anime.id);
-                          Navigator.of(ctx).pop();
-                        },
-                        primary: cs.error,
-                        onPrimary: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+    );
+  }
+}
+
+/// Centered frosted-glass popup that asks the user whether to keep an auto-link
+/// or unlink the entry. Shown via [showFrostedDialog] when a linked row is tapped.
+class _UnlinkDialog extends StatelessWidget {
+  final String animeName;
+  final Color primary;
+  final Color error;
+  final Color onText;
+  final Color surface2;
+  final Color surface3;
+  final Color surface4;
+  final VoidCallback onKeepLinked;
+  final VoidCallback onMarkUnlinked;
+
+  const _UnlinkDialog({
+    required this.animeName,
+    required this.primary,
+    required this.error,
+    required this.onText,
+    required this.surface2,
+    required this.surface3,
+    required this.surface4,
+    required this.onKeepLinked,
+    required this.onMarkUnlinked,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = onText.withOpacity(0.6);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: surface2,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text(
+            'Linked entry',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: kFontFamily,
+              color: onText,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.2,
             ),
           ),
-        );
-      },
+          const SizedBox(height: 8),
+          Text(
+            'This entry was auto-linked. If the match is wrong, mark it as not linked \u2014 you\'ll be able to link it manually.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: kFontFamily,
+              color: muted,
+              fontSize: 13,
+              height: 1.45,
+              fontWeight: FontWeight.w400,
+            ),
+          ),
+          const SizedBox(height: 14),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: surface3,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              animeName,
+              textAlign: TextAlign.center,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontFamily: kFontFamily,
+                color: onText,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                height: 1.3,
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: PillButton.secondary(
+                  label: 'Keep linked',
+                  onTap: onKeepLinked,
+                  primary: primary,
+                  onText: onText,
+                  surface3: surface3,
+                  surface4: surface4,
+                  showBackArrow: false,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: PillButton.primary(
+                  label: 'Mark as not linked',
+                  onTap: onMarkUnlinked,
+                  primary: error,
+                  onPrimary: Colors.white,
+                  showForwardArrow: false,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

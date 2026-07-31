@@ -42,7 +42,7 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
       visual: ProcessingVisual(
         primary: cs.primary,
         surface: isDark ? palette.surface2 : cs.surface,
-        size: 160,
+        size: 170,
       ),
       descriptiveTitle: 'Processing backup',
       subtitle: 'Reading your backup file and extracting data\u2026',

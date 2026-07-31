@@ -7,6 +7,7 @@ import '../state/wizard_controller.dart';
 import '../models/wizard_models.dart';
 import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
+import '../widgets/wizard_visuals.dart';
 
 /// Lists only the unlinked backup entries and lets the user open a full-screen
 /// search overlay to manually pick a match from a list of mock results.
@@ -54,6 +55,10 @@ class ManualScreen extends StatelessWidget {
 
     return WizardScaffold(
       pageHeading: 'Restore Backup',
+      visual: SearchVisual(
+        primary: cs.primary,
+        size: 120,
+      ),
       descriptiveTitle: 'Manual linking',
       subtitle: subtitle,
       scrollable: false,

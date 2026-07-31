@@ -1,0 +1,97 @@
+# .github/workflows/build-flutter-windows.yml
+# Builds the Setup Wizard as a Windows desktop application and uploads it
+# as a GitHub Actions artifact (a zip of the build output folder).
+#
+# HOW WE PROTECT lib/main.dart:
+# `flutter create` is run in a SEPARATE temp directory, then only the
+# generated windows/ folder is copied into our project. Our committed
+# lib/ source tree is never touched.
+#
+# To download:
+# 1. Go to the Actions tab on GitHub
+# 2. Click the latest "Build Setup Wizard Flutter Windows" run
+# 3. Scroll down to "Artifacts" → download "setup-wizard-windows"
+# 4. Unzip and run setup_wizard.exe
+
+name: Build Setup Wizard Flutter Windows
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'flutter_app/**'
+      - '.github/workflows/build-flutter-windows.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: stable
+          cache: true
+
+      - name: Flutter doctor
+        run: flutter doctor -v
+
+      - name: Generate Windows project files (without touching lib/)
+        shell: bash
+        run: |
+          # Create a temp project to get the windows/ platform files.
+          flutter create --org com.testplaybyte --project-name setup_wizard --platforms windows /tmp/temp_flutter
+          # Copy only the windows/ directory into our project.
+          cp -r /tmp/temp_flutter/windows flutter_app/windows
+
+      - name: Verify lib/main.dart is our setup wizard (not counter demo)
+        run: Get-Content flutter_app/lib/main.dart -Head 3
+
+      - name: Install dependencies
+        working-directory: flutter_app
+        run: flutter pub get
+
+      - name: Analyze Dart
+        working-directory: flutter_app
+        shell: bash
+        run: |
+          set +e
+          flutter analyze > analyze.log 2>&1
+          echo "=== ANALYZE OUTPUT ==="
+          cat analyze.log
+          if grep -E "error •" analyze.log; then
+            echo "::error::Flutter analyze found errors (see log above)"
+            exit 1
+          fi
+          exit 0
+
+      - name: Build Windows app (debug)
+        working-directory: flutter_app
+        run: flutter build windows --debug
+
+      - name: Zip build output
+        shell: pwsh
+        run: |
+          Compress-Archive -Path flutter_app/build/windows/x64/runner/Debug/* -DestinationPath setup-wizard-windows.zip
+
+      - name: Upload Windows app
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: setup-wizard-windows
+          path: setup-wizard-windows.zip
+          retention-days: 30
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: flutter-windows-build-log
+          path: |
+            flutter_app/analyze.log
+          retention-days: 7

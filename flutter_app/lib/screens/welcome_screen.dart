@@ -37,6 +37,7 @@ class WelcomeScreen extends StatelessWidget {
       xlHeading: true,
       stepIndex: 0,
       stepTotal: kStepTotal,
+      centerContent: false,
       body: SizedBox(
         width: double.infinity,
         child: Column(
@@ -48,7 +49,8 @@ class WelcomeScreen extends StatelessWidget {
                 "Let's get things quickly set up for you.",
                 style: TextStyle(
                   fontFamily: kFontFamily,
-                  fontSize: 16,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
                   height: 1.45,
                   color: muted,
                 ),
@@ -59,7 +61,8 @@ class WelcomeScreen extends StatelessWidget {
               child: WelcomeVisual(
                 primary: cs.primary,
                 onPrimary: cs.onPrimary,
-                size: 160,
+                surface: Colors.transparent,
+                size: 150,
               ),
             ),
             const SizedBox(height: 20),
@@ -108,7 +111,7 @@ class _DetailCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: surface,
         borderRadius: BorderRadius.circular(14),
@@ -116,11 +119,11 @@ class _DetailCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 36,
-            height: 36,
+            width: 32,
+            height: 32,
             decoration: BoxDecoration(
               color: primary.withOpacity(0.16),
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, size: 18, color: primary),
           ),
@@ -130,7 +133,7 @@ class _DetailCard extends StatelessWidget {
               title,
               style: TextStyle(
                 fontFamily: kFontFamily,
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.w700,
                 color: onText,
               ),
