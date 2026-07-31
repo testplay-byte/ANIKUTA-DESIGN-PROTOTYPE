@@ -34,7 +34,7 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.27.1'
           channel: stable
           cache: true
 
@@ -71,15 +71,6 @@ jobs:
             exit 1
           fi
           exit 0
-
-      - name: Patch CMakeLists.txt for Visual Studio 2022
-        shell: bash
-        run: |
-          # Flutter 3.24 generates CMakeLists.txt pinned to "Visual Studio 16 2019".
-          # The windows-latest runner has VS 2022 (version 17). Patch the generator.
-          sed -i 's/Visual Studio 16 2019/Visual Studio 17 2022/g' flutter_app/windows/CMakeLists.txt || true
-          echo "=== Patched CMakeLists.txt (first 10 lines) ==="
-          head -10 flutter_app/windows/CMakeLists.txt
 
       - name: Build Windows app (debug)
         working-directory: flutter_app
