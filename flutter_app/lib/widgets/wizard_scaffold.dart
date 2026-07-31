@@ -1,19 +1,23 @@
-// wizard_scaffold.dart — shared layout shell matching the web prototype exactly.
+// wizard_scaffold.dart — shared layout shell matching the web prototype.
 //
-// Web prototype layout (setup-wizard.css):
-//   .wizard-step (flex column, full height)
-//     .wizard-content (flex 1, centered, padding 16/24, gap 16)
-//       .wizard-page-heading (30px, w800, palette.primary, top-left)
-//       .wizard-visual (200x200, centered, float anim)
-//       .wizard-heading (descriptive-title 22px w700 + screen-sub 13px muted)
-//       .wizard-body (flex column, gap 12, stretch)
-//     .wizard-actions (flex row, gap 12, padding 12/24/24)
-//       .wizard-btn--secondary (Back, surface bg, left arrow)
-//       .wizard-btn--primary (Next, primary bg, right arrow)
+// Key design decisions (v3 — addresses user feedback):
+// 1. EDGE-TO-EDGE: the app draws behind the transparent status bar. The
+//    progress bar sits at the very top of the screen, right below the status
+//    bar icons (using viewPadding.top). Bottom actions respect the gesture
+//    nav bar / home indicator (viewPadding.bottom).
+// 2. ADAPTIVE: uses LayoutBuilder to scale visual sizes and spacing based on
+//    available height. Small screens get smaller visuals + tighter spacing.
+// 3. VERTICAL DISTRIBUTION: content area centers vertically when short (so
+//    the visual isn't stuck in the upper half), and scrolls when tall.
+// 4. INTER FONT: all text uses the Inter font family (bundled) so bold
+//    weights 700/800/900 render with real glyph files.
+// 5. REPAINT BOUNDARY: the visual widget is wrapped in RepaintBoundary so
+//    its animation doesn't trigger repaints of the whole screen (smoother).
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../state/wizard_controller.dart';
+import '../theme/app_theme.dart';
 
 class WizardScaffold extends StatelessWidget {
   final String pageHeading;
@@ -33,6 +37,9 @@ class WizardScaffold extends StatelessWidget {
   final int stepIndex;
   final int stepTotal;
   final bool scrollable;
+  /// If true, content is vertically centered (default). If false, content
+  /// starts from the top (for screens with tall lists like linking/manual).
+  final bool centerContent;
 
   const WizardScaffold({
     super.key,
@@ -53,6 +60,7 @@ class WizardScaffold extends StatelessWidget {
     required this.stepIndex,
     required this.stepTotal,
     this.scrollable = true,
+    this.centerContent = true,
   });
 
   @override
@@ -69,47 +77,74 @@ class WizardScaffold extends StatelessWidget {
     final surface3 = isDark ? palette.surface3 : cs.surfaceContainerHighest;
     final surface4 = isDark ? palette.surface4 : cs.surfaceContainerHigh;
 
+    // Edge-to-edge: top padding = status bar, bottom = gesture nav bar.
+    final topPad = MediaQuery.viewPaddingOf(context).top;
+    final bottomPad = MediaQuery.viewPaddingOf(context).bottom;
+
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // ---- Progress bar (thin line at top) ----
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(999),
-                child: LinearProgressIndicator(
-                  value: stepTotal <= 0 ? 0 : (stepIndex + 1) / stepTotal,
-                  minHeight: 4,
-                  backgroundColor: surface3,
-                  valueColor: AlwaysStoppedAnimation(primary),
-                ),
+      // No SafeArea — we handle padding manually for full control.
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // ---- Status bar spacer (transparent, lets bg show through) ----
+          SizedBox(height: topPad),
+          // ---- Progress bar (at the very top, right below status bar) ----
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(999),
+              child: LinearProgressIndicator(
+                value: stepTotal <= 0 ? 0 : (stepIndex + 1) / stepTotal,
+                minHeight: 4,
+                backgroundColor: surface3,
+                valueColor: AlwaysStoppedAnimation(primary),
               ),
             ),
-            // ---- Content area ----
-            Expanded(
-              child: scrollable
-                  ? SingleChildScrollView(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                      child: _buildContent(primary, onText, muted),
-                    )
-                  : Padding(
-                      padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                      child: _buildContent(primary, onText, muted),
-                    ),
+          ),
+          // ---- Content area (fills remaining space, centers or scrolls) ----
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final h = constraints.maxHeight;
+                final w = constraints.maxWidth;
+                return scrollable
+                    ? SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: h - 22),
+                          child: _buildContent(
+                            primary, onText, muted, w, h, centerContent,
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 14, 20, 8),
+                        child: _buildContent(
+                          primary, onText, muted, w, h - 22, centerContent,
+                        ),
+                      );
+              },
             ),
-            // ---- Bottom actions ----
-            _buildActions(primary, onPrimary, onText, surface3, surface4),
-          ],
-        ),
+          ),
+          // ---- Bottom actions (above gesture nav bar) ----
+          _buildActions(primary, onPrimary, onText, surface3, surface4, bottomPad),
+        ],
       ),
     );
   }
 
-  Widget _buildContent(Color primary, Color onText, Color muted) {
+  Widget _buildContent(
+    Color primary, Color onText, Color muted,
+    double width, double height, bool center,
+  ) {
+    // Scale visual gap based on available height.
+    final isSmall = height < 560;
+    final visualGap = isSmall ? 6.0 : 12.0;
+    final titleGap = isSmall ? 8.0 : 12.0;
+
     return Column(
+      mainAxisAlignment: center ? MainAxisAlignment.center : MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Page heading (colored, top-left)
@@ -118,7 +153,8 @@ class WizardScaffold extends StatelessWidget {
           child: Text(
             pageHeading,
             style: TextStyle(
-              fontSize: xlHeading ? 36 : 30,
+              fontFamily: kFontFamily,
+              fontSize: xlHeading ? 34 : 28,
               fontWeight: FontWeight.w800,
               letterSpacing: -0.5,
               height: 1.1,
@@ -127,18 +163,22 @@ class WizardScaffold extends StatelessWidget {
           ),
         ),
         if (visual != null) ...[
-          const SizedBox(height: 8),
-          Center(child: visual!),
+          SizedBox(height: visualGap),
+          Center(
+            child: RepaintBoundary(child: visual!),
+          ),
         ],
         if (descriptiveTitle != null) ...[
-          const SizedBox(height: 12),
+          SizedBox(height: titleGap),
           Text(
             descriptiveTitle!,
             textAlign: TextAlign.center,
             style: TextStyle(
-              fontSize: 22,
+              fontFamily: kFontFamily,
+              fontSize: 20,
               fontWeight: FontWeight.w700,
               letterSpacing: -0.3,
+              height: 1.2,
               color: onText,
             ),
           ),
@@ -149,14 +189,16 @@ class WizardScaffold extends StatelessWidget {
             subtitle!,
             textAlign: TextAlign.center,
             style: TextStyle(
+              fontFamily: kFontFamily,
               fontSize: 13,
               height: 1.45,
+              fontWeight: FontWeight.w400,
               color: muted,
             ),
           ),
         ],
         if (body != null) ...[
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           body!,
         ],
       ],
@@ -164,14 +206,18 @@ class WizardScaffold extends StatelessWidget {
   }
 
   Widget _buildActions(
-      Color primary, Color onPrimaryColor, Color onText, Color surface3, Color surface4) {
+    Color primary, Color onPrimaryColor, Color onText,
+    Color surface3, Color surface4, double bottomPad,
+  ) {
     final hasBack = backButton != null || (backLabel != null && onBack != null);
     final hasPrimary =
         primaryButton != null || (primaryLabel != null && onPrimary != null);
-    if (!hasBack && !hasPrimary) return const SizedBox.shrink();
+    if (!hasBack && !hasPrimary) {
+      return SizedBox(height: bottomPad > 0 ? bottomPad : 16);
+    }
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+      padding: EdgeInsets.fromLTRB(20, 4, 20, bottomPad > 0 ? bottomPad + 8 : 16),
       child: Row(
         children: [
           if (hasBack)
@@ -204,7 +250,7 @@ class WizardScaffold extends StatelessWidget {
   }
 }
 
-/// Pill-shaped button matching .wizard-btn (height 52, radius 999, w800).
+/// Pill-shaped button matching .wizard-btn (height 52, radius 999, w800, Inter).
 class PillButton extends StatelessWidget {
   final String label;
   final VoidCallback? onTap;
@@ -300,7 +346,8 @@ class PillButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 17,
+                fontFamily: kFontFamily,
+                fontSize: 16,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.2,
                 color: fg,
@@ -360,7 +407,8 @@ class SelectButton extends StatelessWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 16,
+                fontFamily: kFontFamily,
+                fontSize: 15,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.2,
                 color: primary,

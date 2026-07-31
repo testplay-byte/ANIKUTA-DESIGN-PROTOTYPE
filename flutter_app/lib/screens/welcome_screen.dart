@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
+import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
 import '../widgets/wizard_visuals.dart';
 
@@ -46,6 +47,7 @@ class WelcomeScreen extends StatelessWidget {
               child: Text(
                 "Let's get things quickly set up for you.",
                 style: TextStyle(
+                  fontFamily: kFontFamily,
                   fontSize: 16,
                   height: 1.45,
                   color: muted,
@@ -57,7 +59,7 @@ class WelcomeScreen extends StatelessWidget {
               child: WelcomeVisual(
                 primary: cs.primary,
                 onPrimary: cs.onPrimary,
-                size: 180,
+                size: 160,
               ),
             ),
             const SizedBox(height: 20),
@@ -127,6 +129,7 @@ class _DetailCard extends StatelessWidget {
             child: Text(
               title,
               style: TextStyle(
+                fontFamily: kFontFamily,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: onText,

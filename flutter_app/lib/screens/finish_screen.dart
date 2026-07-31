@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
 import '../models/wizard_models.dart';
+import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
 import '../widgets/wizard_visuals.dart';
 
@@ -150,6 +151,7 @@ class _SummaryRow extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
+                  fontFamily: kFontFamily,
                   color: muted,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -160,6 +162,7 @@ class _SummaryRow extends StatelessWidget {
               Text(
                 value,
                 style: TextStyle(
+                  fontFamily: kFontFamily,
                   color: onText,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,

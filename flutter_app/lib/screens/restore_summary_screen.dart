@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
+import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
 
 class RestoreSummaryScreen extends StatelessWidget {
@@ -80,6 +81,7 @@ class RestoreSummaryScreen extends StatelessWidget {
                           Text(
                             'Ready to restore',
                             style: TextStyle(
+                              fontFamily: kFontFamily,
                               color: onText,
                               fontSize: 18,
                               fontWeight: FontWeight.w800,
@@ -90,6 +92,7 @@ class RestoreSummaryScreen extends StatelessWidget {
                           Text(
                             'Your library will be overwritten.',
                             style: TextStyle(
+                              fontFamily: kFontFamily,
                               color: Colors.white.withOpacity(0.54),
                               fontSize: 11,
                               fontWeight: FontWeight.w500,
@@ -168,6 +171,7 @@ class RestoreSummaryScreen extends StatelessWidget {
                         child: Text(
                           'This will overwrite any existing library data. The restore process may take a few moments.',
                           style: TextStyle(
+                            fontFamily: kFontFamily,
                             color: muted,
                             fontSize: 12,
                             height: 1.4,
@@ -219,6 +223,7 @@ class _StatBox extends StatelessWidget {
           Text(
             number,
             style: TextStyle(
+              fontFamily: kFontFamily,
               color: primary,
               fontSize: 20,
               fontWeight: FontWeight.w800,
@@ -229,6 +234,7 @@ class _StatBox extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
+              fontFamily: kFontFamily,
               color: muted,
               fontSize: 10,
               fontWeight: FontWeight.w700,

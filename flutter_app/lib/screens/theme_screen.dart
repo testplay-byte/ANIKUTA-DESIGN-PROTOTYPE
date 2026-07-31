@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
+import '../theme/app_theme.dart';
 import '../theme/palettes.dart';
 import '../models/wizard_models.dart';
 import '../widgets/wizard_scaffold.dart';
@@ -36,7 +37,7 @@ class ThemeScreen extends StatelessWidget {
         surface: isDark ? palette.surface2 : cs.surface,
         onSurface: cs.onSurface,
         surfaceVariant: cs.surfaceContainerHighest,
-        height: 240,
+        height: 180,
       ),
       descriptiveTitle: 'Choose your theme',
       subtitle: 'Pick a mode and a color and we are set with it.',
@@ -171,6 +172,7 @@ class _ModeButton extends StatelessWidget {
             Text(
               opt.label,
               style: TextStyle(
+                fontFamily: kFontFamily,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
                 color: fg,
@@ -251,19 +253,19 @@ class _PaletteCard extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        width: 80,
-        height: 100,
+        width: 72,
+        height: 96,
         child: Column(
           children: [
             Stack(
               clipBehavior: Clip.none,
               children: [
                 Container(
-                  width: 80,
+                  width: 72,
                   height: 72,
                   decoration: BoxDecoration(
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(16),
+                      top: Radius.circular(14),
                     ),
                     gradient: LinearGradient(
                       begin: Alignment.topLeft,
@@ -283,8 +285,8 @@ class _PaletteCard extends StatelessWidget {
                     top: -6,
                     right: -6,
                     child: Container(
-                      width: 22,
-                      height: 22,
+                      width: 20,
+                      height: 20,
                       decoration: BoxDecoration(
                         color: primary,
                         shape: BoxShape.circle,
@@ -292,7 +294,7 @@ class _PaletteCard extends StatelessWidget {
                       ),
                       child: const Icon(
                         Icons.check,
-                        size: 14,
+                        size: 12,
                         color: Colors.white,
                       ),
                     ),
@@ -303,6 +305,7 @@ class _PaletteCard extends StatelessWidget {
             Text(
               palette.name,
               style: TextStyle(
+                fontFamily: kFontFamily,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: isActive ? primary : muted,

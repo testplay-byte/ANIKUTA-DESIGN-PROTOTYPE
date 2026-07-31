@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
+import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
 import '../widgets/wizard_visuals.dart';
 
@@ -251,6 +252,7 @@ class _SummaryRow extends StatelessWidget {
                 Text(
                   item.label,
                   style: TextStyle(
+                    fontFamily: kFontFamily,
                     color: onText,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -261,9 +263,10 @@ class _SummaryRow extends StatelessWidget {
                 Text(
                   item.meta,
                   style: TextStyle(
+                    fontFamily: kFontFamily,
                     color: muted,
                     fontSize: 12,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w400,
                     height: 1.3,
                   ),
                 ),
@@ -275,6 +278,7 @@ class _SummaryRow extends StatelessWidget {
           Text(
             item.value,
             style: TextStyle(
+              fontFamily: kFontFamily,
               color: accent,
               fontSize: 16,
               fontWeight: FontWeight.w800,

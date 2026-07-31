@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
+import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
 import '../widgets/wizard_visuals.dart';
 
@@ -41,7 +42,7 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
       visual: ProcessingVisual(
         primary: cs.primary,
         surface: isDark ? palette.surface2 : cs.surface,
-        size: 180,
+        size: 160,
       ),
       descriptiveTitle: 'Processing backup',
       subtitle: 'Reading your backup file and extracting data\u2026',
@@ -61,6 +62,7 @@ class _ProcessingScreenState extends State<ProcessingScreen> {
               Text(
                 'Processing',
                 style: TextStyle(
+                  fontFamily: kFontFamily,
                   color: cs.primary,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,

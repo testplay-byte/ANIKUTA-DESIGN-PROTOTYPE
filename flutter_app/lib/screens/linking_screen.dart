@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
 import '../models/wizard_models.dart';
+import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
 
 /// Shows match stats plus the full list of backup anime entries with their
@@ -183,6 +184,7 @@ class _LinkingScreenState extends State<LinkingScreen> {
                 Text(
                   'Linked entry',
                   style: TextStyle(
+                    fontFamily: kFontFamily,
                     color: muted,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -193,6 +195,7 @@ class _LinkingScreenState extends State<LinkingScreen> {
                 Text(
                   anime.backupName,
                   style: TextStyle(
+                    fontFamily: kFontFamily,
                     color: onText,
                     fontSize: 18,
                     fontWeight: FontWeight.w800,
@@ -203,6 +206,7 @@ class _LinkingScreenState extends State<LinkingScreen> {
                 Text(
                   'This backup entry has been automatically matched with the anime below. You can keep the link or unlink it to search for a different match.',
                   style: TextStyle(
+                    fontFamily: kFontFamily,
                     color: muted,
                     fontSize: 13,
                     height: 1.45,
@@ -224,6 +228,7 @@ class _LinkingScreenState extends State<LinkingScreen> {
                         child: Text(
                           anime.matchedName ?? anime.backupName,
                           style: TextStyle(
+                            fontFamily: kFontFamily,
                             color: onText,
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -298,6 +303,7 @@ class _Stat extends StatelessWidget {
           Text(
             number,
             style: TextStyle(
+              fontFamily: kFontFamily,
               color: primary,
               fontSize: 28,
               fontWeight: FontWeight.w800,
@@ -309,6 +315,7 @@ class _Stat extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
+              fontFamily: kFontFamily,
               color: muted,
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -349,92 +356,97 @@ class _AnimeRow extends StatelessWidget {
         ? '?'
         : anime.backupName.substring(0, 1).toUpperCase();
 
-    final row = Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: surface2,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            flex: 2,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  anime.backupName,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: onText,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    height: 1.3,
+    final row = RepaintBoundary(
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: surface2,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    anime.backupName,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: kFontFamily,
+                      color: onText,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      height: 1.3,
+                    ),
                   ),
-                ),
-                if (anime.linked && anime.matchedName != null) ...[
-                  const SizedBox(height: 4),
-                  Row(
-                    children: [
-                      Icon(Icons.check, size: 14, color: primary),
-                      const SizedBox(width: 4),
-                      Flexible(
+                  if (anime.linked && anime.matchedName != null) ...[
+                    const SizedBox(height: 4),
+                    Row(
+                      children: [
+                        Icon(Icons.check, size: 14, color: primary),
+                        const SizedBox(width: 4),
+                        Flexible(
+                          child: Text(
+                            anime.matchedName!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontFamily: kFontFamily,
+                              color: muted,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Icon(
+              anime.linked ? Icons.check_circle : Icons.remove_circle_outline,
+              color: anime.linked ? primary : error,
+              size: 22,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              flex: 1,
+              child: anime.linked
+                  ? Center(
+                      child: Container(
+                        width: 44,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(6),
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [primary, primary.withOpacity(0.4)],
+                          ),
+                        ),
+                        alignment: Alignment.center,
                         child: Text(
-                          anime.matchedName!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: muted,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
+                          letter,
+                          style: const TextStyle(
+                            fontFamily: kFontFamily,
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ),
-                    ],
-                  ),
-                ],
-              ],
+                    )
+                  : const SizedBox(height: 60),
             ),
-          ),
-          const SizedBox(width: 8),
-          Icon(
-            anime.linked ? Icons.check_circle : Icons.remove_circle_outline,
-            color: anime.linked ? primary : error,
-            size: 22,
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            flex: 1,
-            child: anime.linked
-                ? Center(
-                    child: Container(
-                      width: 44,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(6),
-                        gradient: LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [primary, primary.withOpacity(0.4)],
-                        ),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        letter,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  )
-                : const SizedBox(height: 60),
-          ),
-        ],
+          ],
+        ),
       ),
     );
 

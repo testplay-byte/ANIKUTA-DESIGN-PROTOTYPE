@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
+import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
 import '../widgets/wizard_visuals.dart';
 
@@ -176,6 +177,7 @@ class _PermRow extends StatelessWidget {
                 Text(
                   data.title,
                   style: TextStyle(
+                    fontFamily: kFontFamily,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
                     color: onText,
@@ -186,7 +188,12 @@ class _PermRow extends StatelessWidget {
                   data.desc,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: TextStyle(fontSize: 11, color: muted),
+                  style: TextStyle(
+                    fontFamily: kFontFamily,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w400,
+                    color: muted,
+                  ),
                 ),
               ],
             ),

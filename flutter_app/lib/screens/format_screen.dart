@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
 import '../models/wizard_models.dart';
+import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
 import '../widgets/wizard_visuals.dart';
 
@@ -36,6 +37,7 @@ class FormatScreen extends StatelessWidget {
             'This is not the format I was expecting.',
             textAlign: TextAlign.center,
             style: TextStyle(
+              fontFamily: kFontFamily,
               color: onText,
               fontSize: 16,
               height: 1.4,
@@ -47,6 +49,7 @@ class FormatScreen extends StatelessWidget {
             'Still, I can try to restore from it properly.',
             textAlign: TextAlign.center,
             style: TextStyle(
+              fontFamily: kFontFamily,
               color: muted,
               fontSize: 15,
               height: 1.4,
@@ -132,6 +135,7 @@ class _FileRow extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
+            fontFamily: kFontFamily,
             color: onText.withOpacity(0.55),
             fontSize: 13,
             fontWeight: FontWeight.w600,
@@ -144,6 +148,7 @@ class _FileRow extends StatelessWidget {
             value,
             textAlign: TextAlign.right,
             style: TextStyle(
+              fontFamily: kFontFamily,
               color: onText,
               fontSize: 14,
               fontWeight: FontWeight.w600,

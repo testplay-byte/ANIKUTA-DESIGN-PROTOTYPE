@@ -80,11 +80,11 @@ jobs:
           fi
           exit 0
 
-      - name: Build debug APK
+      - name: Build debug APK (ARM64 only — smaller, more efficient)
         working-directory: flutter_app
         run: |
           set +e
-          flutter build apk --debug --no-tree-shake-icons > build-output.log 2>&1
+          flutter build apk --debug --no-tree-shake-icons --target-platform android-arm64 > build-output.log 2>&1
           BUILD_EXIT_CODE=$?
           echo "Build exit code: $BUILD_EXIT_CODE"
           echo "=== LAST 200 LINES OF BUILD LOG ==="

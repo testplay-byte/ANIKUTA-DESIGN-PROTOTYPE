@@ -155,6 +155,7 @@ class PoisonScreen extends StatelessWidget {
                         child: Text(
                           controller.adSettings.summary,
                           style: TextStyle(
+                            fontFamily: kFontFamily,
                             color: onText.withOpacity(0.85),
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -184,6 +185,7 @@ class _SectionLabel extends StatelessWidget {
     return Text(
       text,
       style: TextStyle(
+        fontFamily: kFontFamily,
         color: muted,
         fontSize: 13,
         fontWeight: FontWeight.w700,
@@ -274,6 +276,7 @@ class _ChoiceCard extends StatelessWidget {
                 child: Text(
                   label,
                   style: TextStyle(
+                    fontFamily: kFontFamily,
                     color: active ? cs.onPrimary : onText,
                     fontSize: 16,
                     fontWeight: active ? FontWeight.w800 : FontWeight.w600,

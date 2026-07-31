@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
+import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
 import '../widgets/wizard_visuals.dart';
 
@@ -130,6 +131,7 @@ class _ScanningPill extends StatelessWidget {
               message,
               key: ValueKey(message),
               style: TextStyle(
+                fontFamily: kFontFamily,
                 color: primary,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -228,6 +230,7 @@ class GhostButton extends StatelessWidget {
         child: Text(
           label,
           style: TextStyle(
+            fontFamily: kFontFamily,
             color: fg,
             fontSize: 17,
             fontWeight: FontWeight.w800,

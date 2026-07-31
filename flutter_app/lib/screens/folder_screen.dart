@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
+import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
 import '../widgets/wizard_visuals.dart';
 
@@ -178,6 +179,7 @@ class _FolderMockCard extends StatelessWidget {
                 Text(
                   '/storage/anime-library',
                   style: TextStyle(
+                    fontFamily: kFontFamily,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: onText,
@@ -186,7 +188,11 @@ class _FolderMockCard extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   scanning ? 'Scanning…' : '247 items · ready',
-                  style: TextStyle(fontSize: 12, color: muted),
+                  style: TextStyle(
+                    fontFamily: kFontFamily,
+                    fontSize: 12,
+                    color: muted,
+                  ),
                 ),
               ],
             ),
@@ -206,6 +212,7 @@ class _FolderMockCard extends StatelessWidget {
                   Text(
                     'Scanning',
                     style: TextStyle(
+                      fontFamily: kFontFamily,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                       color: primary,

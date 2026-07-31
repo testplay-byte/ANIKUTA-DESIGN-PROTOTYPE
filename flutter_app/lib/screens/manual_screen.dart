@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
 import '../models/wizard_models.dart';
+import '../theme/app_theme.dart';
 import '../widgets/wizard_scaffold.dart';
 
 /// Lists only the unlinked backup entries and lets the user open a full-screen
@@ -151,6 +152,7 @@ class _UnlinkedRow extends StatelessWidget {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
+                  fontFamily: kFontFamily,
                   color: onText,
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -164,6 +166,7 @@ class _UnlinkedRow extends StatelessWidget {
             Text(
               'Search',
               style: TextStyle(
+                fontFamily: kFontFamily,
                 color: muted,
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
@@ -251,6 +254,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                   Text(
                     'Find a match',
                     style: TextStyle(
+                      fontFamily: kFontFamily,
                       color: onText,
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
@@ -267,6 +271,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
               child: RichText(
                 text: TextSpan(
                   style: TextStyle(
+                    fontFamily: kFontFamily,
                     color: muted,
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
@@ -277,6 +282,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                     TextSpan(
                       text: widget.anime.backupName,
                       style: TextStyle(
+                        fontFamily: kFontFamily,
                         color: onText,
                         fontWeight: FontWeight.w700,
                       ),
@@ -304,7 +310,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                         controller: _controller,
                         autofocus: true,
                         textInputAction: TextInputAction.search,
-                        style: TextStyle(color: onText, fontSize: 15),
+                        style: TextStyle(fontFamily: kFontFamily, color: onText, fontSize: 15),
                         decoration: const InputDecoration(
                           hintText: 'Search for anime\u2026',
                           border: InputBorder.none,
@@ -337,6 +343,7 @@ class _SearchOverlayState extends State<_SearchOverlay> {
                       child: Text(
                         'No results',
                         style: TextStyle(
+                          fontFamily: kFontFamily,
                           color: muted,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
@@ -414,6 +421,7 @@ class _SearchResultRow extends StatelessWidget {
               child: Text(
                 letter,
                 style: const TextStyle(
+                  fontFamily: kFontFamily,
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
@@ -431,6 +439,7 @@ class _SearchResultRow extends StatelessWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
+                      fontFamily: kFontFamily,
                       color: onText,
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -443,9 +452,10 @@ class _SearchResultRow extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
+                      fontFamily: kFontFamily,
                       color: muted,
                       fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ],
