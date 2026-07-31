@@ -777,3 +777,30 @@ Stage Summary:
 - Poison screen has animated bottle/pill visuals.
 - Windows desktop app builds successfully (33 MB zip).
 - Both Android ARM64 + Windows artifacts available on GitHub Actions.
+
+---
+Task ID: KOTLIN-LAYOUT-FIX
+Agent: main (Z.ai Code)
+Task: Improve the native Android Kotlin SetupWizard layout — progress bar at very top, consistent headings, proper insets. Build and report.
+
+Work Log:
+- Identified layout issues in the Kotlin SetupWizard app (Android_app/SetupWizard):
+  1. Progress bar had windowInsetsPadding(statusBars) + horizontal padding — pushed below status bar, not at very top.
+  2. Heading sizes inconsistent: WelcomeScreen used 45sp, PageHeading used 42sp — too large, causes overlap on smaller screens.
+  3. Footer rows didn't account for gesture navigation bar inset.
+- Fixed in SetupWizardApp.kt:
+  1. Progress bar: removed windowInsetsPadding + horizontal padding. Now a 3px full-width bar flush at y=0. Status bar drawn on top (transparent, edge-to-edge).
+  2. Content area: added Modifier.statusBarsPadding() to the Box containing screen content — content starts below status icons.
+  3. PageHeading: reduced 42sp → 28sp, added lineHeight 34sp + overflow ellipsis. Consistent across all screens.
+  4. WelcomeScreen heading: reduced 45sp → 32sp, added lineHeight 38sp.
+  5. ActionRow: added navigationBarsPadding() — buttons above gesture nav bar.
+  6. Custom footers (scanning, skip, "Please wait…"): all got navigationBarsPadding().
+- Committed (d3f47a5), pushed to main.
+- CI run 30660191177: SUCCESS ✅
+- Artifact: setup-wizard-apk, 15.9 MB (universal debug APK, sideloadable).
+
+Stage Summary:
+- Layout improved: progress bar at the VERY TOP (flush, full-width, no padding), consistent heading sizes (28sp page / 32sp welcome) with proper line-height to prevent overlap, all footers respect navigation bar insets.
+- APK: 15.9 MB, debug-signed, sideloadable.
+- Run: https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions/runs/30660191177
+- Download: Actions tab → "Build Setup Wizard APK" → latest run → Artifacts → setup-wizard-apk
