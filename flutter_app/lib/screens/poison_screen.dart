@@ -1,13 +1,22 @@
-// poison_screen.dart — Step 14/15: Choose Your Poison (forced red theme)
+// poison_screen.dart — Step 13/15: Choose Your Poison (forced red theme).
 //
-// The ad-preferences screen. Forces a red Material 3 theme via a route-local
-// Theme widget + Builder so the whole scaffold (progress bar, heading, buttons,
-// chips) renders red. Three sub-steps driven by WizardController.poisonStep:
-//   0 — name (poison / pills)
-//   1 — frequency (1/2/3 per day)
-//   2 — timing (app open / episode start / both)
-// All state lives in the controller; this widget is stateless and rebuilds on
-// notifyListeners via context.watch inside the Builder.
+// Mirrors the web prototype's poison-screen.tsx exactly:
+//   - The whole scaffold is wrapped in a Theme(data: buildPoisonTheme(...))
+//     so the page heading, progress bar, choice cards, summary chip and
+//     primary button all render in the red Material 3 ColorScheme.
+//   - Page heading "Choose Your Poison" (renders in red #ff6b6b).
+//   - No visual.
+//   - Multi-step body (3 sub-steps) driven by controller.poisonStep:
+//       0 — Name    : "Daily dose of poison" / "Daily dose of pills"
+//       1 — Frequency: 1 / 2 / 3 ads per day
+//       2 — Timing   : On app open / On episode start / Both
+//   - A 3-dot step indicator (current dot expands to a pill).
+//   - A live summary chip showing controller.adSettings.summary.
+//   - Back goes to the previous sub-step (or pops the screen on step 0).
+//   - Next advances the sub-step (or pushes step 14 on step 2 as "Confirm").
+//
+// All ad state lives in WizardController; this widget is stateless and
+// rebuilds on notifyListeners via context.watch inside the Builder.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -29,15 +38,14 @@ class PoisonScreen extends StatelessWidget {
           final controller = context.watch<WizardController>();
           final cs = Theme.of(context).colorScheme;
           final isDark = Theme.of(context).brightness == Brightness.dark;
-          final onBg = isDark ? Colors.white : Colors.black87;
+          final onText = isDark ? Colors.white : Colors.black87;
+          final muted = onText.withOpacity(0.6);
           final step = controller.poisonStep;
 
           return WizardScaffold(
             stepIndex: 13,
             stepTotal: kStepTotal,
-            title: 'Choose Your Poison',
-            subtitle:
-                'Ads keep the app free. Let\u2019s make them non-intrusive \u2014 pick your daily dose.',
+            pageHeading: 'Choose Your Poison',
             backLabel: 'Back',
             onBack: () {
               if (controller.poisonStep > 0) {
@@ -62,70 +70,75 @@ class PoisonScreen extends StatelessWidget {
                   current: step,
                   total: 3,
                   activeColor: cs.primary,
-                  inactiveColor: onBg.withOpacity(0.18),
+                  inactiveColor: onText.withOpacity(0.18),
                 ),
                 const SizedBox(height: 18),
                 if (step == 0) ...[
-                  const SectionLabel('What do you call it?'),
-                  _ChoiceChip(
+                  _SectionLabel('What do you call it?', muted: muted),
+                  const SizedBox(height: 10),
+                  _ChoiceCard(
                     label: 'Daily dose of poison',
-                    value: AdName.poison,
-                    current: controller.adSettings.name,
+                    icon: Icons.dangerous_outlined,
+                    active: controller.adSettings.name == AdName.poison,
                     onTap: () => controller.setAdName(AdName.poison),
                   ),
-                  const SizedBox(height: 12),
-                  _ChoiceChip(
+                  const SizedBox(height: 10),
+                  _ChoiceCard(
                     label: 'Daily dose of pills',
-                    value: AdName.pills,
-                    current: controller.adSettings.name,
+                    icon: Icons.medication_outlined,
+                    active: controller.adSettings.name == AdName.pills,
                     onTap: () => controller.setAdName(AdName.pills),
                   ),
                 ] else if (step == 1) ...[
-                  const SectionLabel('How often?'),
-                  _ChoiceChip(
+                  _SectionLabel('How many per day?', muted: muted),
+                  const SizedBox(height: 10),
+                  _ChoiceCard(
                     label: '1 ad per day',
-                    value: 1,
-                    current: controller.adSettings.frequency,
+                    icon: Icons.looks_one_outlined,
+                    active: controller.adSettings.frequency == 1,
                     onTap: () => controller.setAdFrequency(1),
                   ),
-                  const SizedBox(height: 12),
-                  _ChoiceChip(
+                  const SizedBox(height: 10),
+                  _ChoiceCard(
                     label: '2 ads per day',
-                    value: 2,
-                    current: controller.adSettings.frequency,
+                    icon: Icons.looks_two_outlined,
+                    active: controller.adSettings.frequency == 2,
                     onTap: () => controller.setAdFrequency(2),
                   ),
-                  const SizedBox(height: 12),
-                  _ChoiceChip(
+                  const SizedBox(height: 10),
+                  _ChoiceCard(
                     label: '3 ads per day',
-                    value: 3,
-                    current: controller.adSettings.frequency,
+                    icon: Icons.looks_3_outlined,
+                    active: controller.adSettings.frequency == 3,
                     onTap: () => controller.setAdFrequency(3),
                   ),
                 ] else ...[
-                  const SectionLabel('When?'),
-                  _ChoiceChip(
+                  _SectionLabel('When should they show?', muted: muted),
+                  const SizedBox(height: 10),
+                  _ChoiceCard(
                     label: 'On app open',
-                    value: AdTiming.appOpen,
-                    current: controller.adSettings.timing,
+                    icon: Icons.play_circle_outline,
+                    active: controller.adSettings.timing == AdTiming.appOpen,
                     onTap: () => controller.setAdTiming(AdTiming.appOpen),
                   ),
-                  const SizedBox(height: 12),
-                  _ChoiceChip(
+                  const SizedBox(height: 10),
+                  _ChoiceCard(
                     label: 'On episode start',
-                    value: AdTiming.episodeStart,
-                    current: controller.adSettings.timing,
-                    onTap: () => controller.setAdTiming(AdTiming.episodeStart),
+                    icon: Icons.video_library_outlined,
+                    active:
+                        controller.adSettings.timing == AdTiming.episodeStart,
+                    onTap: () =>
+                        controller.setAdTiming(AdTiming.episodeStart),
                   ),
-                  const SizedBox(height: 12),
-                  _ChoiceChip(
+                  const SizedBox(height: 10),
+                  _ChoiceCard(
                     label: 'Both',
-                    value: AdTiming.both,
-                    current: controller.adSettings.timing,
+                    icon: Icons.all_inclusive_outlined,
+                    active: controller.adSettings.timing == AdTiming.both,
                     onTap: () => controller.setAdTiming(AdTiming.both),
                   ),
                 ],
-                const SizedBox(height: 20),
+                const SizedBox(height: 18),
                 // Live summary chip — always visible across all sub-steps.
                 Container(
                   padding: const EdgeInsets.symmetric(
@@ -142,7 +155,7 @@ class PoisonScreen extends StatelessWidget {
                         child: Text(
                           controller.adSettings.summary,
                           style: TextStyle(
-                            color: onBg.withOpacity(0.85),
+                            color: onText.withOpacity(0.85),
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
                           ),
@@ -160,8 +173,28 @@ class PoisonScreen extends StatelessWidget {
   }
 }
 
-/// Three-dot indicator for the poison sub-steps. The current dot expands into
-/// a pill; transitions are animated for a smooth step-change feel.
+/// Small muted section label above a group of choice cards.
+class _SectionLabel extends StatelessWidget {
+  final String text;
+  final Color muted;
+  const _SectionLabel(this.text, {required this.muted});
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: TextStyle(
+        color: muted,
+        fontSize: 13,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0.3,
+      ),
+    );
+  }
+}
+
+/// Three-dot indicator for the poison sub-steps. The current dot expands
+/// into a pill; transitions are animated for a smooth step-change feel.
 class _StepDots extends StatelessWidget {
   final int current;
   final int total;
@@ -197,19 +230,19 @@ class _StepDots extends StatelessWidget {
   }
 }
 
-/// Big tappable choice chip. Active state fills with the theme primary and
-/// shows a check icon; inactive shows a radio outline. Min height 56 for a
-/// comfortable touch target.
-class _ChoiceChip extends StatelessWidget {
+/// Big tappable choice card. Active state fills with the theme primary and
+/// shows a check icon; inactive shows a radio outline. Min height 56, full
+/// width, with a leading icon + label + trailing check/radio.
+class _ChoiceCard extends StatelessWidget {
   final String label;
-  final Object value;
-  final Object current;
+  final IconData icon;
+  final bool active;
   final VoidCallback onTap;
 
-  const _ChoiceChip({
+  const _ChoiceCard({
     required this.label,
-    required this.value,
-    required this.current,
+    required this.icon,
+    required this.active,
     required this.onTap,
   });
 
@@ -217,8 +250,7 @@ class _ChoiceChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final onBg = isDark ? Colors.white : Colors.black87;
-    final active = value == current;
+    final onText = isDark ? Colors.white : Colors.black87;
 
     return Material(
       color: active ? cs.primary : cs.surface,
@@ -232,11 +264,17 @@ class _ChoiceChip extends StatelessWidget {
               const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           child: Row(
             children: [
+              Icon(
+                icon,
+                color: active ? cs.onPrimary : onText.withOpacity(0.7),
+                size: 22,
+              ),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: active ? cs.onPrimary : onBg,
+                    color: active ? cs.onPrimary : onText,
                     fontSize: 16,
                     fontWeight: active ? FontWeight.w800 : FontWeight.w600,
                   ),
@@ -247,7 +285,9 @@ class _ChoiceChip extends StatelessWidget {
                 active
                     ? Icons.check_circle_rounded
                     : Icons.radio_button_unchecked,
-                color: active ? cs.onPrimary : onBg.withOpacity(0.35),
+                color: active
+                    ? cs.onPrimary
+                    : onText.withOpacity(0.35),
                 size: 22,
               ),
             ],

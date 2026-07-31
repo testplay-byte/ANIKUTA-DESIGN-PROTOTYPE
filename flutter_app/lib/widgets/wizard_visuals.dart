@@ -481,7 +481,7 @@ class _RestorePainter extends CustomPainter {
     }
     // rotating restore arrow (arc + arrowhead) around the card
     final ringR = size.width * 0.42;
-    final sweep = 1.4; // radians of arc
+    const sweep = 1.4; // radians of arc
     final start = -math.pi / 2 + t * 2 * math.pi;
     canvas.drawArc(
       Rect.fromCircle(center: Offset(cx, cy), radius: ringR),
@@ -677,7 +677,7 @@ class _ProcessingPainter extends CustomPainter {
     final w = size.width * 0.66;
     final rowH = size.width * 0.10;
     final gap = size.width * 0.03;
-    final rows = 4;
+    const rows = 4;
     final totalH = rows * rowH + (rows - 1) * gap;
     final top = (size.height - totalH) / 2;
     for (int i = 0; i < rows; i++) {

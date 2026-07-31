@@ -11,7 +11,11 @@ class WizardPalette {
   final String id;
   final String name;
   /// Seed color used to derive the Material 3 ColorScheme.
+  /// Same value as the web prototype's `primary` field.
   final Color seed;
+  /// On-primary text color (dark for bright primaries like Lime, white otherwise).
+  /// Mirrors the web prototype's `onPrimary` field.
+  final Color onPrimary;
   /// Explicit dark-theme background tint (very dark version of primary).
   final Color bgDark;
   /// Dark-theme surface tiers (progressively lighter).
@@ -23,10 +27,16 @@ class WizardPalette {
   /// Light-theme background tint.
   final Color bgLight;
 
+  /// Primary color — alias for [seed], named for parity with the web
+  /// prototype's `palette.primary`. Used directly by WizardScaffold for
+  /// the page heading, progress bar, and primary pill button.
+  Color get primary => seed;
+
   const WizardPalette({
     required this.id,
     required this.name,
     required this.seed,
+    required this.onPrimary,
     required this.bgDark,
     required this.surface1,
     required this.surface2,
@@ -41,6 +51,7 @@ const WizardPalette kDefaultPalette = WizardPalette(
   id: 'lime',
   name: 'Lime',
   seed: Color(0xFFb3f35a),
+  onPrimary: Color(0xFF0a1a00),
   bgDark: Color(0xFF0a120a),
   surface1: Color(0xFF0f1a0f),
   surface2: Color(0xFF142214),
@@ -56,6 +67,7 @@ const List<WizardPalette> kPalettes = [
     id: 'teal',
     name: 'Teal',
     seed: Color(0xFF2596be),
+    onPrimary: Color(0xFFFFFFFF),
     bgDark: Color(0xFF0a1a1f),
     surface1: Color(0xFF0f2329),
     surface2: Color(0xFF142d35),
@@ -68,6 +80,7 @@ const List<WizardPalette> kPalettes = [
     id: 'purple',
     name: 'Purple',
     seed: Color(0xFF6750a4),
+    onPrimary: Color(0xFFFFFFFF),
     bgDark: Color(0xFF14111f),
     surface1: Color(0xFF1b1729),
     surface2: Color(0xFF221e33),
@@ -80,6 +93,7 @@ const List<WizardPalette> kPalettes = [
     id: 'coral',
     name: 'Coral',
     seed: Color(0xFFe85d5d),
+    onPrimary: Color(0xFFFFFFFF),
     bgDark: Color(0xFF1f0e0e),
     surface1: Color(0xFF291515),
     surface2: Color(0xFF331c1c),
@@ -92,6 +106,7 @@ const List<WizardPalette> kPalettes = [
     id: 'forest',
     name: 'Forest',
     seed: Color(0xFF2e7d32),
+    onPrimary: Color(0xFFFFFFFF),
     bgDark: Color(0xFF0a1a0a),
     surface1: Color(0xFF0f2310),
     surface2: Color(0xFF142d16),
@@ -104,6 +119,7 @@ const List<WizardPalette> kPalettes = [
     id: 'amber',
     name: 'Amber',
     seed: Color(0xFFe6912c),
+    onPrimary: Color(0xFFFFFFFF),
     bgDark: Color(0xFF1f1505),
     surface1: Color(0xFF291f0a),
     surface2: Color(0xFF332910),

@@ -1,16 +1,20 @@
-// restore_summary_screen.dart — Step 11/15: Restore Backup — ready to restore.
+// restore_summary_screen.dart — Step 10/15: Restore Backup — restore summary.
+//
+// Mirrors the web prototype's restore-summary-screen.tsx exactly:
+//   - Page heading "Restore Backup" (colored, top-left).
+//   - Descriptive title "Restore summary" + subtitle.
+//   - A single hero card (surface2, rounded 20, primary-tinted border) with:
+//       * Header row: download icon tile + title/desc.
+//       * 2x2 stat grid (to restore / auto-linked / manually linked / episodes).
+//       * Info note (primary-tinted bg) about overwrite.
+//   - Back (secondary pill) + Restore Now (primary pill).
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
-import '../theme/palettes.dart';
-import '../models/wizard_models.dart';
 import '../widgets/wizard_scaffold.dart';
-import '../widgets/wizard_visuals.dart';
 
-/// Final pre-restore summary: a hero card with the three headline stats, plus
-/// a small note about manually linked / unmatched counts and ad preferences.
 class RestoreSummaryScreen extends StatelessWidget {
   const RestoreSummaryScreen({super.key});
 
@@ -20,14 +24,21 @@ class RestoreSummaryScreen extends StatelessWidget {
     final palette = controller.palette;
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final onBg = isDark ? Colors.white : Colors.black87;
-    final surface = isDark ? palette.surface2 : cs.surface;
+    final onText = isDark ? Colors.white : Colors.black87;
+    final muted = onText.withOpacity(0.6);
+    final surface2 = isDark ? palette.surface2 : cs.surface;
+    final surface3 = isDark ? palette.surface3 : cs.surfaceContainerHighest;
+    final primary = palette.primary;
+
+    // toRestore matches the web prototype: linkedCount + 239.
+    final toRestore = controller.linkedCount + 239;
 
     return WizardScaffold(
       stepIndex: 10,
       stepTotal: kStepTotal,
-      title: 'Restore Backup',
-      subtitle: 'Ready to restore',
+      pageHeading: 'Restore Backup',
+      descriptiveTitle: 'Restore summary',
+      subtitle: 'Ready to restore. Review the details below.',
       backLabel: 'Back',
       onBack: () => WizardNav.back(context),
       primaryLabel: 'Restore Now',
@@ -39,85 +50,135 @@ class RestoreSummaryScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: surface,
+              color: surface2,
               borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: primary.withOpacity(0.33), width: 1),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                // ---- Header row ----
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: primary.withOpacity(0.16),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(Icons.download_rounded,
+                          color: primary, size: 22),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Ready to restore',
+                            style: TextStyle(
+                              color: onText,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Your library will be overwritten.',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.54),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // ---- 2x2 stats grid ----
                 Row(
                   children: [
                     Expanded(
-                        child: _inlineStat(
-                            '${controller.linkedCount}', 'Anime', cs.primary, onBg)),
-                    Container(
-                      width: 1,
-                      height: 40,
-                      color: onBg.withOpacity(0.1),
+                      child: _StatBox(
+                        number: '$toRestore',
+                        label: 'Anime to restore',
+                        primary: primary,
+                        muted: muted,
+                        surface3: surface3,
+                      ),
                     ),
+                    const SizedBox(width: 8),
                     Expanded(
-                        child: _inlineStat('312', 'Episodes', cs.primary, onBg)),
-                    Container(
-                      width: 1,
-                      height: 40,
-                      color: onBg.withOpacity(0.1),
+                      child: _StatBox(
+                        number: '${controller.linkedCount}',
+                        label: 'Auto-linked',
+                        primary: primary,
+                        muted: muted,
+                        surface3: surface3,
+                      ),
                     ),
-                    Expanded(
-                        child: _inlineStat('6', 'Categories', cs.primary, onBg)),
                   ],
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'Your backup is matched and ready.',
-                  style: TextStyle(
-                    color: onBg.withOpacity(0.75),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 20),
-          const SectionLabel('Ad preferences'),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: surface,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.campaign_outlined,
-                    color: cs.primary, size: 20),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    controller.adSettings.summary,
-                    style: TextStyle(
-                      color: onBg.withOpacity(0.8),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _StatBox(
+                        number: '0',
+                        label: 'Manually linked',
+                        primary: primary,
+                        muted: muted,
+                        surface3: surface3,
+                      ),
                     ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _StatBox(
+                        number: '1,432',
+                        label: 'Episodes',
+                        primary: primary,
+                        muted: muted,
+                        surface3: surface3,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                // ---- Info note ----
+                Container(
+                  padding: const EdgeInsets.all(11),
+                  decoration: BoxDecoration(
+                    color: primary.withOpacity(0.07),
+                    borderRadius: BorderRadius.circular(16),
+                    border:
+                        Border.all(color: primary.withOpacity(0.33), width: 1),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.info_rounded, color: primary, size: 20),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'This will overwrite any existing library data. The restore process may take a few moments.',
+                          style: TextStyle(
+                            color: muted,
+                            fontSize: 12,
+                            height: 1.4,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            decoration: BoxDecoration(
-              color: surface,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: Text(
-              'Manually linked: ${controller.linkedCount} \u00B7 Unmatched: ${controller.unlinkedCount}',
-              style: TextStyle(
-                color: onBg.withOpacity(0.6),
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -125,30 +186,57 @@ class RestoreSummaryScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _inlineStat(String number, String label, Color accent, Color onBg) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          number,
-          style: TextStyle(
-            color: accent,
-            fontSize: 24,
-            fontWeight: FontWeight.w800,
-            height: 1.0,
+/// One stat tile of the 2x2 grid.
+class _StatBox extends StatelessWidget {
+  final String number;
+  final String label;
+  final Color primary;
+  final Color muted;
+  final Color surface3;
+
+  const _StatBox({
+    required this.number,
+    required this.label,
+    required this.primary,
+    required this.muted,
+    required this.surface3,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: surface3,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            number,
+            style: TextStyle(
+              color: primary,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              height: 1.1,
+            ),
           ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          label,
-          style: TextStyle(
-            color: onBg.withOpacity(0.6),
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              color: muted,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.3,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

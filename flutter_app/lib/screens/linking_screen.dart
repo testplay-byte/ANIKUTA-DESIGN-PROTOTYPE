@@ -1,18 +1,49 @@
-// linking_screen.dart — Step 9/15: Backup Restore — linking anime overview.
+// linking_screen.dart — Step 8/15: Backup Restore — linking anime overview.
 
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
-import '../theme/palettes.dart';
 import '../models/wizard_models.dart';
 import '../widgets/wizard_scaffold.dart';
-import '../widgets/wizard_visuals.dart';
 
 /// Shows match stats plus the full list of backup anime entries with their
-/// auto-link status. Tapping a linked row opens a sheet to mark it unlinked.
-class LinkingScreen extends StatelessWidget {
+/// auto-link status. Rows appear progressively (one every 400ms). Tapping a
+/// linked row opens a sheet to mark it unlinked.
+class LinkingScreen extends StatefulWidget {
   const LinkingScreen({super.key});
+
+  @override
+  State<LinkingScreen> createState() => _LinkingScreenState();
+}
+
+class _LinkingScreenState extends State<LinkingScreen> {
+  int _revealedCount = 0;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 400), (t) {
+      if (!mounted) {
+        t.cancel();
+        return;
+      }
+      final total = context.read<WizardController>().totalAnime;
+      if (_revealedCount >= total) {
+        t.cancel();
+        return;
+      }
+      setState(() => _revealedCount++);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,91 +51,265 @@ class LinkingScreen extends StatelessWidget {
     final palette = controller.palette;
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final onBg = isDark ? Colors.white : Colors.black87;
-    final surface = isDark ? palette.surface2 : cs.surface;
+    final onText = isDark ? Colors.white : Colors.black87;
+    final muted = onText.withOpacity(0.6);
+    final surface2 = isDark ? palette.surface2 : cs.surface;
 
+    final total = controller.totalAnime;
     final linked = controller.linkedCount;
     final unlinked = controller.unlinkedCount;
-    final total = controller.totalAnime;
-    final remaining = total - linked - unlinked;
+    final remaining = (total - _revealedCount).clamp(0, total);
+    final allRevealed = _revealedCount >= total;
+
+    final anime = controller.linkedAnime;
 
     return WizardScaffold(
-      stepIndex: 8,
-      stepTotal: kStepTotal,
-      title: 'Backup Restore',
-      subtitle: 'Linking anime',
+      pageHeading: 'Backup Restore',
+      descriptiveTitle: 'Linking anime',
+      subtitle: 'Matching your backup entries',
+      scrollable: false,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // 1. 4 stats in a 2x2 grid.
+          Row(
+            children: [
+              Expanded(
+                child: _Stat(
+                  number: '$linked',
+                  label: 'Linked',
+                  primary: cs.primary,
+                  muted: muted,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _Stat(
+                  number: '$unlinked',
+                  label: 'No match',
+                  primary: cs.primary,
+                  muted: muted,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _Stat(
+                  number: '$total',
+                  label: 'Total',
+                  primary: cs.primary,
+                  muted: muted,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _Stat(
+                  number: '$remaining',
+                  label: 'Remaining',
+                  primary: cs.primary,
+                  muted: muted,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // 2-3. Progressive reveal list (scrolls internally).
+          Expanded(
+            child: ListView.builder(
+              padding: EdgeInsets.zero,
+              itemCount: anime.length,
+              itemBuilder: (context, i) {
+                final item = anime[i];
+                final visible = i < _revealedCount;
+                return AnimatedOpacity(
+                  opacity: visible ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 280),
+                  curve: Curves.easeOut,
+                  child: AnimatedSlide(
+                    offset: visible ? Offset.zero : const Offset(0, 0.06),
+                    duration: const Duration(milliseconds: 280),
+                    curve: Curves.easeOut,
+                    child: _AnimeRow(
+                      anime: item,
+                      surface2: surface2,
+                      primary: cs.primary,
+                      error: cs.error,
+                      onText: onText,
+                      muted: muted,
+                      onTapLinked: () =>
+                          _openUnlinkSheet(context, controller, item),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
       backLabel: 'Back',
       onBack: () => WizardNav.back(context),
       primaryLabel: 'Next',
       onPrimary: () => WizardNav.next(context, currentIndex: 8),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 4),
-          Text(
-            'Matching your backup entries',
-            style: TextStyle(
-              color: onBg.withOpacity(0.7),
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(child: _stat('${controller.linkedCount}', 'Linked', cs.primary, onBg)),
-              const SizedBox(width: 10),
-              Expanded(child: _stat('${controller.unlinkedCount}', 'No match', cs.error, onBg)),
-            ],
-          ),
-          const SizedBox(height: 10),
-          Row(
-            children: [
-              Expanded(child: _stat('$total', 'Total', cs.primary, onBg)),
-              const SizedBox(width: 10),
-              Expanded(child: _stat('$remaining', 'Remaining', cs.primary, onBg)),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const SectionLabel('Entries'),
-          ...controller.linkedAnime.map((anime) => _AnimeRow(
-                anime: anime,
-                surface: surface,
-                accent: cs.primary,
-                error: cs.error,
-                onBg: onBg,
-                onTapLinked: () => _openUnlinkSheet(context, controller, anime),
-              )),
-          const SizedBox(height: 8),
-        ],
-      ),
+      primaryEnabled: allRevealed,
+      stepIndex: 8,
+      stepTotal: kStepTotal,
     );
   }
 
-  Widget _stat(String number, String label, Color accent, Color onBg) {
+  void _openUnlinkSheet(BuildContext context, WizardController controller,
+      LinkedAnime anime) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) {
+        final cs = Theme.of(ctx).colorScheme;
+        final isDark = Theme.of(ctx).brightness == Brightness.dark;
+        final onText = isDark ? Colors.white : Colors.black87;
+        final muted = onText.withOpacity(0.6);
+        final surface2 = isDark ? controller.palette.surface2 : cs.surface;
+        final surface3 =
+            isDark ? controller.palette.surface3 : cs.surfaceContainerHighest;
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 18),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'Linked entry',
+                  style: TextStyle(
+                    color: muted,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.4,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  anime.backupName,
+                  style: TextStyle(
+                    color: onText,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'This backup entry has been automatically matched with the anime below. You can keep the link or unlink it to search for a different match.',
+                  style: TextStyle(
+                    color: muted,
+                    fontSize: 13,
+                    height: 1.45,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: surface2,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.link, color: cs.primary, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          anime.matchedName ?? anime.backupName,
+                          style: TextStyle(
+                            color: onText,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: PillButton.secondary(
+                        label: 'Keep linked',
+                        onTap: () => Navigator.of(ctx).pop(),
+                        primary: cs.primary,
+                        onText: onText,
+                        surface3: surface3,
+                        surface4: surface3,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: PillButton.primary(
+                        label: 'Mark as not linked',
+                        onTap: () {
+                          controller.unlinkAnime(anime.id);
+                          Navigator.of(ctx).pop();
+                        },
+                        primary: cs.error,
+                        onPrimary: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// A single stat box (primary.withOpacity(0.08) bg, rounded 14).
+class _Stat extends StatelessWidget {
+  final String number;
+  final String label;
+  final Color primary;
+  final Color muted;
+
+  const _Stat({
+    required this.number,
+    required this.label,
+    required this.primary,
+    required this.muted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: accent.withOpacity(0.08),
+        color: primary.withOpacity(0.08),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             number,
             style: TextStyle(
-              color: accent,
+              color: primary,
               fontSize: 28,
               fontWeight: FontWeight.w800,
               height: 1.0,
+              letterSpacing: -0.5,
             ),
           ),
           const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              color: onBg.withOpacity(0.6),
+              color: muted,
               fontSize: 12,
               fontWeight: FontWeight.w600,
             ),
@@ -113,68 +318,28 @@ class LinkingScreen extends StatelessWidget {
       ),
     );
   }
-
-  void _openUnlinkSheet(
-      BuildContext context, WizardController controller, LinkedAnime anime) {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-                child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    anime.backupName,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: const Icon(Icons.link_off),
-                title: const Text('Mark as not linked'),
-                onTap: () {
-                  controller.unlinkAnime(anime.id);
-                  Navigator.pop(ctx);
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.close),
-                title: const Text('Cancel'),
-                onTap: () => Navigator.pop(ctx),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        );
-      },
-    );
-  }
 }
 
+/// A single backup anime row.
+/// - Expanded flex 2: backupName 14px w600 white maxLines 2, optional matchedName row.
+/// - Marker icon (22px): check_circle (primary) for linked, remove_circle_outline (error) for not.
+/// - Expanded flex 1: 44x60 gradient poster (linked) or empty SizedBox (unlinked).
 class _AnimeRow extends StatelessWidget {
   final LinkedAnime anime;
-  final Color surface;
-  final Color accent;
+  final Color surface2;
+  final Color primary;
   final Color error;
-  final Color onBg;
+  final Color onText;
+  final Color muted;
   final VoidCallback onTapLinked;
 
   const _AnimeRow({
     required this.anime,
-    required this.surface,
-    required this.accent,
+    required this.surface2,
+    required this.primary,
     required this.error,
-    required this.onBg,
+    required this.onText,
+    required this.muted,
     required this.onTapLinked,
   });
 
@@ -188,7 +353,7 @@ class _AnimeRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: surface,
+        color: surface2,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -204,16 +369,17 @@ class _AnimeRow extends StatelessWidget {
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    color: onBg,
+                    color: onText,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
+                    height: 1.3,
                   ),
                 ),
                 if (anime.linked && anime.matchedName != null) ...[
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(Icons.check, size: 14, color: accent),
+                      Icon(Icons.check, size: 14, color: primary),
                       const SizedBox(width: 4),
                       Flexible(
                         child: Text(
@@ -221,7 +387,7 @@ class _AnimeRow extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: onBg.withOpacity(0.5),
+                            color: muted,
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
@@ -236,7 +402,7 @@ class _AnimeRow extends StatelessWidget {
           const SizedBox(width: 8),
           Icon(
             anime.linked ? Icons.check_circle : Icons.remove_circle_outline,
-            color: anime.linked ? accent : error,
+            color: anime.linked ? primary : error,
             size: 22,
           ),
           const SizedBox(width: 12),
@@ -252,7 +418,7 @@ class _AnimeRow extends StatelessWidget {
                         gradient: LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [accent, accent.withOpacity(0.4)],
+                          colors: [primary, primary.withOpacity(0.4)],
                         ),
                       ),
                       alignment: Alignment.center,

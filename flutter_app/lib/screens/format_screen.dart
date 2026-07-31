@@ -1,4 +1,4 @@
-// format_screen.dart — Step 6/15: Restore Backup (Format not supported).
+// format_screen.dart — Step 5/15: Restore Backup (Format not supported).
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -17,36 +17,26 @@ class FormatScreen extends StatelessWidget {
     final palette = controller.palette;
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final onBg = isDark ? Colors.white : Colors.black87;
+    final onText = isDark ? Colors.white : Colors.black87;
+    final muted = onText.withOpacity(0.6);
+    final surface2 = isDark ? palette.surface2 : cs.surface;
 
     return WizardScaffold(
-      stepIndex: 5,
-      stepTotal: kStepTotal,
-      title: 'Restore Backup',
-      subtitle: 'Format not supported',
-      backLabel: 'Back',
-      onBack: () => WizardNav.back(context),
-      primaryLabel: 'Try restoring anyway',
-      onPrimary: () => WizardNav.next(context, currentIndex: 5),
+      pageHeading: 'Restore Backup',
+      visual: FormatVisual(
+        primary: cs.primary,
+        onPrimary: cs.onPrimary,
+        size: 180,
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 4),
-          Center(
-            child: FormatVisual(
-              primary: cs.primary,
-              onPrimary: cs.onPrimary,
-              size: 150,
-            ),
-          ),
-          const SizedBox(height: 22),
-
-          // Two-line description.
+          // 1. Message block.
           Text(
             'This is not the format I was expecting.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: onBg,
+              color: onText,
               fontSize: 16,
               height: 1.4,
               fontWeight: FontWeight.w600,
@@ -57,23 +47,24 @@ class FormatScreen extends StatelessWidget {
             'Still, I can try to restore from it properly.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: onBg.withOpacity(0.7),
+              color: muted,
               fontSize: 15,
               height: 1.4,
               fontWeight: FontWeight.w500,
             ),
           ),
 
-          const SizedBox(height: 22),
+          // 2. Spacer.
+          const SizedBox(height: 20),
 
-          // File details card.
+          // 3. File details card.
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: isDark ? palette.surface2 : cs.surface,
+              color: surface2,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: onBg.withOpacity(0.08),
+                color: cs.primary.withOpacity(0.27),
                 width: 1,
               ),
             ),
@@ -82,49 +73,55 @@ class FormatScreen extends StatelessWidget {
                 _FileRow(
                   label: 'Name',
                   value: kBackupFile.name,
-                  onBg: onBg,
+                  onText: onText,
                 ),
                 Divider(
                   height: 18,
                   thickness: 1,
-                  color: onBg.withOpacity(0.08),
+                  color: onText.withOpacity(0.08),
                 ),
                 _FileRow(
                   label: 'Size',
                   value: kBackupFile.size,
-                  onBg: onBg,
+                  onText: onText,
                 ),
                 Divider(
                   height: 18,
                   thickness: 1,
-                  color: onBg.withOpacity(0.08),
+                  color: onText.withOpacity(0.08),
                 ),
                 _FileRow(
                   label: 'Format',
                   value: kBackupFile.format,
-                  onBg: onBg,
+                  onText: onText,
                 ),
               ],
             ),
           ),
-
-          const SizedBox(height: 8),
         ],
       ),
+      backLabel: 'Back',
+      onBack: () => WizardNav.back(context),
+      primaryLabel: 'Try restoring anyway',
+      onPrimary: () => WizardNav.next(context, currentIndex: 5),
+      stepIndex: 5,
+      stepTotal: kStepTotal,
     );
   }
 }
 
 /// A single label/value row inside the backup file details card.
+/// label: 13px w600 onText.withOpacity(0.55), grey, left.
+/// value: 14px w600 onText, white, right.
 class _FileRow extends StatelessWidget {
   final String label;
   final String value;
-  final Color onBg;
+  final Color onText;
 
   const _FileRow({
     required this.label,
     required this.value,
-    required this.onBg,
+    required this.onText,
   });
 
   @override
@@ -135,7 +132,7 @@ class _FileRow extends StatelessWidget {
         Text(
           label,
           style: TextStyle(
-            color: onBg.withOpacity(0.55),
+            color: onText.withOpacity(0.55),
             fontSize: 13,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.3,
@@ -147,8 +144,8 @@ class _FileRow extends StatelessWidget {
             value,
             textAlign: TextAlign.right,
             style: TextStyle(
-              color: onBg,
-              fontSize: 13.5,
+              color: onText,
+              fontSize: 14,
               fontWeight: FontWeight.w600,
               height: 1.35,
             ),

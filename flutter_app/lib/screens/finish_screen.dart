@@ -1,9 +1,17 @@
-// finish_screen.dart — Step 15/15: Setup Complete
+// finish_screen.dart — Step 14/15: Setup complete.
 //
-// Final screen. Shows a confetti check and a recap of what was configured
-// (theme + mode, anime folder, ad preferences). The only action is
-// "Start Exploring", which resets the wizard controller and pops back to the
-// welcome screen so the flow can be run again.
+// Mirrors the web prototype's finish-screen.tsx exactly:
+//   - Page heading "Setup complete" (colored, top-left).
+//   - Confetti check-circle visual (size 180).
+//   - Descriptive title "You're all set!" + subtitle.
+//   - A summary card (surface2, rounded 20, padding 18) with three rows
+//     separated by Dividers:
+//       1. Theme        — palette name + theme mode label
+//       2. Anime folder — Selected / Not set
+//       3. Ad prefs     — controller.adSettings.summary
+//   - Each row: a tinted icon square (36x36, rounded 10) + label/value.
+//   - No back button. Primary "Start Exploring" — resets the wizard state
+//     and pops back to the welcome screen.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -19,15 +27,26 @@ class FinishScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<WizardController>();
+    final palette = controller.palette;
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final onBg = isDark ? Colors.white : Colors.black87;
+    final onText = isDark ? Colors.white : Colors.black87;
+    final muted = onText.withOpacity(0.6);
+    final surface2 = isDark ? palette.surface2 : cs.surface;
+    final primary = palette.primary;
 
     return WizardScaffold(
       stepIndex: 14,
       stepTotal: kStepTotal,
-      title: 'Setup Complete',
-      subtitle: 'You\u2019re all set.',
+      pageHeading: 'Setup complete',
+      visual: CheckCircleVisual(
+        primary: cs.primary,
+        onPrimary: cs.onPrimary,
+        size: 180,
+        withConfetti: true,
+      ),
+      descriptiveTitle: 'You\u2019re all set!',
+      subtitle: 'Your anime app is ready to go.',
       primaryLabel: 'Start Exploring',
       onPrimary: () {
         controller.reset();
@@ -36,55 +55,50 @@ class FinishScreen extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 12),
-          Center(
-            child: CheckCircleVisual(
-              primary: cs.primary,
-              onPrimary: cs.onPrimary,
-              size: 160,
-              withConfetti: true,
-            ),
-          ),
-          const SizedBox(height: 28),
+          const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              color: cs.surface,
+              color: surface2,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _summaryRow(
-                  Icons.palette_outlined,
-                  'Theme',
-                  '${controller.palette.name} \u00b7 ${themeModeLabel(controller.themeMode)}',
-                  cs.primary,
-                  onBg,
+                _SummaryRow(
+                  icon: Icons.palette_outlined,
+                  label: 'Theme',
+                  value:
+                      '${controller.palette.name} \u00b7 ${themeModeLabel(controller.themeMode)}',
+                  primary: primary,
+                  onText: onText,
+                  muted: muted,
                 ),
                 Divider(
-                  height: 24,
+                  height: 22,
                   thickness: 1,
-                  color: onBg.withOpacity(0.08),
+                  color: onText.withOpacity(0.08),
                 ),
-                _summaryRow(
-                  Icons.folder_outlined,
-                  'Anime folder',
-                  controller.folderSelected ? 'Selected' : 'Not set',
-                  cs.primary,
-                  onBg,
+                _SummaryRow(
+                  icon: Icons.folder_outlined,
+                  label: 'Anime folder',
+                  value: controller.folderSelected ? 'Selected' : 'Not set',
+                  primary: primary,
+                  onText: onText,
+                  muted: muted,
                 ),
                 Divider(
-                  height: 24,
+                  height: 22,
                   thickness: 1,
-                  color: onBg.withOpacity(0.08),
+                  color: onText.withOpacity(0.08),
                 ),
-                _summaryRow(
-                  Icons.tune_outlined,
-                  'Ad preferences',
-                  controller.adSettings.summary,
-                  cs.primary,
-                  onBg,
+                _SummaryRow(
+                  icon: Icons.tune_outlined,
+                  label: 'Ad preferences',
+                  value: controller.adSettings.summary,
+                  primary: primary,
+                  onText: onText,
+                  muted: muted,
                 ),
               ],
             ),
@@ -94,19 +108,38 @@ class FinishScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _summaryRow(
-      IconData icon, String label, String value, Color accent, Color onBg) {
+/// One row of the final summary card: tinted icon tile + label/value column.
+class _SummaryRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  final Color primary;
+  final Color onText;
+  final Color muted;
+
+  const _SummaryRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.primary,
+    required this.onText,
+    required this.muted,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
         Container(
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: accent.withOpacity(0.16),
+            color: primary.withOpacity(0.16),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, color: accent, size: 20),
+          child: Icon(icon, color: primary, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -117,7 +150,7 @@ class FinishScreen extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                  color: onBg.withOpacity(0.6),
+                  color: muted,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 0.4,
@@ -127,7 +160,7 @@ class FinishScreen extends StatelessWidget {
               Text(
                 value,
                 style: TextStyle(
-                  color: onBg,
+                  color: onText,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),

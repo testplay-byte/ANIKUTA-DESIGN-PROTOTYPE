@@ -2,7 +2,6 @@
 //
 // Mirrors the web prototype's hooks/use-wizard-state.ts and lib/ad-settings.ts.
 
-import 'package:flutter/material.dart';
 
 /// Theme mode preference.
 enum ThemeModePref { dark, light, system }

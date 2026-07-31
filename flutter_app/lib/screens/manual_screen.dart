@@ -1,25 +1,39 @@
-// manual_screen.dart — Step 10/15: Restore Backup — manual linking.
+// manual_screen.dart — Step 9/15: Restore Backup — manual linking.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../navigation/wizard_navigator.dart';
 import '../state/wizard_controller.dart';
-import '../theme/palettes.dart';
 import '../models/wizard_models.dart';
 import '../widgets/wizard_scaffold.dart';
-import '../widgets/wizard_visuals.dart';
 
-/// Lists only the unlinked backup entries and lets the user open a search
-/// sheet to manually pick a match. The sheet cycles through mock results.
+/// Lists only the unlinked backup entries and lets the user open a full-screen
+/// search overlay to manually pick a match from a list of mock results.
 class ManualScreen extends StatelessWidget {
   const ManualScreen({super.key});
 
-  // Mock search results used to "match" an unlinked anime.
-  static const _mockResults = <String>[
-    'Sousou no Frieren',
-    "Frieren: Beyond Journey's End",
-    'Frieren (2024)',
-    'Frieren: Beyond Journey\u2019s End (TV)',
+  // Mock search results (Demon Slayer variants, matching the web prototype).
+  static const _mockResults = <_MockResult>[
+    _MockResult(
+      title: 'Demon Slayer: Hashira Training Arc',
+      sub: 'Kimetsu no Yaiba \u00b7 2024',
+    ),
+    _MockResult(
+      title: 'Kimetsu no Yaiba: Hashira Geiko-hen',
+      sub: 'Japanese title \u00b7 2024',
+    ),
+    _MockResult(
+      title: 'Demon Slayer Season 4',
+      sub: 'Sequel \u00b7 8 eps',
+    ),
+    _MockResult(
+      title: 'Demon Slayer: To the Swordsmith Village',
+      sub: 'Movie \u00b7 2023',
+    ),
+    _MockResult(
+      title: 'Kimetsu no Yaiba: Yuukaku-hen',
+      sub: 'Entertainment District \u00b7 2021',
+    ),
   ];
 
   @override
@@ -28,77 +42,63 @@ class ManualScreen extends StatelessWidget {
     final palette = controller.palette;
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final onBg = isDark ? Colors.white : Colors.black87;
-    final surface = isDark ? palette.surface2 : cs.surface;
+    final onText = isDark ? Colors.white : Colors.black87;
+    final muted = onText.withOpacity(0.6);
+    final surface2 = isDark ? palette.surface2 : cs.surface;
 
     final unlinked = controller.linkedAnime.where((a) => !a.linked).toList();
+    final subtitle = unlinked.isEmpty
+        ? 'All anime are linked! You\'re ready to continue.'
+        : '${unlinked.length} anime need your help. Tap any entry to search for a match.';
 
     return WizardScaffold(
-      stepIndex: 9,
-      stepTotal: kStepTotal,
-      title: 'Restore Backup',
-      subtitle: 'Manual linking',
+      pageHeading: 'Restore Backup',
+      descriptiveTitle: 'Manual linking',
+      subtitle: subtitle,
+      scrollable: false,
+      body: unlinked.isEmpty
+          ? const SizedBox.shrink()
+          : ListView.builder(
+              padding: EdgeInsets.zero,
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: unlinked.length,
+              itemBuilder: (context, i) {
+                final anime = unlinked[i];
+                return _UnlinkedRow(
+                  anime: anime,
+                  surface2: surface2,
+                  error: cs.error,
+                  onText: onText,
+                  muted: muted,
+                  onTap: () =>
+                      _openSearchSheet(context, controller, anime),
+                );
+              },
+            ),
       backLabel: 'Back',
       onBack: () => WizardNav.back(context),
       primaryLabel: 'Continue',
       onPrimary: () => WizardNav.next(context, currentIndex: 9),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 4),
-          Text(
-            'Tap an unlinked anime to search and link it.',
-            style: TextStyle(
-              color: onBg.withOpacity(0.7),
-              fontSize: 14,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 12),
-          const SectionLabel('Unlinked'),
-          if (unlinked.isEmpty)
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: surface,
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Text(
-                'All entries are linked.',
-                style: TextStyle(
-                  color: onBg.withOpacity(0.6),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            )
-          else
-            ...unlinked.map((anime) => _UnlinkedRow(
-                  anime: anime,
-                  surface: surface,
-                  accent: cs.primary,
-                  onBg: onBg,
-                  onTap: () => _openSearchSheet(context, controller, anime),
-                )),
-          const SizedBox(height: 8),
-        ],
-      ),
+      stepIndex: 9,
+      stepTotal: kStepTotal,
     );
   }
 
-  void _openSearchSheet(
-      BuildContext context, WizardController controller, LinkedAnime anime) {
+  void _openSearchSheet(BuildContext context, WizardController controller,
+      LinkedAnime anime) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => _SearchSheet(
+      builder: (ctx) => _SearchOverlay(
         anime: anime,
         results: _mockResults,
-        onLink: (id, matchedName) {
-          controller.linkAnime(id, matchedName);
+        onLink: (matchedName) {
+          controller.linkAnime(anime.id, matchedName);
           Navigator.of(ctx).pop();
         },
       ),
@@ -106,82 +106,95 @@ class ManualScreen extends StatelessWidget {
   }
 }
 
+class _MockResult {
+  final String title;
+  final String sub;
+  const _MockResult({required this.title, required this.sub});
+}
+
+/// A single unlinked row.
+/// Expanded(backupName 14px w600 white maxLines 2) + add_circle_outline (22px, error) + 'Search' (10px w700 muted).
 class _UnlinkedRow extends StatelessWidget {
   final LinkedAnime anime;
-  final Color surface;
-  final Color accent;
-  final Color onBg;
+  final Color surface2;
+  final Color error;
+  final Color onText;
+  final Color muted;
   final VoidCallback onTap;
 
   const _UnlinkedRow({
     required this.anime,
-    required this.surface,
-    required this.accent,
-    required this.onBg,
+    required this.surface2,
+    required this.error,
+    required this.onText,
+    required this.muted,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: surface,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              anime.backupName,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: onBg,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: surface2,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                anime.backupName,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: onText,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  height: 1.3,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
-          OutlinedButton.icon(
-            onPressed: onTap,
-            icon: const Icon(Icons.link, size: 18),
-            label: const Text('Link'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: accent,
-              side: BorderSide(color: accent.withOpacity(0.5)),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              minimumSize: const Size(0, 36),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
+            const SizedBox(width: 8),
+            Icon(Icons.add_circle_outline, color: error, size: 22),
+            const SizedBox(width: 6),
+            Text(
+              'Search',
+              style: TextStyle(
+                color: muted,
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.4,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-/// A ~70% height search sheet with a query field and a list of mock results.
-/// Each result has a gradient poster thumbnail + a Link button.
-class _SearchSheet extends StatefulWidget {
+/// Full-screen (~85% height) search overlay with topbar, info line, search bar
+/// and a list of mock results.
+class _SearchOverlay extends StatefulWidget {
   final LinkedAnime anime;
-  final List<String> results;
-  final void Function(int id, String matchedName) onLink;
+  final List<_MockResult> results;
+  final void Function(String matchedName) onLink;
 
-  const _SearchSheet({
+  const _SearchOverlay({
     required this.anime,
     required this.results,
     required this.onLink,
   });
 
   @override
-  State<_SearchSheet> createState() => _SearchSheetState();
+  State<_SearchOverlay> createState() => _SearchOverlayState();
 }
 
-class _SearchSheetState extends State<_SearchSheet> {
+class _SearchOverlayState extends State<_SearchOverlay> {
   String _query = '';
   late final TextEditingController _controller;
 
@@ -199,17 +212,22 @@ class _SearchSheetState extends State<_SearchSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<WizardController>();
+    final palette = controller.palette;
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final onBg = isDark ? Colors.white : Colors.black87;
-    final surface = isDark ? cs.surfaceContainerHighest : cs.surface;
+    final onText = isDark ? Colors.white : Colors.black87;
+    final muted = onText.withOpacity(0.6);
+    final surface2 = isDark ? palette.surface2 : cs.surface;
 
     final q = _query.trim().toLowerCase();
     final filtered = q.isEmpty
         ? widget.results
-        : widget.results.where((r) => r.toLowerCase().contains(q)).toList();
+        : widget.results
+            .where((r) => r.title.toLowerCase().contains(q))
+            .toList();
 
-    final sheetHeight = MediaQuery.of(context).size.height * 0.7;
+    final sheetHeight = MediaQuery.of(context).size.height * 0.85;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -220,49 +238,75 @@ class _SearchSheetState extends State<_SearchSheet> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            // Topbar: back arrow + 'Find a match' title.
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+              padding: const EdgeInsets.fromLTRB(8, 8, 20, 4),
               child: Row(
                 children: [
-                  Expanded(
-                    child: Text(
-                      'Link \u201C${widget.anime.backupName}\u201D',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: onBg,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
                   IconButton(
-                    icon: const Icon(Icons.close),
+                    icon: const Icon(Icons.arrow_back_rounded, size: 22),
                     onPressed: () => Navigator.of(context).pop(),
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'Find a match',
+                    style: TextStyle(
+                      color: onText,
+                      fontSize: 18,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.2,
+                    ),
                   ),
                 ],
               ),
             ),
+
+            // Info line: 'Linking: <anime name>'.
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    color: muted,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                  ),
+                  children: [
+                    const TextSpan(text: 'Linking: '),
+                    TextSpan(
+                      text: widget.anime.backupName,
+                      style: TextStyle(
+                        color: onText,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Search bar.
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Container(
                 decoration: BoxDecoration(
-                  color: surface,
+                  color: surface2,
                   borderRadius: BorderRadius.circular(12),
                 ),
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Row(
                   children: [
-                    Icon(Icons.search, color: onBg.withOpacity(0.5), size: 20),
+                    Icon(Icons.search, color: muted, size: 20),
                     const SizedBox(width: 8),
                     Expanded(
                       child: TextField(
                         controller: _controller,
                         autofocus: true,
                         textInputAction: TextInputAction.search,
-                        style: TextStyle(color: onBg, fontSize: 15),
+                        style: TextStyle(color: onText, fontSize: 15),
                         decoration: const InputDecoration(
-                          hintText: 'Search anime\u2026',
+                          hintText: 'Search for anime\u2026',
                           border: InputBorder.none,
                           isDense: true,
                           contentPadding: EdgeInsets.symmetric(vertical: 12),
@@ -283,31 +327,35 @@ class _SearchSheetState extends State<_SearchSheet> {
                 ),
               ),
             ),
-            const SizedBox(height: 8),
+
+            const SizedBox(height: 12),
+
+            // Results list.
             Expanded(
               child: filtered.isEmpty
                   ? Center(
                       child: Text(
                         'No results',
                         style: TextStyle(
-                          color: onBg.withOpacity(0.6),
+                          color: muted,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                     )
                   : ListView.separated(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
                       itemCount: filtered.length,
                       separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, i) {
-                        final title = filtered[i];
+                        final r = filtered[i];
                         return _SearchResultRow(
-                          title: title,
-                          accent: cs.primary,
-                          onBg: onBg,
-                          surface: surface,
-                          onLink: () => widget.onLink(widget.anime.id, title),
+                          result: r,
+                          primary: cs.primary,
+                          onText: onText,
+                          muted: muted,
+                          surface2: surface2,
+                          onTap: () => widget.onLink(r.title),
                         );
                       },
                     ),
@@ -320,77 +368,93 @@ class _SearchSheetState extends State<_SearchSheet> {
 }
 
 class _SearchResultRow extends StatelessWidget {
-  final String title;
-  final Color accent;
-  final Color onBg;
-  final Color surface;
-  final VoidCallback onLink;
+  final _MockResult result;
+  final Color primary;
+  final Color onText;
+  final Color muted;
+  final Color surface2;
+  final VoidCallback onTap;
 
   const _SearchResultRow({
-    required this.title,
-    required this.accent,
-    required this.onBg,
-    required this.surface,
-    required this.onLink,
+    required this.result,
+    required this.primary,
+    required this.onText,
+    required this.muted,
+    required this.surface2,
+    required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    final letter = title.isEmpty ? '?' : title.substring(0, 1).toUpperCase();
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: surface,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 60,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [accent, accent.withOpacity(0.4)],
+    final letter =
+        result.title.isEmpty ? '?' : result.title.substring(0, 1).toUpperCase();
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: surface2,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [primary, primary.withOpacity(0.4)],
+                ),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                letter,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w800,
+                ),
               ),
             ),
-            alignment: Alignment.center,
-            child: Text(
-              letter,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.w800,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    result.title,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: onText,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      height: 1.3,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    result.sub,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: muted,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              title,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: onBg,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          FilledButton(
-            onPressed: onLink,
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              minimumSize: const Size(0, 36),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity.compact,
-            ),
-            child: const Text('Link'),
-          ),
-        ],
+            const SizedBox(width: 8),
+            Icon(Icons.add_circle, color: primary, size: 26),
+          ],
+        ),
       ),
     );
   }

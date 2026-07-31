@@ -1,4 +1,9 @@
-// permissions_screen.dart — Step 4/15: Grant Permissions.
+// permissions_screen.dart — Step 3/15: Permissions
+//
+// Matches web prototype `permissions-screen.tsx`:
+//   heading → PermissionsVisual → "Grant permissions" → "Optional: you can skip these"
+//   → 4 permission rows (icon + title + desc + switch), staggered slide-in-left.
+//   Row 4 (All files access) is disabled — toggle off, opacity 0.55.
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,125 +21,133 @@ class PermissionsScreen extends StatelessWidget {
     final palette = controller.palette;
     final cs = Theme.of(context).colorScheme;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final onBg = isDark ? Colors.white : Colors.black87;
+    final onText = isDark ? Colors.white : Colors.black87;
+    final muted = onText.withOpacity(0.6);
+    final surface2 = isDark ? palette.surface2 : cs.surface;
+    final surface4 = isDark ? palette.surface4 : cs.surfaceContainerHigh;
     final perms = controller.permissions;
 
+    final rows = <_PermRowData>[
+      _PermRowData(
+        icon: Icons.install_mobile,
+        title: 'Install apps',
+        desc: 'Allow installing anime extensions',
+        key: 'installApps',
+        value: perms.installApps,
+        enabled: true,
+      ),
+      _PermRowData(
+        icon: Icons.notifications_outlined,
+        title: 'Notifications',
+        desc: 'Get notified about new episodes',
+        key: 'notifications',
+        value: perms.notifications,
+        enabled: true,
+      ),
+      _PermRowData(
+        icon: Icons.battery_full,
+        title: 'Battery',
+        desc: 'Allow background sync for updates',
+        key: 'battery',
+        value: perms.battery,
+        enabled: true,
+      ),
+      _PermRowData(
+        icon: Icons.folder_outlined,
+        title: 'All files access',
+        desc: 'Access all files on your device',
+        key: 'allFilesAccess',
+        value: perms.allFilesAccess,
+        enabled: false,
+      ),
+    ];
+
     return WizardScaffold(
+      pageHeading: 'Permissions',
       stepIndex: 3,
       stepTotal: kStepTotal,
-      title: 'Grant Permissions',
-      subtitle: 'Optional — improve notifications and installs.',
+      visual: PermissionsVisual(
+        primary: cs.primary,
+        onPrimary: cs.onPrimary,
+        size: 140,
+      ),
+      descriptiveTitle: 'Grant permissions',
+      subtitle: 'Optional: you can skip these',
+      body: SizedBox(
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (int i = 0; i < rows.length; i++)
+              _StaggeredItem(
+                index: i,
+                child: _PermRow(
+                  data: rows[i],
+                  onChanged: rows[i].enabled
+                      ? (_) => controller.togglePermission(rows[i].key)
+                      : null,
+                  primary: cs.primary,
+                  onPrimary: cs.onPrimary,
+                  surface: surface2,
+                  surface4: surface4,
+                  onText: onText,
+                  muted: muted,
+                ),
+              ),
+          ],
+        ),
+      ),
       backLabel: 'Back',
       onBack: () => WizardNav.back(context),
       primaryLabel: 'Continue',
       onPrimary: () => WizardNav.next(context, currentIndex: 3),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 4),
-          Center(
-            child: PermissionsVisual(
-              primary: cs.primary,
-              onPrimary: cs.onPrimary,
-              size: 140,
-            ),
-          ),
-          const SizedBox(height: 18),
-
-          // Toggleable permissions.
-          _PermRow(
-            icon: Icons.install_mobile,
-            title: 'Install apps',
-            description: 'Install companion anime apps',
-            value: perms.installApps,
-            enabled: true,
-            accent: cs.primary,
-            onBg: onBg,
-            surface: isDark ? palette.surface2 : cs.surface,
-            onChanged: (_) => controller.togglePermission('installApps'),
-          ),
-          const SizedBox(height: 10),
-          _PermRow(
-            icon: Icons.notifications_outlined,
-            title: 'Notifications',
-            description: 'Get new episode alerts',
-            value: perms.notifications,
-            enabled: true,
-            accent: cs.primary,
-            onBg: onBg,
-            surface: isDark ? palette.surface2 : cs.surface,
-            onChanged: (_) => controller.togglePermission('notifications'),
-          ),
-          const SizedBox(height: 10),
-          _PermRow(
-            icon: Icons.battery_full,
-            title: 'Battery optimization',
-            description: 'Skip doze for downloads',
-            value: perms.battery,
-            enabled: true,
-            accent: cs.primary,
-            onBg: onBg,
-            surface: isDark ? palette.surface2 : cs.surface,
-            onChanged: (_) => controller.togglePermission('battery'),
-          ),
-          const SizedBox(height: 10),
-
-          // All-files-access: permanently disabled.
-          _PermRow(
-            icon: Icons.folder_outlined,
-            title: 'All files access',
-            description: 'Not needed — leave off',
-            value: false,
-            enabled: false,
-            accent: cs.primary,
-            onBg: onBg,
-            surface: isDark ? palette.surface2 : cs.surface,
-            onChanged: null,
-          ),
-
-          const SizedBox(height: 8),
-        ],
-      ),
     );
   }
 }
 
-/// A single permission toggle row.
-///
-/// When [enabled] is false the switch is greyed out and disabled (used for the
-/// all-files-access row, which is intentionally kept off).
-class _PermRow extends StatelessWidget {
+class _PermRowData {
   final IconData icon;
   final String title;
-  final String description;
+  final String desc;
+  final String key;
   final bool value;
   final bool enabled;
-  final Color accent;
-  final Color onBg;
-  final Color surface;
-  final ValueChanged<bool>? onChanged;
-
-  const _PermRow({
+  const _PermRowData({
     required this.icon,
     required this.title,
-    required this.description,
+    required this.desc,
+    required this.key,
     required this.value,
     required this.enabled,
-    required this.accent,
-    required this.onBg,
-    required this.surface,
+  });
+}
+
+class _PermRow extends StatelessWidget {
+  final _PermRowData data;
+  final ValueChanged<bool>? onChanged;
+  final Color primary;
+  final Color onPrimary;
+  final Color surface;
+  final Color surface4;
+  final Color onText;
+  final Color muted;
+
+  const _PermRow({
+    required this.data,
     required this.onChanged,
+    required this.primary,
+    required this.onPrimary,
+    required this.surface,
+    required this.surface4,
+    required this.onText,
+    required this.muted,
   });
 
   @override
   Widget build(BuildContext context) {
-    final dim = !enabled;
-    final iconColor = dim ? onBg.withOpacity(0.35) : accent;
-    final titleColor = dim ? onBg.withOpacity(0.55) : onBg;
-    final descColor = onBg.withOpacity(dim ? 0.4 : 0.6);
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+    final row = Container(
+      margin: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
         color: surface,
         borderRadius: BorderRadius.circular(14),
@@ -142,52 +155,109 @@ class _PermRow extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 38,
-            height: 38,
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
-              color: dim
-                  ? onBg.withOpacity(0.06)
-                  : accent.withOpacity(0.16),
+              color: data.value ? primary : primary.withOpacity(0.16),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: iconColor, size: 20),
+            child: Icon(
+              data.icon,
+              size: 20,
+              color: data.value ? onPrimary : primary,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  title,
+                  data.title,
                   style: TextStyle(
-                    color: titleColor,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
+                    color: onText,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  description,
-                  style: TextStyle(
-                    color: descColor,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    height: 1.3,
-                  ),
+                  data.desc,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 11, color: muted),
                 ),
               ],
             ),
           ),
-          const SizedBox(width: 8),
-          Opacity(
-            opacity: dim ? 0.5 : 1,
-            child: Switch(
-              value: value,
-              onChanged: onChanged,
-            ),
+          Switch(
+            value: data.value,
+            onChanged: onChanged,
+            activeTrackColor: primary,
+            inactiveTrackColor: surface4,
+            thumbColor: WidgetStateProperty.resolveWith<Color?>((states) {
+              if (states.contains(WidgetState.selected)) return onPrimary;
+              return Colors.white;
+            }),
+            trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
           ),
         ],
       ),
+    );
+
+    if (!data.enabled) {
+      return Opacity(opacity: 0.55, child: row);
+    }
+    return row;
+  }
+}
+
+/// Staggered fade + slide-in-from-left entry for the permission rows.
+/// Delay: 100 + index*100 ms · Duration: 400 ms · Curves: easeOut / easeOutCubic.
+class _StaggeredItem extends StatefulWidget {
+  final int index;
+  final Widget child;
+  const _StaggeredItem({required this.index, required this.child});
+
+  @override
+  State<_StaggeredItem> createState() => _StaggeredItemState();
+}
+
+class _StaggeredItemState extends State<_StaggeredItem>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c;
+  late final Animation<double> _fade;
+  late final Animation<Offset> _slide;
+
+  @override
+  void initState() {
+    super.initState();
+    _c = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+    _fade = CurvedAnimation(parent: _c, curve: Curves.easeOut);
+    _slide = Tween<Offset>(
+      begin: const Offset(-0.15, 0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(parent: _c, curve: Curves.easeOutCubic));
+    Future.delayed(Duration(milliseconds: 100 + widget.index * 100), () {
+      if (mounted) _c.forward();
+    });
+  }
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _fade,
+      child: SlideTransition(position: _slide, child: widget.child),
     );
   }
 }
