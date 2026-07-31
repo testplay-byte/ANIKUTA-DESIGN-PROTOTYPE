@@ -142,15 +142,16 @@ fun SetupWizardApp() {
             color = MaterialTheme.colorScheme.background
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
-                // Progress bar at top — flush, no padding, below status bar
+                // Progress bar — FLUSH AT THE VERY TOP (y=0, full width, no padding).
+                // The transparent status bar is drawn ON TOP of this bar.
                 WizardProgressBar(
                     current = STEP_ORDER.indexOf(state.step),
                     total = STEP_ORDER.size,
                     color = effectivePalette.primary,
-                    modifier = Modifier.fillMaxWidth().windowInsetsPadding(WindowInsets.statusBars).padding(horizontal = 16.dp),
+                    modifier = Modifier.fillMaxWidth(),
                 )
-                // Screen content — fills remaining space
-                Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+                // Screen content — fills remaining space, with status bar padding
+                Box(modifier = Modifier.weight(1f).fillMaxWidth().statusBarsPadding()) {
                     AnimatedContent(
                         targetState = state.step,
                         transitionSpec = {
@@ -296,14 +297,12 @@ fun ScreenLayout(
 
 @Composable
 fun WizardProgressBar(current: Int, total: Int, color: Color, modifier: Modifier = Modifier) {
-    Column(modifier = modifier) {
-        LinearProgressIndicator(
-            progress = { (current + 1f) / total },
-            modifier = Modifier.fillMaxWidth().height(3.dp).clip(RoundedCornerShape(999.dp)),
-            color = color,
-            trackColor = color.copy(alpha = 0.15f),
-        )
-    }
+    LinearProgressIndicator(
+        progress = { (current + 1f) / total },
+        modifier = modifier.height(3.dp),
+        color = color,
+        trackColor = color.copy(alpha = 0.15f),
+    )
 }
 
 @Composable
@@ -311,12 +310,14 @@ fun PageHeading(text: String, palette: WizardPalette, modifier: Modifier = Modif
     Text(
         text = text,
         color = palette.primary,
-        fontSize = 42.sp,
+        fontSize = 28.sp,
         fontFamily = RobotoFamily,
         fontWeight = FontWeight.ExtraBold,
         letterSpacing = (-0.5).sp,
+        lineHeight = 34.sp,
         maxLines = 2,
-        modifier = modifier.padding(start = 20.dp, top = 16.dp, end = 20.dp)
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier.padding(start = 20.dp, top = 8.dp, end = 20.dp)
     )
 }
 
@@ -348,7 +349,7 @@ fun Subtitle(text: String, modifier: Modifier = Modifier) {
 @Composable
 fun ActionRow(back: (() -> Unit)? = null, next: (() -> Unit)? = null, nextText: String = "Next", palette: WizardPalette, nextEnabled: Boolean = true) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+        modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 20.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         if (back != null) {
@@ -387,16 +388,18 @@ fun WelcomeScreen(palette: WizardPalette, onNext: () -> Unit) {
             Text(
                 "Welcome to Anime App!",
                 color = palette.primary,
-                fontSize = 45.sp,
+                fontSize = 32.sp,
                                 fontWeight = FontWeight.ExtraBold,
                 fontFamily = RobotoFamily,
-                letterSpacing = (-0.8).sp,
-                modifier = Modifier.padding(top = 16.dp)
+                letterSpacing = (-0.6).sp,
+                lineHeight = 38.sp,
+                modifier = Modifier.padding(top = 8.dp)
             )
             Text(
                 "Let's get things quickly set up for you.",
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
-                fontSize = 16.sp,
+                fontSize = 15.sp,
+                fontFamily = RobotoFamily,
                                 modifier = Modifier.padding(top = 4.dp)
             )
         }
@@ -579,7 +582,7 @@ fun FolderScreen(palette: WizardPalette, folderSelected: Boolean, onSelect: () -
         // Fixed footer
         if (scanning) {
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 20.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 WizardButton("Back", onBack, palette, isPrimary = false, enabled = true, leadingIcon = { Icon(Icons.Default.ArrowBack, null, Modifier.size(20.dp)) }, modifier = Modifier.weight(1f))
@@ -683,7 +686,7 @@ fun RestoreScreen(palette: WizardPalette, onBack: () -> Unit, onNext: () -> Unit
         }
         // Fixed footer (Back + Skip)
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(horizontal = 20.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             WizardButton("Back", onBack, palette, isPrimary = false, enabled = true, leadingIcon = { Icon(Icons.Default.ArrowBack, null, Modifier.size(20.dp)) }, modifier = Modifier.weight(1f))
@@ -771,7 +774,7 @@ fun ProcessingScreen(palette: WizardPalette, onNext: () -> Unit) {
             }
         }
         // Fixed footer
-        Text("Please wait…", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), textAlign = TextAlign.Center)
+        Text("Please wait…", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(bottom = 16.dp), textAlign = TextAlign.Center)
     }
 }
 
@@ -1136,7 +1139,7 @@ fun RestoreProcessingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnim
             }
         }
         // Fixed footer
-        Text("Please wait…", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp), textAlign = TextAlign.Center)
+        Text("Please wait…", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), modifier = Modifier.fillMaxWidth().navigationBarsPadding().padding(bottom = 16.dp), textAlign = TextAlign.Center)
     }
 }
 
