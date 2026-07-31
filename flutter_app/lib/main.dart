@@ -949,8 +949,8 @@ class _LinkingScreenState extends State<_LinkingScreen> {
                 ]))),
               ]),
           ]),
-        ]),
-      ),
+        ),
+      )),
       Expanded(child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
         itemCount: widget.anime.take(_revealed).length,
