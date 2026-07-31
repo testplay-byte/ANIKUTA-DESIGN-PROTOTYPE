@@ -1,0 +1,700 @@
+"use client";
+
+/**
+ * setup-wizard / screens / linking-anime-screen — Step 8 (#linking).
+ *
+ * v2 redesign (IMPORTANT screen — user stressed not to mess this up):
+ *  - Top heading "Backup Restore".
+ *  - Sub-heading "Linking anime".
+ *  - Status line "Matching your backup entries" (dropped "to AniList").
+ *  - Four stat headings: Linked · No match · Total · Remaining.
+ *  - List fills the available space (no small constrained scroll area).
+ *  - Two-section rows: left = name (wraps), middle = SVG marker, right =
+ *    thumbnail (linked only).
+ *  - Click a linked row → popup → "Mark as not linked" (calls onUnlink).
+ */
+import { useEffect, useState } from "react";
+import type { ThemePalette } from "../lib/themes";
+import type { LinkedAnime } from "../hooks/use-wizard-state";
+
+interface LinkingAnimeScreenProps {
+  active: boolean;
+  onNext: () => void;
+  onBack: () => void;
+  palette: ThemePalette;
+  linkedAnime: LinkedAnime[];
+  onUnlink: (id: number) => void;
+}
+
+export function LinkingAnimeScreen({ active, onNext, onBack, palette, linkedAnime, onUnlink }: LinkingAnimeScreenProps) {
+  const [revealedCount, setRevealedCount] = useState(0);
+  const [popupId, setPopupId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!active) {
+      setRevealedCount(0);
+      setPopupId(null);
+      return;
+    }
+    setRevealedCount(0);
+    const interval = setInterval(() => {
+      setRevealedCount((c) => {
+        if (c >= linkedAnime.length) {
+          clearInterval(interval);
+          return c;
+        }
+        return c + 1;
+      });
+    }, 400);
+    return () => clearInterval(interval);
+  }, [active, linkedAnime.length]);
+
+  const linkedCount = linkedAnime.filter((a) => a.linked).length;
+  const unlinkedCount = linkedAnime.filter((a) => !a.linked).length;
+  const total = linkedAnime.length;
+  const remaining = Math.max(0, total - revealedCount);
+  const allRevealed = revealedCount >= total;
+
+  const popupAnime = popupId !== null ? linkedAnime.find((a) => a.id === popupId) : null;
+
+  function thumbBg(name: string) {
+    // Gradient placeholder using the palette primary.
+    return `linear-gradient(135deg, ${palette.primary}, ${palette.primary}77)`;
+  }
+
+  return (
+    <div className={`wizard-step wizard-step--v2 wizard-step--linking wizard-step--fixed ${active ? "wizard-step--active" : ""}`}>
+      <div className="wizard-content">
+        <h1 className="wizard-page-heading">Backup Restore</h1>
+
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Linking anime</h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>Matching your backup entries</p>
+        </div>
+
+        {/* Four stat headings — fixed (not in scroll area) */}
+        <div className="linking-stats">
+          <div className="linking-stat linking-stat--linked">
+            <span className="linking-stat__value">{linkedCount}</span>
+            <span className="linking-stat__label">Linked</span>
+          </div>
+          <div className="linking-stat linking-stat--nomatch">
+            <span className="linking-stat__value">{unlinkedCount}</span>
+            <span className="linking-stat__label">No match</span>
+          </div>
+          <div className="linking-stat linking-stat--total">
+            <span className="linking-stat__value">{total}</span>
+            <span className="linking-stat__label">Total</span>
+          </div>
+          <div className="linking-stat linking-stat--remaining">
+            <span className="linking-stat__value">{remaining}</span>
+            <span className="linking-stat__label">Remaining</span>
+          </div>
+        </div>
+
+        <div className="wizard-body">
+          {/* List — scrollable; header (above) + footer (below) stay fixed */}
+          {/* List — fills available space */}
+          <div className="linking-list">
+            {linkedAnime.slice(0, revealedCount).map((anime, i) => (
+              <div
+                key={anime.id}
+                className={`linking-row ${anime.linked ? "linking-row--linked" : ""}`}
+                style={{ animationDelay: `${0.05 * i}s` }}
+                onClick={anime.linked ? () => setPopupId(anime.id) : undefined}
+                role={anime.linked ? "button" : undefined}
+                tabIndex={anime.linked ? 0 : undefined}
+                onKeyDown={anime.linked ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setPopupId(anime.id); } } : undefined}
+              >
+                {/* Left half: name (wraps) */}
+                <div className="linking-row__left">
+                  <span className="linking-row__name">{anime.backupName}</span>
+                  {anime.linked && anime.matchedName ? (
+                    <span className="linking-row__matched">{anime.matchedName}</span>
+                  ) : null}
+                </div>
+
+                {/* Middle: marker */}
+                <div className={`linking-row__marker ${anime.linked ? "linking-row__marker--linked" : "linking-row__marker--nomatch"}`}>
+                  {anime.linked ? (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M20 6L9 17l-5-5" />
+                    </svg>
+                  ) : (
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M18 6L6 18M6 6l12 12" />
+                    </svg>
+                  )}
+                </div>
+
+                {/* Right: thumbnail (linked only) */}
+                {anime.linked ? (
+                  <div className="linking-row__thumb" style={{ background: thumbBg(anime.backupName) }} aria-hidden="true">
+                    {anime.backupName.charAt(0)}
+                  </div>
+                ) : (
+                  <div className="linking-row__thumb linking-row__thumb--empty" aria-hidden="true" />
+                )}
+              </div>
+            ))}
+            {!allRevealed && (
+              <div style={{ display: "flex", justifyContent: "center", padding: "8px" }}>
+                <span className="scanning-dots" style={{ color: palette.primary }}>
+                  <span /><span /><span />
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="wizard-actions">
+        <button className="wizard-btn wizard-btn--secondary" onClick={onBack} style={{ fontWeight: 800 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Back
+        </button>
+        <button
+          className="wizard-btn wizard-btn--primary"
+          onClick={onNext}
+          disabled={!allRevealed}
+          style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800, opacity: allRevealed ? 1 : 0.5, cursor: allRevealed ? "pointer" : "not-allowed" }}
+        >
+          Next
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Popup: mark as not linked */}
+      {popupAnime && (
+        <div className="wizard-popup" onClick={() => setPopupId(null)} role="dialog" aria-modal="true" aria-label="Anime link options">
+          <div className="wizard-popup__sheet" onClick={(e) => e.stopPropagation()}>
+            <h2 className="wizard-popup__title">Linked entry</h2>
+            <p className="wizard-popup__desc">This entry was auto-linked. If the match is wrong, mark it as not linked — you&apos;ll be able to link it manually.</p>
+            <div className="wizard-popup__name">{popupAnime.backupName}</div>
+            <div className="wizard-actions" style={{ paddingTop: 0, paddingLeft: 0, paddingRight: 0 }}>
+              <button className="wizard-btn wizard-btn--secondary" onClick={() => setPopupId(null)} style={{ fontWeight: 800 }}>
+                Keep linked
+              </button>
+              <button
+                className="wizard-btn wizard-btn--primary"
+                onClick={() => {
+                  onUnlink(popupAnime.id);
+                  setPopupId(null);
+                }}
+                style={{ background: "var(--color-error)", color: "#fff", fontWeight: 800 }}
+              >
+                Mark as not linked
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+"use client";
+
+/**
+ * setup-wizard / screens / manual-linking-screen — Step 9 (#manual).
+ *
+ * v2 redesign:
+ *  - Top heading "Restore Backup".
+ *  - Sub-heading "Manual linking" + options line.
+ *  - Redesigned, beautiful search overlay (nice search bar, poster
+ *    thumbnails, smooth transitions, clear Link affordance).
+ */
+import { useState } from "react";
+import type { ThemePalette } from "../lib/themes";
+import type { LinkedAnime } from "../hooks/use-wizard-state";
+
+interface ManualLinkingScreenProps {
+  active: boolean;
+  onNext: () => void;
+  onBack: () => void;
+  palette: ThemePalette;
+  linkedAnime: LinkedAnime[];
+  onLink: (id: number, matchedName: string) => void;
+}
+
+const MOCK_SEARCH_RESULTS = [
+  { title: "Demon Slayer: Hashira Training Arc", sub: "Kimetsu no Yaiba · 2024" },
+  { title: "Kimetsu no Yaiba: Hashira Geiko-hen", sub: "Japanese title · 2024" },
+  { title: "Demon Slayer Season 4", sub: "Sequel · 8 eps" },
+  { title: "Demon Slayer: To the Swordsmith Village", sub: "Movie · 2023" },
+  { title: "Kimetsu no Yaiba: Yuukaku-hen", sub: "Entertainment District · 2021" },
+];
+
+export function ManualLinkingScreen({ active, onNext, onBack, palette, linkedAnime, onLink }: ManualLinkingScreenProps) {
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedAnimeId, setSelectedAnimeId] = useState<number | null>(null);
+
+  const unlinked = linkedAnime.filter((a) => !a.linked);
+  const selectedAnime = linkedAnime.find((a) => a.id === selectedAnimeId);
+
+  function handleOpenSearch(anime: LinkedAnime) {
+    setSelectedAnimeId(anime.id);
+    setSearchQuery(anime.backupName);
+    setSearchOpen(true);
+  }
+  function handleSelectResult(title: string) {
+    if (selectedAnimeId !== null) onLink(selectedAnimeId, title);
+    setSearchOpen(false);
+    setSelectedAnimeId(null);
+    setSearchQuery("");
+  }
+
+  const filteredResults = MOCK_SEARCH_RESULTS.filter((r) =>
+    r.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    r.sub.toLowerCase().includes(searchQuery.toLowerCase()),
+  );
+
+  function posterBg(title: string) {
+    return `linear-gradient(135deg, ${palette.primary}, ${palette.primary}77)`;
+  }
+
+  return (
+    <div className={`wizard-step wizard-step--v2 wizard-step--fixed ${active ? "wizard-step--active" : ""}`}>
+      <div className="wizard-content">
+        <h1 className="wizard-page-heading">Restore Backup</h1>
+
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Manual linking</h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>
+            {unlinked.length > 0
+              ? `${unlinked.length} anime need your help. Tap any entry to search for a match.`
+              : "All anime are linked! You're ready to continue."}
+          </p>
+        </div>
+
+        <div className="wizard-body">
+          <div className="linking-list" style={{ maxHeight: "none", flex: "1 1 auto" }}>
+            {unlinked.length === 0 ? (
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", padding: "24px", border: `1px solid ${palette.primary}33`, borderRadius: "var(--r-md)", background: "var(--color-surface-2)" }}>
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke={palette.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                <p style={{ fontSize: 13, fontWeight: 700, color: palette.primary, margin: 0 }}>All linked!</p>
+              </div>
+            ) : (
+              unlinked.map((anime, i) => (
+                <button
+                  key={anime.id}
+                  onClick={() => handleOpenSearch(anime)}
+                  className="linking-row"
+                  style={{ animationDelay: `${0.05 * i}s`, cursor: "pointer", textAlign: "left" }}
+                >
+                  <div className="linking-row__left">
+                    <span className="linking-row__name">{anime.backupName}</span>
+                  </div>
+                  <div className="linking-row__marker linking-row__marker--nomatch">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                  </div>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: "var(--color-text-muted)", flex: "0 0 auto" }}>Search</span>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+      <div className="wizard-actions">
+        <button className="wizard-btn wizard-btn--secondary" onClick={onBack} style={{ fontWeight: 800 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Back
+        </button>
+        <button className="wizard-btn wizard-btn--primary" onClick={onNext} style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}>
+          Continue
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Search overlay — v4: cancel INSIDE bar, search = icon only, no left search icon */}
+      {searchOpen && (
+        <div className="search-overlay search-overlay--v4">
+          <div className="search-overlay__topbar">
+            <button className="search-overlay__back" onClick={() => { setSearchOpen(false); setSelectedAnimeId(null); }} aria-label="Close search">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <h2 className="search-overlay__title">Find a match</h2>
+          </div>
+
+          <div className="search-info">
+            Linking: <b>{selectedAnime?.backupName}</b>
+          </div>
+
+          <div className="search-bar-shell">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search for anime…"
+              autoFocus
+            />
+            {searchQuery ? (
+              <button className="search-x-btn" onClick={() => setSearchQuery("")} aria-label="Clear search">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M18 6 6 18M6 6l12 12" />
+                </svg>
+              </button>
+            ) : null}
+            <button className="search-icon-btn" aria-label="Search">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+              </svg>
+            </button>
+          </div>
+
+          <div className="search-results">
+            {filteredResults.length === 0 ? (
+              <div className="search-empty">No results found. Try a different search.</div>
+            ) : (
+              filteredResults.map((result, i) => (
+                <button
+                  key={result.title}
+                  className="search-result"
+                  onClick={() => handleSelectResult(result.title)}
+                  style={{ animationDelay: `${0.05 * i}s` }}
+                >
+                  <span className="search-result__poster" style={{ background: posterBg(result.title) }}>
+                    {result.title.charAt(0)}
+                  </span>
+                  <span className="search-result__text">
+                    <span className="search-result__title">{result.title}</span>
+                    <span className="search-result__sub">{result.sub}</span>
+                  </span>
+                  <span className="search-result__link">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                  </span>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+"use client";
+
+/**
+ * setup-wizard / screens / processing-backup-screen — Step 6 (#processing).
+ *
+ * v2 redesign:
+ *  - Better, more purposeful animation: a file unfolding into rows of data
+ *    being parsed, with a circular progress feel.
+ *  - Auto-advances to #summary after ~2.5s.
+ */
+import { useEffect } from "react";
+import type { ThemePalette } from "../lib/themes";
+
+interface ProcessingBackupScreenProps {
+  active: boolean;
+  onNext: () => void;
+  palette: ThemePalette;
+}
+
+export function ProcessingBackupScreen({ active, onNext, palette }: ProcessingBackupScreenProps) {
+  useEffect(() => {
+    if (!active) return;
+    const t = setTimeout(() => onNext(), 2500);
+    return () => clearTimeout(t);
+  }, [active, onNext]);
+
+  const p = palette.primary;
+
+  return (
+    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+      <div className="wizard-content">
+        <h1 className="wizard-page-heading">Restore Backup</h1>
+
+        <div className="wizard-visual" key={active ? "on" : "off"}>
+          <svg viewBox="0 0 200 200" width="100%" height="100%" style={{ overflow: "visible" }} aria-hidden="true">
+            <style>{`
+              @keyframes pb-spin { to { transform: rotate(360deg); } }
+              @keyframes pb-spin-rev { to { transform: rotate(-360deg); } }
+              @keyframes pb-glow { 0%,100% { opacity: 0.25; transform: scale(1); } 50% { opacity: 0.45; transform: scale(1.08); } }
+              @keyframes pb-parse { 0% { transform: translateX(-30px); opacity: 0; } 30% { opacity: 1; } 70% { opacity: 1; } 100% { transform: translateX(30px); opacity: 0; } }
+              @keyframes pb-row-in { 0%,40% { transform: scaleY(0); opacity: 0; } 60%,100% { transform: scaleY(1); opacity: 1; } }
+              .pb-ring-outer { transform-origin: 100px 100px; animation: pb-spin 4s linear infinite; }
+              .pb-ring-inner { transform-origin: 100px 100px; animation: pb-spin-rev 3s linear infinite; }
+              .pb-glow { transform-origin: 100px 100px; animation: pb-glow 2s ease-in-out infinite; }
+              .pb-parse { animation: pb-parse 2.2s ease-in-out infinite; }
+              .pb-row1 { transform-origin: 100px 92px; animation: pb-row-in 2.4s ease-in-out infinite; }
+              .pb-row2 { transform-origin: 100px 104px; animation: pb-row-in 2.4s ease-in-out 0.3s infinite; }
+              .pb-row3 { transform-origin: 100px 116px; animation: pb-row-in 2.4s ease-in-out 0.6s infinite; }
+              .pb-row4 { transform-origin: 100px 128px; animation: pb-row-in 2.4s ease-in-out 0.9s infinite; }
+              @media (prefers-reduced-motion: reduce) { .pb-ring-outer,.pb-ring-inner,.pb-glow,.pb-parse,.pb-row1,.pb-row2,.pb-row3,.pb-row4 { animation: none !important; } }
+            `}</style>
+            <circle className="pb-glow" cx="100" cy="100" r="60" fill={p} opacity="0.3" style={{ filter: "blur(14px)" }} />
+            <circle className="pb-ring-outer" cx="100" cy="100" r="76" fill="none" stroke={p} strokeWidth="2" strokeDasharray="5 9" strokeLinecap="round" opacity="0.5" />
+            <circle className="pb-ring-inner" cx="100" cy="100" r="62" fill="none" stroke="var(--color-tertiary, #ccc)" strokeWidth="1.5" strokeDasharray="3 6" strokeLinecap="round" opacity="0.4" />
+
+            {/* central file transforming into rows */}
+            <rect x="68" y="76" width="64" height="56" rx="6" fill="var(--color-surface-3)" stroke={p} strokeWidth="1.5" />
+            {/* parsing particles flowing through */}
+            <circle className="pb-parse" cx="100" cy="100" r="2.5" fill={p} style={{ animationDelay: "0s" }} />
+            <circle className="pb-parse" cx="100" cy="100" r="2" fill={p} style={{ animationDelay: "0.55s" }} />
+            <circle className="pb-parse" cx="100" cy="100" r="2.5" fill={p} style={{ animationDelay: "1.1s" }} />
+            <circle className="pb-parse" cx="100" cy="100" r="2" fill={p} style={{ animationDelay: "1.65s" }} />
+            {/* rows being parsed */}
+            <rect className="pb-row1" x="76" y="90" width="48" height="4" rx="2" fill={p} opacity="0.8" />
+            <rect className="pb-row2" x="76" y="102" width="40" height="4" rx="2" fill={p} opacity="0.6" />
+            <rect className="pb-row3" x="76" y="114" width="44" height="4" rx="2" fill={p} opacity="0.6" />
+            <rect className="pb-row4" x="76" y="126" width="36" height="4" rx="2" fill={p} opacity="0.5" />
+          </svg>
+        </div>
+
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Processing backup</h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>Reading your backup file and extracting data…</p>
+        </div>
+
+        <div className="wizard-body">
+          <span className="scanning-pill" style={{ background: `${p}22`, color: p, alignSelf: "center" }}>
+            <span className="scanning-dots"><span /><span /><span /></span>
+            Processing
+          </span>
+        </div>
+      </div>
+      <div className="wizard-actions">
+        <span className="wizard-btn wizard-btn--ghost" style={{ cursor: "default", color: "var(--color-text-muted)", fontWeight: 800 }}>
+          Please wait…
+        </span>
+      </div>
+    </div>
+  );
+}
+"use client";
+
+/**
+ * setup-wizard / screens / backup-summary-screen — Step 7 (#summary).
+ *
+ * v2 redesign:
+ *  - Full UI redesign as a LIST VIEW ("what will be restored" manifest).
+ *  - Replaced the statistical bar-chart visual with a calm clipboard/manifest
+ *    animation.
+ *  - Manga warning integrated as a list row (red), not a separate ugly box.
+ *  - Flexible layout (easy to add more rows).
+ *  - Cancel button → goes to #format (NOT #processing) per user request.
+ */
+import type { ThemePalette } from "../lib/themes";
+import { SummaryVisual } from "../components/visuals";
+
+interface BackupSummaryScreenProps {
+  active: boolean;
+  onNext: () => void;
+  /** Cancel → goes to #format (per user request, NOT back to #processing). */
+  onCancel: () => void;
+  onBack: () => void;
+  palette: ThemePalette;
+}
+
+interface SummaryItem {
+  icon: React.ReactNode;
+  label: string;
+  meta: string;
+  value: string;
+  warn?: boolean;
+}
+
+const AnimeIcon = (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="6" width="14" height="12" rx="2" /><path d="m16 10 5-3v10l-5-3" /></svg>);
+const CategoryIcon = (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 6h16M4 12h16M4 18h12" /></svg>);
+const EpisodeIcon = (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 7h-9M14 17H5M17 17a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM7 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" /></svg>);
+const HistoryIcon = (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>);
+const SettingsIcon = (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>);
+const MangaIcon = (<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>);
+
+const SUMMARY_ITEMS: SummaryItem[] = [
+  { icon: AnimeIcon, label: "Anime detected", meta: "Ready to restore", value: "247" },
+  { icon: CategoryIcon, label: "Categories", meta: "Watching, Completed, Plan…", value: "12" },
+  { icon: EpisodeIcon, label: "Episodes tracked", meta: "Progress + timestamps", value: "1,432" },
+  { icon: HistoryIcon, label: "Watch history", meta: "Recently viewed", value: "89" },
+  { icon: SettingsIcon, label: "Settings", meta: "Theme, display, data", value: "—" },
+  { icon: MangaIcon, label: "Manga entries", meta: "Not supported — will be skipped", value: "12", warn: true },
+];
+
+export function BackupSummaryScreen({ active, onNext, onCancel, onBack, palette }: BackupSummaryScreenProps) {
+  // onBack is provided for consistency (browser back) but Cancel uses onCancel → #format.
+  void onBack;
+  return (
+    <div className={`wizard-step wizard-step--v2 wizard-step--fixed ${active ? "wizard-step--active" : ""}`}>
+      <div className="wizard-content">
+        <h1 className="wizard-page-heading">Restore Backup</h1>
+
+        <div className="wizard-visual" key={active ? "on" : "off"} style={{ width: 140, height: 140, margin: "var(--sp-1) auto" }}>
+          <SummaryVisual />
+        </div>
+
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Backup summary</h2>
+        </div>
+
+        <div className="wizard-body">
+          <ul className="summary-list" style={{ overflowY: "auto", flex: "1 1 auto", minHeight: 0, scrollbarWidth: "none" }}>
+            {SUMMARY_ITEMS.map((item, i) => (
+              <li
+                key={item.label}
+                className={`summary-list__row ${item.warn ? "summary-list__row--warn" : ""}`}
+                style={{ animationDelay: `${0.08 * i + 0.15}s` }}
+              >
+                <span className="summary-list__icon">{item.icon}</span>
+                <span className="summary-list__text">
+                  <span className="summary-list__label">{item.label}</span>
+                  <span className="summary-list__meta">{item.meta}</span>
+                </span>
+                <span className="summary-list__value">{item.value}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <div className="wizard-actions">
+        <button className="wizard-btn wizard-btn--secondary" onClick={onCancel} style={{ fontWeight: 800 }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          Cancel
+        </button>
+        <button className="wizard-btn wizard-btn--primary" onClick={onNext} style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}>
+          Restore
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+}
+"use client";
+
+/**
+ * setup-wizard / screens / restore-processing-screen — Step 11 (#restore-processing).
+ *
+ * NEW screen (added per user request): when the user clicks "Restore Now" on
+ * the restore-summary screen, this screen shows a proper processing animation
+ * (previously there was NO animation), then auto-advances to #restore-success.
+ */
+import { useEffect, useState } from "react";
+import type { ThemePalette } from "../lib/themes";
+import type { LinkedAnime } from "../hooks/use-wizard-state";
+import { RestoreProcessingVisual } from "../components/restore-processing-visual";
+
+interface RestoreProcessingScreenProps {
+  active: boolean;
+  onNext: () => void;
+  palette: ThemePalette;
+  linkedAnime: LinkedAnime[];
+}
+
+const STATUS_MESSAGES = [
+  "Writing anime to your library…",
+  "Restoring watch history…",
+  "Applying settings…",
+  "Finalizing restore…",
+];
+
+export function RestoreProcessingScreen({ active, onNext, palette, linkedAnime }: RestoreProcessingScreenProps) {
+  const sgIdx, setMsgIdx] = useState(0);
+
+  useEffect(() => {
+    if (!active) {
+      setMsgIdx(0);
+      return;
+    }
+    // Cycle through status messages.
+    const msgTimer = setInterval(() => {
+      setMsgIdx((i) => Math.min(i + 1, STATUS_MESSAGES.length - 1));
+    }, 900);
+    // Auto-advance after the full sequence (~3.2s).
+    const doneTimer = setTimeout(() => onNext(), 3200);
+    return () => {
+      clearInterval(msgTimer);
+      clearTimeout(doneTimer);
+    };
+  }, [active, onNext]);
+
+  const restoredCount = linkedAnime.filter((a) => a.linked).length + 239;
+
+  return (
+    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+      <div className="wizard-content">
+        <h1 className="wizard-page-heading">Restore Backup</h1>
+
+        <div className="restore-processing-visual" key={active ? "on" : "off"}>
+          <RestoreProcessingVisual palette={palette} />
+        </div>
+
+        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+          <h2 className="wizard-descriptive-title">Restoring your library</h2>
+          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>Please wait while we restore {restoredCount} anime to your library.</p>
+        </div>
+
+        <div className="wizard-body">
+          <span className="scanning-pill" style={{ background: `${palette.primary}22`, color: palette.primary, alignSelf: "center", transition: "opacity 0.4s ease" }}>
+            <span className="scanning-dots"><span /><span /><span /></span>
+            {STATUS_MESSAGESsgIdx]}
+          </span>
+        </div>
+      </div>
+      <div className="wizard-actions">
+        <span className="wizard-btn wizard-btn--ghost" style={{ cursor: "default", color: "var(--color-text-muted)", fontWeight: 800 }}>
+          Restoring…
+        </span>
+      </div>
+    </div>
+  );
+}
+"use client";
+
+/**
+ * setup-wizard / screens / restore-successful-screen — Step 12 (#restore-success).
+ *
+ * v2.4: Better restore-themed animation (a database cylinder with data flowing
+ * into a library, + a success check). Statistics REMOVED per user request.
+ * Continue → #poison.
+ */
+import { useId } from "react";
+import type { ThemePalette } from "../lib/themes";
+import type { LinkedAnime } from "../hooks/use-wizard-state";
+
+interface RestoreSuccessfulScreenProps {
+  active: boolean;
+  onNext: () => void;
+  palette: ThemePalette;
+  linkedAnime: LinkedAnime[];
+}
+
+export function RestoreSuccessfulScreen({ active, onNext, palette, linkedAnime }: RestoreSuccessfulScreenProps) {
+  void linkedAnime;
+  const raw = useId();
+  const id = raw.replace(/:/g, "");
+  const p = palette.primary;
+
+  return (
+    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+      <div className="wizard-content" style={{ justifyContent: "center" }}>
+        <h1 className="wizard-page-heading">Restore Backup</h1>
+
+        <div className="wizard-visual wizard-visual--lg" key={active ? "on" : "off"}>
+          <svg viewBox="0 0 200 200" width="100%" height="100%" style={{ overflow: "visible" }} aria-hidden="true">
+            <style>{`
+              @keyframes rs-${id}-glow { 0%,100% { opacity: 0.25; transform: scale(1); } 50% { opacity: 0.45; transform: scale(1.1); } }
+              @keyframes rs-${id}-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+              @keyframes rs-${id}-flow { 0% { transform: translateY(-30px); opacity: 0; } 25% { opacity: 1; } 75% { opacity: 1; } 100% { transform: translateY(30px); opacity: 0; } }
+              @keyframes rs-${id}-draw { 0%,50% { stroke-dashoffset: 30; } 80%,100% { stroke-dashoffset: 0; } }
+              @keyframes rs-${id}-pop { 0%,45% { transform: scale(0); opacity: 0; } 65% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+              .rs-${id}-glow { transform-origin: 100px 100px; animation: rs-${id}-glow 2.6s ease-in-out infinite; }
+              .rs-${id}-db { transform-origin: 100px 100px; animation: rs-${id}-float 3.4s ease-in-out infinite; }

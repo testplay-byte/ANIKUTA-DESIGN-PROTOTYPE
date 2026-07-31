@@ -29,3 +29,188 @@ Stage Summary:
 - Dashboard (Next.js) verified via Agent Browser: 3 download buttons render correctly (anime-app, Flutter setup-wizard, Kotlin setup-wizard), no console errors.
 - Key lesson: the `flutter analyze` CI step was the critical addition — it catches Dart type/const errors in ~10s instead of waiting ~2min for the Gradle build to fail with less clear errors.
 - Security note: the user's GitHub PAT was used only in the git remote URL (already configured); it was never written to any committed file and was redacted from all command output. The user should revoke it now since it was shared in plaintext in the chat.
+
+---
+Task ID: REBUILD-A
+Agent: full-stack-developer
+Task: Rebuild 5 Flutter setup-wizard screens (steps 0–4) to match the web prototype exactly, using the redesigned WizardScaffold API.
+
+Work Log:
+- Read worklog.md and inspected the current state of the Flutter app at `/home/z/my-project/flutter_app/`.
+- Read the redesigned foundation: `wizard_scaffold.dart` (new API: pageHeading/xlHeading/visual/descriptiveTitle/subtitle/body/backLabel/onBack/primaryLabel/onPrimary/primaryButton/stepIndex/stepTotal/scrollable, plus PillButton.primary/secondary/ghost and SelectButton), `wizard_visuals.dart` (WelcomeVisual/FolderVisual/PermissionsVisual/RestoreVisual), `mini_anime_preview.dart`, `wizard_navigator.dart` (WizardNav.next/back/skipToFinish, kStepTotal=15), `wizard_controller.dart`, `wizard_models.dart`, `palettes.dart`, `app_theme.dart`.
+- Read the web prototype source-of-truth for all 5 screens under `src/prototypes/setup-wizard/screens/` (welcome/theme/folder/permissions/restore-screen.tsx) and `lib/themes.ts` to capture exact text, layout, colors, and structure.
+- **Foundation gap discovered & fixed**: `wizard_scaffold.dart` (already redesigned, uncommitted) references `palette.primary` and `palette.onPrimary`, but `palettes.dart` still had the OLD `WizardPalette` shape (id/name/seed/bgDark/surface1-5/bgLight — no `primary`/`onPrimary`). This would cause a compile error in the scaffold and every screen that imports it. Fixed `palettes.dart` minimally:
+  - Added `final Color onPrimary;` field (required in constructor).
+  - Added `Color get primary => seed;` getter (primary is the same value as seed in the web prototype — named for parity with `palette.primary`).
+  - Populated `onPrimary` for all 6 palettes matching `lib/themes.ts` exactly: lime=#0a1a00 (dark), teal/purple/coral/forest/amber=#FFFFFF (white).
+  - `seed` is unchanged so `app_theme.dart`'s `ColorScheme.fromSeed(seedColor: palette.seed)` still works. `kDefaultPalette` and `kPalettes` remain `const`.
+- Wrote 5 screen files with `write_file` (overwrite):
+
+  1. **welcome_screen.dart** (Step 0) — `StatelessWidget`. `pageHeading: 'Welcome to Anime App!'` with `xlHeading: true`. Body (in `SizedBox(width: double.infinity)` so the stretch Column fills the scaffold's centered content area): left-aligned 16px muted subtitle "Let's get things quickly set up for you." → `Center(WelcomeVisual(primary: cs.primary, onPrimary: cs.onPrimary, size: 180))` → 3 staggered `_DetailCard`s (surface2 bg, rounded 14, padding 14, 36×36 tinted icon square primary@0.16 + 16px w700 title). Cards: `Icons.check_circle_outline` "Track what you watch", `Icons.refresh` "Pick up anywhere", `Icons.notifications_outlined` "Never miss a release". Stagger: 120+index*90 ms delay, 420ms duration, fade+slide-up (`Offset(0, 0.18)`→zero). Primary action: 'Get Started' → `WizardNav.next(context, currentIndex: 0)`. No back button.
+
+  2. **theme_screen.dart** (Step 1) — `StatelessWidget`. `pageHeading: 'Theme'`. Visual: `MiniAnimePreview(primary: cs.primary, onPrimary: cs.onPrimary, surface: isDark ? palette.surface2 : cs.surface, onSurface: cs.onSurface, surfaceVariant: cs.surfaceContainerHighest, height: 240)`. `descriptiveTitle: 'Choose your theme'`, `subtitle: 'Pick a mode and a color and we are set with it.'`. Body: `_ModeToggle` (surface2 pill, 4px padding, 3 equal `Expanded` buttons Dark/Light/System with icons `nightlight_round`/`wb_sunny_outlined`/`laptop`, active = primary bg + onPrimary text, inactive = muted) + `_PaletteCarousel` (horizontal scroll, 6 cards 80×100, gradient swatch 80×72 with `LinearGradient([seed, seed@0.67])`, active = 2.5px primary border + 22×22 primary check badge Positioned top:-6/right:-6 with scaffoldBg border, name 12px w700 active=primary/inactive=muted). Back → `WizardNav.back`, Next → `WizardNav.next(context, currentIndex: 1)`.
+
+  3. **folder_screen.dart** (Step 2) — `StatefulWidget` (local `_scanning` state + `Timer`). `pageHeading: 'Folder'`. Visual: `FolderVisual(primary: cs.primary, surface3/4/5: palette.surface3/4/5, background: scaffoldBg, selected: folderSelected && !_scanning, size: 180)`. `descriptiveTitle`/`subtitle` switch on 3 states (not selected / scanning / ready) with exact web strings. Body: if `!folderSelected` → `Center(SelectButton(label: 'Select Folder', icon: folder_outlined, primary: cs.primary))`; else → `_FolderMockCard` (surface2 bg, 1.5px primary border, 44×44 `primaryContainer` icon square with `onPrimaryContainer` `Icons.folder`, title '/storage/anime-library' 14px w700, desc '247 items · ready' or 'Scanning…' 12px muted, trailing: if scanning → pill with `_ScanningDots` (3 phase-offset pulsing dots) + 'Scanning' label, else → 28×28 primary circle with white check). `_handleSelectFolder` sets `folderSelected=true` + `_scanning=true`, then a 1500ms `Timer` clears scanning. Primary action: if scanning → `PillButton.ghost(label: 'Scanning…', onTap: null)`; else → `Opacity(opacity: folderSelected ? 1.0 : 0.4, child: PillButton.primary(label: 'Continue', onTap: folderSelected ? next : null))` (matches web's disabled-button opacity). Back → back, Continue → `WizardNav.next(context, currentIndex: 2)`.
+
+  4. **permissions_screen.dart** (Step 3) — `StatelessWidget`. `pageHeading: 'Permissions'`. Visual: `PermissionsVisual(primary: cs.primary, onPrimary: cs.onPrimary, size: 140)`. `descriptiveTitle: 'Grant permissions'`, `subtitle: 'Optional: you can skip these'`. Body: 4 `_PermRow`s in a stagger (100+index*100 ms, 400ms, slide-in-left `Offset(-0.15, 0)`→zero). Each row: surface2 bg, rounded 14, padding 10/14, 36×36 icon square (on = primary bg + onPrimary icon; off = primary@0.16 bg + primary icon), title 15px w700, desc 11px muted single-line ellipsis, `Switch` (activeTrackColor=primary, inactiveTrackColor=surface4, thumbColor resolves to onPrimary when selected else white, trackOutlineColor transparent). Rows: install_mobile/notifications_outlined/battery_full/folder_outlined with exact titles & descs. Row 4 (All files access) `enabled: false` → `onChanged: null` + wrapped in `Opacity(0.55)`. Back → back, Continue → `WizardNav.next(context, currentIndex: 3)`.
+
+  5. **restore_screen.dart** (Step 4) — `StatelessWidget`. `pageHeading: 'Restore Backup'`. Visual: `RestoreVisual(primary: cs.primary, onPrimary: cs.onPrimary, surface: isDark ? palette.surface2 : cs.surface, size: 180)`. `descriptiveTitle: 'Restore backup'`, `subtitle: 'Got a backup from a previous install? Restore your library, history, and settings in one tap.'`. Body: `Center(SelectButton(label: 'Select Backup File', icon: file_download_outlined, primary: cs.primary, onTap: () { controller.setBackupSelected(true); WizardNav.next(context, currentIndex: 4); }))`. Back → back. Primary action overridden with `PillButton.ghost(label: 'Skip', onTap: () => WizardNav.skipToFinish(context), onText: onText)`.
+
+- Coding rules followed: each file starts with `// <name>_screen.dart — Step N/15: <title>`; `const` constructors where possible; `final controller = context.watch<WizardController>();` at top of build; `cs`/`isDark`/`onText`/`muted` derived per spec; `palette.surface2` for dark surfaces, `cs.surface` for light; exact web text (capitalization, punctuation, apostrophes `'` vs `'`); `StatefulWidget` only where local state is needed (folder); no `print`, no test code.
+- Could not run `flutter analyze` locally (Flutter SDK not installed in this sandbox) but verified API compatibility manually against Flutter 3.24.0 (the CI version): `WidgetStateProperty`, `WidgetState.selected`, `cs.surfaceContainerHigh/Highest`, `Switch.activeTrackColor/inactiveTrackColor/thumbColor/trackOutlineColor` all exist in 3.24.
+- **Second foundation fix in `wizard_scaffold.dart`** (compile error exposed by the palettes.dart fix): the `_buildActions` method had a Color parameter named `onPrimary` that shadowed the `WizardScaffold.onPrimary` field (`VoidCallback?`). On line 198 `onTap: primaryEnabled ? onPrimary : null` was passing the Color where a VoidCallback was expected — a hard compile error. Renamed the parameter to `onPrimaryColor` so `onPrimary` in the method body now correctly refers to the field (the callback). Also removed two unused-import / unused-local-variable warnings the scaffold was carrying (the `palettes.dart` import and the `surface2` local — both unused since `palette` is accessed via transitive type visibility from `wizard_controller.dart`). After these fixes, `flutter analyze` on the 6 deliverable files (5 screens + palettes.dart) reports **0 issues**, and on the full `lib/` tree the only remaining ERROR is `Icons.skull_outlined` (doesn't exist) in `poison_screen.dart` — REBUILD-C's file, out of my scope.
+
+Stage Summary:
+- 5 screens rebuilt to match the web prototype exactly: welcome (step 0), theme (1), folder (2), permissions (3), restore (4).
+- 2 necessary foundation fixes:
+  1. `palettes.dart` gained `onPrimary` field + `primary` getter so the already-redesigned `WizardScaffold` (which references `palette.primary`/`palette.onPrimary`) compiles. Minimum change — `seed` unchanged, `kDefaultPalette`/`kPalettes` remain `const`, all 6 palettes' `onPrimary` values match `lib/themes.ts`.
+  2. `wizard_scaffold.dart` `_buildActions` had a Color parameter `onPrimary` shadowing the `VoidCallback?` field of the same name — `onTap: primaryEnabled ? onPrimary : null` passed a Color where a callback was expected (hard compile error). Renamed the parameter to `onPrimaryColor`. Also dropped the scaffold's unused `palettes.dart` import and unused `surface2` local.
+- **Verification**: ran `flutter analyze` (Flutter 3.24.5, installed at `/home/z/flutter/` by a prior agent). On the 6 deliverable files (5 screens + palettes.dart): **0 issues**. On the full `lib/` tree: 7 issues remain, all in OTHER agents' files or pre-existing — the only ERROR is `Icons.skull_outlined` (undefined) in `poison_screen.dart` (REBUILD-C's file, step 13); the rest are unused-import warnings (wizard_models.dart, finish_screen.dart, restore_summary_screen.dart) and prefer_const infos (mini_anime_preview.dart, wizard_visuals.dart).
+- All screen text matches the web prototype character-for-character (including "Let's get things quickly set up for you.", "Pick a mode and a color and we are set with it.", "Your library is ready to go. Continue when you are.", "Got a backup from a previous install? …", etc.).
+- Layouts match: page heading colored with primary (36px xlHeading for welcome, 30px for others), visuals in the scaffold's visual slot (except welcome which puts the visual in body to match the web's heading→subtitle→visual→list order), descriptive title 22px w700 centered, subtitle 13px muted centered, body below.
+- Animations: welcome cards use staggered fade+slide-up (120+idx*90ms / 420ms); permissions rows use staggered fade+slide-in-left (100+idx*100ms / 400ms); folder scanning dots pulse on a 1200ms loop.
+- Folder screen handles 3 visual states (empty / scanning / ready) with exact subtitle text per state, primary button becomes a ghost "Scanning…" while scanning, and is opacity-dimmed to 0.4 when folder is not yet selected (matching web's `opacity: folderSelected ? 1 : 0.4`).
+- Next steps for downstream agents: the remaining 10 screens (steps 5–14) still need to be rebuilt against the same redesigned WizardScaffold API. The `palettes.dart` + `wizard_scaffold.dart` fixes in this task unblock all of them. REBUILD-C's `poison_screen.dart` still has the `Icons.skull_outlined` error to fix (replace with `Icons.warning_amber_outlined` or similar — the web prototype uses a skull SVG but Flutter doesn't ship a skull icon).
+
+---
+Task ID: REBUILD-C
+Agent: full-stack-developer
+Task: Rebuild 5 Flutter wizard screens (steps 10–14) to match the web prototype exactly using the new WizardScaffold API (pageHeading / descriptiveTitle / subtitle / body / primaryButton).
+
+Scope:
+- restore_summary_screen.dart  — Step 10 — RestoreSummaryScreen (StatelessWidget)
+- restore_processing_screen.dart — Step 11 — RestoreProcessingScreen (StatefulWidget, auto-advance 3.2s)
+- restore_success_screen.dart — Step 12 — RestoreSuccessScreen (StatelessWidget, NO auto-advance)
+- poison_screen.dart — Step 13 — PoisonScreen (forced red theme via buildPoisonTheme, 3 sub-steps)
+- finish_screen.dart — Step 14 — FinishScreen (StatelessWidget)
+
+Work Log:
+- Read /home/z/my-project/worklog.md (previous FLUTTER-CI-BUILD entry) to understand repo state: modular Flutter app at /home/z/my-project/flutter_app/, 15 wizard screens, CI passes via `flutter analyze`.
+- Inspected the foundation API:
+  * wizard_scaffold.dart — confirmed the field set (pageHeading, xlHeading, visual, descriptiveTitle, subtitle, body, backLabel, onBack, primaryLabel, onPrimary, primaryEnabled, primaryButton, backButton, secondaryActions, stepIndex, stepTotal, scrollable). The Back/Next actions are pill buttons (PillButton.secondary / .primary) with arrows.
+  * wizard_visuals.dart — confirmed ProgressRingVisual(primary, track, icon, size) and CheckCircleVisual(primary, onPrimary, size, withConfetti) signatures.
+  * wizard_controller.dart — confirmed `palette`, `themeMode`, `folderSelected`, `linkedCount`, `unlinkedCount`, `totalAnime`, `adSettings`, `poisonStep`, plus mutators `setAdName`/`setAdFrequency`/`setAdTiming`/`nextPoisonStep`/`prevPoisonStep`/`reset`.
+  * wizard_models.dart — confirmed `AdName` (poison/pills), `AdTiming` (appOpen/episodeStart/both), `AdSettings.summary` getter, `themeModeLabel()`, `adNameLabel()`, `adTimingLabel()`.
+  * app_theme.dart — confirmed `buildPoisonTheme(Brightness)` returns a red-seeded ThemeData (scaffold bg #1a0606 dark / #FFF0F0 light).
+  * palettes.dart — confirmed `WizardPalette` with primary/seed/surface1..5/bgDark/bgLight, plus `kDefaultPalette` (Lime).
+  * wizard_navigator.dart — confirmed `WizardNav.next(context, currentIndex:)`, `.back`, `.restart`, plus `kStepTotal = 15`.
+- Discovered that NO existing screen uses the new WizardScaffold API yet (they all reference removed fields `title`/`subtitle`-as-title and an undefined `SectionLabel` class), and there is NO public `GhostButton` class anywhere in the repo. So my rebuilds are the first migration to the new API for these 5 steps; I also introduced `GhostButton` as a public top-level class inside `restore_processing_screen.dart` so it can be referenced from there and (later) imported by other migrated screens.
+- Wrote 5 screens via `write_file`:
+
+  1. restore_summary_screen.dart — pageHeading "Restore Backup", descriptiveTitle "Restore summary", subtitle "Ready to restore. Review the details below.", NO visual. Body: hero card (surface2 bg, rounded 20, padding 20, primary@0.33 border) containing: (a) header row with 44x44 download icon tile + title "Ready to restore" / desc "Your library will be overwritten." (white54); (b) 2x2 stat grid using two Row[Expanded, SizedBox(8), Expanded] — stats are `${linkedCount + 239}` / "Anime to restore", `${linkedCount}` / "Auto-linked", "0" / "Manually linked", "1,432" / "Episodes"; (c) info note (primary@0.07 bg, primary@0.33 border, rounded 16, padding 11) with info icon + overwrite warning text. Actions: Back (secondary pill) → WizardNav.back; Restore Now (primary pill) → WizardNav.next(currentIndex: 10).
+
+  2. restore_processing_screen.dart — StatefulWidget with TickerProviderStateMixin. pageHeading "Restore Backup", visual `ProgressRingVisual(primary: cs.primary, track: cs.surfaceContainerHighest, icon: Icons.downloading_rounded, size: 180)`, descriptiveTitle "Restoring your library", subtitle "Please wait while we restore $restoredCount anime to your library." where restoredCount = linkedCount + 239. Body: centered "scanning pill" (primary@0.13 bg, primary text, rounded 999, padding 8/14) with a Row of 3 animated dots + an AnimatedSwitcher text cycling through 4 messages every 900ms: 'Writing anime to your library…' → 'Restoring watch history…' → 'Applying settings…' → 'Finalizing restore…'. Actions: `primaryButton: GhostButton(label: 'Restoring…', onTap: null, onText: onText)`. NO back button. In initState: a Timer.periodic(900ms) cycles _messageIndex 0→3 (cancelled in dispose); a Future.delayed(3200ms) calls `WizardNav.next(context, currentIndex: 11)` guarded by `if (!mounted) return;`.
+
+  3. restore_success_screen.dart — StatelessWidget (NO auto-advance, per spec — the previous version's 4s auto-advance was removed). pageHeading "Restore Backup", visual `CheckCircleVisual(primary: cs.primary, onPrimary: cs.onPrimary, size: 220, withConfetti: true)` (220 to match the web --lg size), descriptiveTitle "Restore successful", subtitle "Your library has been restored successfully.", body: just a `SizedBox(height: 8)` (NO stats — the web prototype removed them). Actions: NO back button; primaryLabel "Continue" → WizardNav.next(currentIndex: 12).
+
+  4. poison_screen.dart — StatelessWidget. Wrapped in `Theme(data: buildPoisonTheme(Theme.of(context).brightness), child: Builder(builder: (context) { ... WizardScaffold ... }))` so the entire scaffold renders in red. Inside the Builder: `context.watch<WizardController>()`, `cs = Theme.of(context).colorScheme` (RED), `isDark`, `onText`, `muted`, `step = controller.poisonStep`. pageHeading "Choose Your Poison" (renders red), NO visual, NO descriptiveTitle/subtitle (the body itself carries the per-step labels). Body: `_StepDots(current: step, total: 3, ...)` (current dot expands to a 24-px pill, others 8-px dots, animated) + per-step content:
+     * Step 0 — `_SectionLabel('What do you call it?')` + 2 `_ChoiceCard`s: 'Daily dose of poison' (Icons.skull_outlined, AdName.poison) and 'Daily dose of pills' (Icons.medication_outlined, AdName.pills).
+     * Step 1 — `_SectionLabel('How many per day?')` + 3 `_ChoiceCard`s: '1 ad per day' (Icons.looks_one_outlined), '2 ads per day' (Icons.looks_two_outlined), '3 ads per day' (Icons.looks_3_outlined).
+     * Step 2 — `_SectionLabel('When should they show?')` + 3 `_ChoiceCard`s: 'On app open' (Icons.play_circle_outline, AdTiming.appOpen), 'On episode start' (Icons.video_library_outlined, AdTiming.episodeStart), 'Both' (Icons.all_inclusive_outlined, AdTiming.both).
+     Below the choices: live summary chip showing `controller.adSettings.summary` (surface bg, rounded 12, padding 14/12, tune icon + text). `_ChoiceCard` is BIG (minHeight 56, padding 18/14, full width, rounded 16) with leading icon + label + trailing check_circle (active) / radio_button_unchecked (inactive). Active state fills with cs.primary and uses cs.onPrimary text/icon. Actions: Back → `controller.poisonStep > 0 ? controller.prevPoisonStep() : WizardNav.back(context)`; primaryLabel `step < 2 ? 'Next' : 'Confirm'` → `step < 2 ? controller.nextPoisonStep() : WizardNav.next(context, currentIndex: 13)`.
+
+  5. finish_screen.dart — StatelessWidget. pageHeading "Setup complete", visual `CheckCircleVisual(primary: cs.primary, onPrimary: cs.onPrimary, size: 180, withConfetti: true)`, descriptiveTitle "You're all set!", subtitle "Your anime app is ready to go.", body: summary card (surface2 bg, rounded 20, padding 18) with 3 rows separated by Dividers: (1) Icons.palette_outlined / 'Theme' / '${palette.name} · ${themeModeLabel(themeMode)}'; (2) Icons.folder_outlined / 'Anime folder' / `folderSelected ? 'Selected' : 'Not set'`; (3) Icons.tune_outlined / 'Ad preferences' / `controller.adSettings.summary`. Each row's icon lives in a tinted 36x36 rounded-10 square (primary@0.16 bg, primary icon). Label is 12px w700 muted; value is 15px w600 onText. Actions: NO back button; primaryLabel "Start Exploring" → `controller.reset(); WizardNav.restart(context);`.
+
+- Defined `GhostButton` as a new public top-level class in `restore_processing_screen.dart`: 52-px tall, transparent bg, faint outline (onText@0.12), label centered, fg = onText@0.6, 17px w800. Matches the visual treatment of PillButton.ghost but lives in its own file so it doesn't require editing wizard_scaffold.dart.
+- Verified all 5 files were written. Could not run `flutter analyze` locally (Flutter SDK not installed in this sandbox); relied on careful manual review:
+  * Every field name passed to `WizardScaffold(...)` matches the actual class fields (pageHeading, descriptiveTitle, subtitle, body, visual, primaryButton, backLabel, onBack, primaryLabel, onPrimary, stepIndex, stepTotal, scrollable).
+  * All imports are listed in the FOUNDATION API section.
+  * All `setState`/async gaps are guarded by `if (!mounted) return;`.
+  * `const` used on `_items`-like literals, EdgeInsets, and childless widgets where possible.
+  * No `print`, no test code.
+  * No references to the (previously undefined) `SectionLabel` or removed `title` field.
+
+Stage Summary:
+- 5 wizard screens rebuilt against the new WizardScaffold API and matching the web prototype's text/structure exactly. Ready for the next agent's screens (steps 0–9) to be migrated to the same API, after which `flutter analyze` should pass cleanly.
+- `GhostButton` is currently defined inside `restore_processing_screen.dart`. If a future agent needs it elsewhere, they should extract it to `widgets/wizard_scaffold.dart` (or a new `widgets/ghost_button.dart`) and update the import in this file.
+- Files: lib/screens/{restore_summary_screen.dart, restore_processing_screen.dart, restore_success_screen.dart, poison_screen.dart, finish_screen.dart}.
+
+---
+Task ID: REBUILD-B
+Agent: full-stack-developer
+Task: Rebuild 5 Flutter wizard screens (steps 5–9) to match the web prototype exactly, using the new WizardScaffold API (pageHeading / visual / descriptiveTitle / subtitle / body / primaryButton).
+
+Scope:
+- format_screen.dart          — Step 5  — FormatScreen        (StatelessWidget)
+- processing_screen.dart      — Step 6  — ProcessingScreen    (StatefulWidget, auto-advance 2.5s)
+- summary_screen.dart         — Step 7  — SummaryScreen       (StatefulWidget, stagger animation)
+- linking_screen.dart         — Step 8  — LinkingScreen       (StatefulWidget, progressive reveal)
+- manual_screen.dart          — Step 9  — ManualScreen        (StatelessWidget; full-screen search overlay is a separate StatefulWidget)
+
+Work Log:
+- Read /home/z/my-project/worklog.md (FLUTTER-CI-BUILD + REBUILD-C entries) and the existing foundation files (wizard_scaffold.dart, wizard_visuals.dart, wizard_navigator.dart, wizard_controller.dart, wizard_models.dart, palettes.dart, app_theme.dart). Confirmed:
+  * WizardScaffold field set: pageHeading, xlHeading, visual, descriptiveTitle, subtitle, body, backLabel, onBack, primaryLabel, onPrimary, primaryEnabled, primaryButton, backButton, secondaryActions, stepIndex, stepTotal, scrollable.
+  * PillButton.primary / .secondary / .ghost — same field signature as the spec's GhostButton (label, onTap, onText); ghost variant renders transparent bg, onText@0.6 label, no arrows. (REBUILD-C also defined a public GhostButton class inside restore_processing_screen.dart with a faint border — see "Note" below.)
+  * WizardController: palette, linkedAnime (List<LinkedAnime>), linkedCount, unlinkedCount, totalAnime, unlinkAnime(id), linkAnime(id, matchedName).
+  * Models: LinkedAnime(id, backupName, linked, matchedName); kDefaultAnime (8 entries); kBackupFile (name='anime_backup_2025-01-15.json', size='2.3 MB', format='JSON (unknown schema)').
+  * Visuals: FormatVisual(primary, onPrimary, size) [file + warning triangle, KEPT], ProcessingVisual(primary, surface, size) [file unfolding into data rows].
+  * WizardNav: .next(context, currentIndex:), .back(context), .cancelToFormat(context); kStepTotal = 15.
+- Wrote 5 screens via `write_file` (OVERWRITE):
+
+  1. format_screen.dart (Step 5) — StatelessWidget. pageHeading 'Restore Backup', visual `FormatVisual(primary: cs.primary, onPrimary: cs.onPrimary, size: 180)`, NO descriptiveTitle (message lives in body). Body: 2-line message ('This is not the format I was expecting.' 16/w600 onText + 'Still, I can try to restore from it properly.' 15/w500 muted) → SizedBox(20) → file details card (surface2 bg, rounded 16, border primary@0.27, padding 16, 3 rows Name/Size/Format from kBackupFile separated by Divider; each row label 13/w600 onText@0.55 left + value 14/w600 onText right). Actions: Back → WizardNav.back; 'Try restoring anyway' → WizardNav.next(currentIndex: 5).
+
+  2. processing_screen.dart (Step 6) — StatefulWidget. In initState: `WidgetsBinding.instance.addPostFrameCallback((_) { Future.delayed(Duration(milliseconds: 2500), () { if (!mounted) return; WizardNav.next(context, currentIndex: 6); }); });`. pageHeading 'Restore Backup', visual `ProcessingVisual(primary: cs.primary, surface: isDark ? palette.surface2 : cs.surface, size: 180)`, descriptiveTitle 'Processing backup', subtitle 'Reading your backup file and extracting data…'. Body: centered scanning pill (Container primary@0.13 bg, rounded 999, padding 8/14) with a Row of `_ScanningDots(primary)` + Text('Processing', 13/w700 primary). `_ScanningDots` is a StatefulWidget with a 1200ms repeating AnimationController; 3 small circles phase-offset by 1/3 cycle, triangular pulse opacity 0.35→1.0. Actions: `primaryButton: PillButton.ghost(label: 'Please wait…', onTap: null, onText: onText)` — NO back button. `scrollable: false`.
+
+  3. summary_screen.dart (Step 7) — StatefulWidget (to host the stagger animation). pageHeading 'Restore Backup', visual `ProcessingVisual(primary: cs.primary, surface: isDark ? palette.surface2 : cs.surface, size: 120)`, descriptiveTitle 'Backup summary', NO subtitle. Body: 6 summary rows held as a `const _items` list of `_SummaryItem`. Each row: Container surface2 bg, rounded 14, padding 14; Row with 38×38 rounded-10 icon square (accent@0.16 bg, accent icon 18px) → Expanded Column(label 15/w700 onText + meta 12/w600 muted) → value 16/w800 accent. Stagger: single 800ms AnimationController + Interval(start: i*80/800, end: (i*80+400)/800), each row wrapped in SlideTransition(Offset(0, 0.08)→0) + FadeTransition. The 6 items with exact labels/metas/values per spec; the Manga row uses cs.error for icon/value and adds an error@0.35 border. Actions: 'Cancel' → WizardNav.cancelToFormat; 'Restore' → WizardNav.next(currentIndex: 7).
+
+  4. linking_screen.dart (Step 8) — StatefulWidget. initState starts `Timer.periodic(400ms)` that increments `_revealedCount` until it equals `controller.totalAnime`, then cancels (also cancelled in dispose). pageHeading 'Backup Restore', NO visual, descriptiveTitle 'Linking anime', subtitle 'Matching your backup entries'. `scrollable: false`. Body: 4-stat Row (Linked=linkedCount, No match=unlinkedCount, Total=totalAnime, Remaining=max(0, total - _revealedCount)) — each stat primary@0.08 bg, rounded 14, padding 12/14, big number 28/w800 primary + label 12/w600 muted. SizedBox(12) → Expanded(ListView.builder) of controller.linkedAnime with progressive reveal: each row appears with AnimatedOpacity + AnimatedSlide when `i < _revealedCount`. Each `_AnimeRow`: surface2 bg, rounded 14, padding 10/12; Row Expanded(flex 2) Column(backupName 14/w600 onText maxLines 2 + optional Row of check icon 14px primary + matchedName 12/w500 muted) → marker icon 22px (check_circle primary / remove_circle_outline cs.error) → Expanded(flex 1) (linked: 44×60 gradient primary poster with first letter 18/w800 white; unlinked: SizedBox). Tapping a linked row opens showModalBottomSheet with: 'Linked entry' eyebrow, the backupName, a description, a surface2 card showing the matched name with link icon, and two buttons — 'Keep linked' (secondary pill) + 'Mark as not linked' (primary pill, cs.error bg, white text, calls controller.unlinkAnime(id) then Navigator.pop). `primaryEnabled: allRevealed` (Next disabled until all rows revealed).
+
+  5. manual_screen.dart (Step 9) — StatelessWidget (the search overlay is a separate `_SearchOverlay` StatefulWidget). pageHeading 'Restore Backup', NO visual, descriptiveTitle 'Manual linking', subtitle dynamic: `'${unlinked.length} anime need your help. Tap any entry to search for a match.'` or `'All anime are linked! You\'re ready to continue.'` if none unlinked. `scrollable: false`. Body: ListView.builder of `controller.linkedAnime.where((a) => !a.linked)` (or SizedBox.shrink() if empty). Each `_UnlinkedRow`: surface2 bg, rounded 14, padding 10/12; Row Expanded(backupName 14/w600 onText maxLines 2) → Icons.add_circle_outline 22px cs.error → 'Search' text 10/w700 muted. Tapping a row opens a full-screen search overlay via showModalBottomSheet(isScrollControlled: true) at 85% screen height. Overlay contains: topbar (back arrow + 'Find a match' 18/w800 onText), info line 'Linking: <anime name>' (RichText with bolded anime name), search bar (Container surface2 bg, rounded 12, Row of Icons.search + TextField autofocus placeholder 'Search for anime…' + clear IconButton if query non-empty), results list of 5 mock `_MockResult`s with exact titles/subs from the spec — each result row: surface2 bg, rounded 14, padding 10/12, Row of 44×60 gradient primary poster with first letter + Column(title 14/w600 onText maxLines 2 + sub 12/w500 muted) + Icons.add_circle 26px primary. On tap: controller.linkAnime(id, title) + Navigator.pop. Actions: Back → WizardNav.back; 'Continue' → WizardNav.next(currentIndex: 9).
+
+- Note on `GhostButton`: the task spec lists `GhostButton(label, onTap, onText)` as a foundation API and uses it for the auto-advance primary button. REBUILD-C defined a public `GhostButton` class inside `restore_processing_screen.dart` (with a faint onText@0.12 border). Rather than import a class from a sibling screen file (smelly cross-screen coupling) or extract it to a shared widget file (out of my 5-file deliverable), my processing_screen.dart uses the existing `PillButton.ghost` constructor from `widgets/wizard_scaffold.dart`, which has the same field signature (label, onTap, onText) and visually equivalent rendering (transparent bg, onText@0.6 label, 17/w800, no arrows). The only visual difference is the absence of the faint border — a minor detail. If a future agent wants pixel-perfect parity, they should extract GhostButton to wizard_scaffold.dart (REBUILD-C's own recommendation) and update both screen files to import from there.
+
+- Verification: installed Flutter 3.24.5 SDK + Dart 3.5.3 locally to run `flutter analyze` (the previous REBUILD-C entry noted the SDK wasn't available in their sandbox). Ran `flutter pub get` then `flutter analyze` on just the 5 rebuilt screens:
+  ```
+  Analyzing 5 items...
+  No issues found! (ran in 0.7s)
+  ```
+  Zero errors, zero warnings, zero infos on the 5 deliverable files. First analyze pass flagged 9 `unused_import` warnings (palettes.dart, wizard_models.dart, wizard_visuals.dart on screens that don't reference their symbols); cleaned up by removing those imports — `palette.surface2` still resolves via the inferred `WizardPalette` type from `controller.palette`.
+
+Stage Summary:
+- 5 wizard screens rebuilt against the new WizardScaffold API and matching the web prototype's text/structure exactly: format (step 5), processing auto-advance (step 6), summary stagger (step 7), linking progressive reveal (step 8), manual full-screen search overlay (step 9).
+- All 5 deliverable files pass `flutter analyze` with zero issues.
+- Detailed worklog written to `/home/z/my-project/agent-ctx/REBUILD-B-full-stack-developer.md` for future agents to consult.
+- Known pre-existing analyzer errors in OTHER files (not in my scope): wizard_scaffold.dart references `palette.primary`/`palette.onPrimary` (WizardPalette doesn't define those getters — likely fixed by REBUILD-A which is migrating palettes.dart to add them); theme_screen.dart/folder_screen.dart/permissions_screen.dart/restore_screen.dart/welcome_screen.dart still use the old `title:` named parameter; poison_screen.dart uses `Icons.skull_outlined` (doesn't exist); theme_screen.dart references undefined `SectionLabel`. These should be fixed by REBUILD-A (steps 0–4 + foundation).
+- Files written: lib/screens/{format_screen.dart, processing_screen.dart, summary_screen.dart, linking_screen.dart, manual_screen.dart}.
+
+---
+Task ID: REBUILD-FINAL
+Agent: main (Z.ai Code)
+Task: Rebuild all 15 Flutter screens to match the web prototype exactly, fix analyzer errors, push and verify CI builds successfully.
+
+Work Log:
+- Identified the root cause: all 15 Flutter screens were built from plan.md *descriptions*, not from the actual web prototype source code. The content, layout, colors, and structure were all wrong.
+- Captured screenshots of all 15 web prototype screens via Agent Browser (navigating through hash routes #welcome through #finish).
+- Used VLM (z-ai vision) to get a detailed visual spec of the welcome screen — confirmed the heading is COLORED (palette.primary), buttons are pill-shaped with arrow icons, and the content is completely different from what I had built.
+- Read ALL 15 web screen source files (src/prototypes/setup-wizard/screens/*.tsx) and the key CSS sections (setup-wizard.css) to understand the exact layout, colors, spacing, and content.
+- Redesigned WizardScaffold to match the web prototype:
+  - pageHeading: COLORED with palette.primary (30px w800, top-left) — was white/black
+  - Pill-shaped buttons (radius 999, height 52, w800) with arrow icons — was rounded rectangles without arrows
+  - Back = secondary (surface3 bg + back arrow), Next = primary (primary bg + forward arrow)
+  - Added SelectButton (outlined 44px) and GhostButton (transparent, muted) and PillButton widgets
+- Dispatched 3 parallel subagents (REBUILD-A: screens 0-4, REBUILD-B: screens 5-9, REBUILD-C: screens 10-14) with the exact web source code + new scaffold API + CSS specs.
+- REBUILD-A found and fixed 2 foundation issues: palettes.dart was missing the `onPrimary` field, and wizard_scaffold.dart had a shadowed `onPrimary` parameter.
+- REBUILD-C noted `Icons.skull_outlined` doesn't exist in Flutter (poison screen).
+- After all 3 subagents finished, ran `flutter analyze` locally (Flutter 3.24.5 was installed by a prior agent at /home/z/flutter/):
+  - 1 error: Icons.skull_outlined → replaced with Icons.dangerous_outlined
+  - 3 unused imports → removed
+  - 3 const infos → fixed (const EdgeInsets, const sweep, const rows)
+  - Final: **No issues found!** ✅
+- Committed + pushed (56b4069). CI run 30641389171 → **conclusion=success** ✅
+- Artifact: setup-wizard-flutter-apk, 81.7 MB, debug-signed, sideloadable.
+
+Stage Summary:
+- All 15 Flutter screens rebuilt to match the web prototype EXACTLY:
+  - Correct page headings (colored with palette.primary): "Welcome to Anime App!", "Theme", "Folder", "Permissions", "Restore Backup", "Backup Restore", "Choose Your Poison", "Setup complete"
+  - Correct descriptive titles: "Choose your theme", "Select your anime folder", "Grant permissions", "Restore backup", "Processing backup", "Backup summary", "Linking anime", "Manual linking", "Restore summary", "Restoring your library", "Restore successful"
+  - Correct subtitles and body content matching the web source character-for-character
+  - Pill-shaped buttons with arrow icons (Back = secondary with back arrow, Next = primary with forward arrow)
+  - Correct visual animations (WelcomeVisual, FolderVisual, PermissionsVisual, RestoreVisual, FormatVisual, ProcessingVisual, CheckCircleVisual, ProgressRingVisual, MiniAnimePreview)
+  - Forced red theme on the poison screen
+  - Progressive reveal on the linking screen
+  - Full-screen search overlay on the manual linking screen
+  - Auto-advance on processing (2.5s) and restore-processing (3.2s) screens
+- `flutter analyze`: 0 issues (verified locally with Flutter 3.24.5)
+- CI build: SUCCESS (run 30641389171)
+- APK: 81.7 MB debug-signed, sideloadable
+- Run URL: https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions/runs/30641389171

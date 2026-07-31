@@ -1,0 +1,953 @@
+     1→// wizard_visuals.dart — custom-painted and composed animations for each screen.
+     2→//
+     3→// Each visual is a self-contained stateless widget that takes the current
+     4→// ColorScheme (or palette) so it adapts to the selected theme. Animations use
+     5→// built-in AnimationController + CustomPainter (zero extra dependencies).
+     6→
+     7→import 'dart:math' as math;
+     8→import 'package:flutter/material.dart';
+     9→
+    10→// ============================================================================
+    11→// WELCOME — play mark with soft glow + gentle scale pulse
+    12→// ============================================================================
+    13→
+    14→class WelcomeVisual extends StatefulWidget {
+    15→  final Color primary;
+    16→  final Color onPrimary;
+    17→  final double size;
+    18→  const WelcomeVisual({
+    19→    super.key,
+    20→    required this.primary,
+    21→    required this.onPrimary,
+    22→    this.size = 160,
+    23→  });
+    24→
+    25→  @override
+    26→  State<WelcomeVisual> createState() => _WelcomeVisualState();
+    27→}
+    28→
+    29→class _WelcomeVisualState extends State<WelcomeVisual>
+    30→    with TickerProviderStateMixin {
+    31→  late final AnimationController _c;
+    32→
+    33→  @override
+    34→  void initState() {
+    35→    super.initState();
+    36→    _c = AnimationController(
+    37→      vsync: this,
+    38→      duration: const Duration(milliseconds: 3400),
+    39→    )..repeat(reverse: true);
+    40→  }
+    41→
+    42→  @override
+    43→  void dispose() {
+    44→    _c.dispose();
+    45→    super.dispose();
+    46→  }
+    47→
+    48→  @override
+    49→  Widget build(BuildContext context) {
+    50→    return AnimatedBuilder(
+    51→      animation: _c,
+    52→      builder: (context, _) {
+    53→        final s = 0.96 + 0.08 * _c.value;
+    54→        return SizedBox(
+    55→          width: widget.size,
+    56→          height: widget.size,
+    57→          child: CustomPaint(
+    58→            painter: _WelcomePainter(
+    59→              primary: widget.primary,
+    60→              onPrimary: widget.onPrimary,
+    61→              scale: s,
+    62→            ),
+    63→          ),
+    64→        );
+    65→      },
+    66→    );
+    67→  }
+    68→}
+    69→
+    70→class _WelcomePainter extends CustomPainter {
+    71→  final Color primary;
+    72→  final Color onPrimary;
+    73→  final double scale;
+    74→  _WelcomePainter({
+    75→    required this.primary,
+    76→    required this.onPrimary,
+    77→    required this.scale,
+    78→  });
+    79→
+    80→  @override
+    81→  void paint(Canvas canvas, Size size) {
+    82→    final cx = size.width / 2;
+    83→    final cy = size.height / 2;
+    84→    // Soft glow
+    85→    final glowPaint = Paint()..color = primary.withOpacity(0.28);
+    86→    canvas.drawCircle(Offset(cx, cy), size.width * 0.42, glowPaint);
+    87→    // Rounded square
+    88→    final sqSize = size.width * 0.42 * scale;
+    89→    final rrect = RRect.fromRectAndRadius(
+    90→      Rect.fromCenter(center: Offset(cx, cy), width: sqSize, height: sqSize),
+    91→      Radius.circular(sqSize * 0.26),
+    92→    );
+    93→    canvas.drawRRect(rrect, Paint()..color = primary);
+    94→    // Play triangle
+    95→    final tri = Path()
+    96→      ..moveTo(cx - sqSize * 0.10, cy - sqSize * 0.19)
+    97→      ..lineTo(cx - sqSize * 0.10, cy + sqSize * 0.19)
+    98→      ..lineTo(cx + sqSize * 0.21, cy)
+    99→      ..close();
+   100→    canvas.drawPath(tri, Paint()..color = onPrimary);
+   101→  }
+   102→
+   103→  @override
+   104→  bool shouldRepaint(covariant _WelcomePainter old) =>
+   105→      old.scale != scale || old.primary != primary;
+   106→}
+   107→
+   108→// ============================================================================
+   109→// FOLDER — open folder with floating files + selected check badge
+   110→// ============================================================================
+   111→
+   112→class FolderVisual extends StatefulWidget {
+   113→  final Color primary;
+   114→  final Color surface3;
+   115→  final Color surface4;
+   116→  final Color surface5;
+   117→  final Color background;
+   118→  final bool selected;
+   119→  final double size;
+   120→  const FolderVisual({
+   121→    super.key,
+   122→    required this.primary,
+   123→    required this.surface3,
+   124→    required this.surface4,
+   125→    required this.surface5,
+   126→    required this.background,
+   127→    this.selected = false,
+   128→    this.size = 200,
+   129→  });
+   130→
+   131→  @override
+   132→  State<FolderVisual> createState() => _FolderVisualState();
+   133→}
+   134→
+   135→class _FolderVisualState extends State<FolderVisual>
+   136→    with TickerProviderStateMixin {
+   137→  late final AnimationController _c;
+   138→
+   139→  @override
+   140→  void initState() {
+   141→    super.initState();
+   142→    _c = AnimationController(
+   143→      vsync: this,
+   144→      duration: const Duration(milliseconds: 3600),
+   145→    )..repeat(reverse: true);
+   146→  }
+   147→
+   148→  @override
+   149→  void dispose() {
+   150→    _c.dispose();
+   151→    super.dispose();
+   152→  }
+   153→
+   154→  @override
+   155→  Widget build(BuildContext context) {
+   156→    return AnimatedBuilder(
+   157→      animation: _c,
+   158→      builder: (context, _) {
+   159→        return SizedBox(
+   160→          width: widget.size,
+   161→          height: widget.size,
+   162→          child: CustomPaint(
+   163→            painter: _FolderPainter(
+   164→              primary: widget.primary,
+   165→              surface3: widget.surface3,
+   166→              surface4: widget.surface4,
+   167→              surface5: widget.surface5,
+   168→              background: widget.background,
+   169→              selected: widget.selected,
+   170→              bob: _c.value,
+   171→            ),
+   172→          ),
+   173→        );
+   174→      },
+   175→    );
+   176→  }
+   177→}
+   178→
+   179→class _FolderPainter extends CustomPainter {
+   180→  final Color primary;
+   181→  final Color surface3;
+   182→  final Color surface4;
+   183→  final Color surface5;
+   184→  final Color background;
+   185→  final bool selected;
+   186→  final double bob; // 0..1
+   187→  _FolderPainter({
+   188→    required this.primary,
+   189→    required this.surface3,
+   190→    required this.surface4,
+   191→    required this.surface5,
+   192→    required this.background,
+   193→    required this.selected,
+   194→    required this.bob,
+   195→  });
+   196→
+   197→  @override
+   198→  void paint(Canvas canvas, Size size) {
+   199→    final u = size.width / 200;
+   200→    final cx = size.width / 2;
+   201→    // glow
+   202→    canvas.drawCircle(
+   203→        Offset(cx, 140 * u), 60 * u, Paint()..color = primary.withOpacity(0.18));
+   204→    final dy = (bob - 0.5) * 8 * u; // -4u..+4u
+   205→    // Back lid
+   206→    _rr(canvas, surface4, 40 * u, (88 + dy) * u, 118 * u, 28 * u, 8 * u);
+   207→    // Files (floating, staggered)
+   208→    _file(canvas, surface5, primary, 56 * u, (56 + dy * 0.5) * u, 28 * u, 34 * u, 3 * u);
+   209→    _file(canvas, surface4, primary, 86 * u, (50 + dy * 0.6) * u, 28 * u, 40 * u, 3 * u);
+   210→    _file(canvas, surface3, primary, 116 * u, (56 + dy * 0.4) * u, 28 * u, 34 * u, 3 * u);
+   211→    // Front pocket
+   212→    _rr(canvas, surface3, 38 * u, 116 * u, 124 * u, 58 * u, 8 * u);
+   213→    _rrStroke(canvas, surface5, 38 * u, 116 * u, 124 * u, 58 * u, 8 * u, 2.2 * u);
+   214→    // inner lines
+   215→    canvas.drawRect(
+   216→        Rect.fromLTWH(54 * u, 134 * u, 92 * u, 4 * u),
+   217→        Paint()..color = primary.withOpacity(0.35));
+   218→    canvas.drawRect(
+   219→        Rect.fromLTWH(54 * u, 148 * u, 72 * u, 4 * u),
+   220→        Paint()..color = primary.withOpacity(0.25));
+   221→    canvas.drawRect(
+   222→        Rect.fromLTWH(54 * u, 162 * u, 82 * u, 4 * u),
+   223→        Paint()..color = primary.withOpacity(0.25));
+   224→    // selected check badge
+   225→    if (selected) {
+   226→      canvas.drawCircle(Offset(150 * u, 92 * u), 20 * u, Paint()..color = primary);
+   227→      final p = Paint()
+   228→        ..color = background
+   229→        ..style = PaintingStyle.stroke
+   230→        ..strokeWidth = 3.5 * u
+   231→        ..strokeCap = StrokeCap.round;
+   232→      canvas.drawLine(Offset(141 * u, 92 * u), Offset(148 * u, 99 * u), p);
+   233→      canvas.drawLine(Offset(148 * u, 99 * u), Offset(160 * u, 85 * u), p);
+   234→    }
+   235→  }
+   236→
+   237→  void _rr(Canvas c, Color color, double x, double y, double w, double h, double r) {
+   238→    c.drawRRect(
+   239→      RRect.fromRectAndRadius(Rect.fromLTWH(x, y, w, h), Radius.circular(r)),
+   240→      Paint()..color = color,
+   241→    );
+   242→  }
+   243→
+   244→  void _rrStroke(Canvas c, Color color, double x, double y, double w, double h,
+   245→      double r, double stroke) {
+   246→    c.drawRRect(
+   247→      RRect.fromRectAndRadius(Rect.fromLTWH(x, y, w, h), Radius.circular(r)),
+   248→      Paint()
+   249→        ..color = color
+   250→        ..style = PaintingStyle.stroke
+   251→        ..strokeWidth = stroke,
+   252→    );
+   253→  }
+   254→
+   255→  void _file(Canvas c, Color body, Color accent, double x, double y, double w,
+   256→      double h, double r) {
+   257→    _rr(c, body, x, y, w, h, r);
+   258→    c.drawRRect(
+   259→      RRect.fromRectAndRadius(Rect.fromLTWH(x, y, w, h * 0.29), Radius.circular(r)),
+   260→      Paint()..color = accent.withOpacity(0.5),
+   261→    );
+   262→  }
+   263→
+   264→  @override
+   265→  bool shouldRepaint(covariant _FolderPainter old) =>
+   266→      old.selected != selected || old.bob != bob || old.primary != primary;
+   267→}
+   268→
+   269→// ============================================================================
+   270→// SHIELD — permissions (calm ripple)
+   271→// ============================================================================
+   272→
+   273→class PermissionsVisual extends StatefulWidget {
+   274→  final Color primary;
+   275→  final Color onPrimary;
+   276→  final double size;
+   277→  const PermissionsVisual({
+   278→    super.key,
+   279→    required this.primary,
+   280→    required this.onPrimary,
+   281→    this.size = 150,
+   282→  });
+   283→
+   284→  @override
+   285→  State<PermissionsVisual> createState() => _PermissionsVisualState();
+   286→}
+   287→
+   288→class _PermissionsVisualState extends State<PermissionsVisual>
+   289→    with TickerProviderStateMixin {
+   290→  late final AnimationController _c;
+   291→
+   292→  @override
+   293→  void initState() {
+   294→    super.initState();
+   295→    _c = AnimationController(
+   296→      vsync: this,
+   297→      duration: const Duration(milliseconds: 2600),
+   298→    )..repeat();
+   299→  }
+   300→
+   301→  @override
+   302→  void dispose() {
+   303→    _c.dispose();
+   304→    super.dispose();
+   305→  }
+   306→
+   307→  @override
+   308→  Widget build(BuildContext context) {
+   309→    return AnimatedBuilder(
+   310→      animation: _c,
+   311→      builder: (context, _) {
+   312→        return SizedBox(
+   313→          width: widget.size,
+   314→          height: widget.size,
+   315→          child: CustomPaint(
+   316→            painter: _ShieldPainter(
+   317→              primary: widget.primary,
+   318→              onPrimary: widget.onPrimary,
+   319→              t: _c.value,
+   320→            ),
+   321→          ),
+   322→        );
+   323→      },
+   324→    );
+   325→  }
+   326→}
+   327→
+   328→class _ShieldPainter extends CustomPainter {
+   329→  final Color primary;
+   330→  final Color onPrimary;
+   331→  final double t; // 0..1 looping
+   332→  _ShieldPainter({required this.primary, required this.onPrimary, required this.t});
+   333→
+   334→  @override
+   335→  void paint(Canvas canvas, Size size) {
+   336→    final cx = size.width / 2;
+   337→    final cy = size.height / 2;
+   338→    // ripple
+   339→    for (int i = 0; i < 2; i++) {
+   340→      final phase = (t + i * 0.5) % 1.0;
+   341→      final r = size.width * (0.30 + 0.22 * phase);
+   342→      canvas.drawCircle(
+   343→        Offset(cx, cy),
+   344→        r,
+   345→        Paint()
+   346→          ..color = primary.withOpacity((1 - phase) * 0.25)
+   347→          ..style = PaintingStyle.stroke
+   348→          ..strokeWidth = 2,
+   349→      );
+   350→    }
+   351→    // shield body
+   352→    final w = size.width * 0.42;
+   353→    final h = size.width * 0.50;
+   354→    final path = Path()
+   355→      ..moveTo(cx, cy - h / 2)
+   356→      ..lineTo(cx + w / 2, cy - h / 2 + w * 0.3)
+   357→      ..lineTo(cx + w / 2, cy + h * 0.1)
+   358→      ..quadraticBezierTo(cx + w / 2, cy + h * 0.45, cx, cy + h / 2)
+   359→      ..quadraticBezierTo(cx - w / 2, cy + h * 0.45, cx - w / 2, cy + h * 0.1)
+   360→      ..lineTo(cx - w / 2, cy - h / 2 + w * 0.3)
+   361→      ..close();
+   362→    canvas.drawPath(path, Paint()..color = primary);
+   363→    // check
+   364→    final p = Paint()
+   365→      ..color = onPrimary
+   366→      ..style = PaintingStyle.stroke
+   367→      ..strokeWidth = size.width * 0.045
+   368→      ..strokeCap = StrokeCap.round
+   369→      ..strokeJoin = StrokeJoin.round;
+   370→    canvas.drawLine(
+   371→        Offset(cx - w * 0.14, cy), Offset(cx - w * 0.02, cy + h * 0.12), p);
+   372→    canvas.drawLine(
+   373→        Offset(cx - w * 0.02, cy + h * 0.12), Offset(cx + w * 0.18, cy - h * 0.12), p);
+   374→  }
+   375→
+   376→  @override
+   377→  bool shouldRepaint(covariant _ShieldPainter old) =>
+   378→      old.t != t || old.primary != primary;
+   379→}
+   380→
+   381→// ============================================================================
+   382→// RESTORE — file card with circular restore arrow
+   383→// ============================================================================
+   384→
+   385→class RestoreVisual extends StatefulWidget {
+   386→  final Color primary;
+   387→  final Color onPrimary;
+   388→  final Color surface;
+   389→  final double size;
+   390→  const RestoreVisual({
+   391→    super.key,
+   392→    required this.primary,
+   393→    required this.onPrimary,
+   394→    required this.surface,
+   395→    this.size = 150,
+   396→  });
+   397→
+   398→  @override
+   399→  State<RestoreVisual> createState() => _RestoreVisualState();
+   400→}
+   401→
+   402→class _RestoreVisualState extends State<RestoreVisual>
+   403→    with TickerProviderStateMixin {
+   404→  late final AnimationController _c;
+   405→
+   406→  @override
+   407→  void initState() {
+   408→    super.initState();
+   409→    _c = AnimationController(
+   410→      vsync: this,
+   411→      duration: const Duration(milliseconds: 2200),
+   412→    )..repeat();
+   413→  }
+   414→
+   415→  @override
+   416→  void dispose() {
+   417→    _c.dispose();
+   418→    super.dispose();
+   419→  }
+   420→
+   421→  @override
+   422→  Widget build(BuildContext context) {
+   423→    return AnimatedBuilder(
+   424→      animation: _c,
+   425→      builder: (context, _) {
+   426→        return SizedBox(
+   427→          width: widget.size,
+   428→          height: widget.size,
+   429→          child: CustomPaint(
+   430→            painter: _RestorePainter(
+   431→              primary: widget.primary,
+   432→              onPrimary: widget.onPrimary,
+   433→              surface: widget.surface,
+   434→              t: _c.value,
+   435→            ),
+   436→          ),
+   437→        );
+   438→      },
+   439→    );
+   440→  }
+   441→}
+   442→
+   443→class _RestorePainter extends CustomPainter {
+   444→  final Color primary;
+   445→  final Color onPrimary;
+   446→  final Color surface;
+   447→  final double t;
+   448→  _RestorePainter({
+   449→    required this.primary,
+   450→    required this.onPrimary,
+   451→    required this.surface,
+   452→    required this.t,
+   453→  });
+   454→
+   455→  @override
+   456→  void paint(Canvas canvas, Size size) {
+   457→    final cx = size.width / 2;
+   458→    final cy = size.height / 2;
+   459→    // file card
+   460→    final w = size.width * 0.46;
+   461→    final h = size.width * 0.56;
+   462→    final card = RRect.fromRectAndRadius(
+   463→      Rect.fromCenter(center: Offset(cx, cy), width: w, height: h),
+   464→      Radius.circular(w * 0.12),
+   465→    );
+   466→    canvas.drawRRect(card, Paint()..color = surface);
+   467→    // file fold corner
+   468→    final fold = Path()
+   469→      ..moveTo(cx + w / 2 - w * 0.22, cy - h / 2)
+   470→      ..lineTo(cx + w / 2, cy - h / 2 + w * 0.22)
+   471→      ..lineTo(cx + w / 2 - w * 0.22, cy - h / 2 + w * 0.22)
+   472→      ..close();
+   473→    canvas.drawPath(fold, Paint()..color = primary.withOpacity(0.5));
+   474→    // content lines on card
+   475→    for (int i = 0; i < 3; i++) {
+   476→      canvas.drawRect(
+   477→        Rect.fromLTWH(
+   478→            cx - w * 0.28, cy - h * 0.08 + i * h * 0.14, w * 0.56, h * 0.04),
+   479→        Paint()..color = primary.withOpacity(0.3),
+   480→      );
+   481→    }
+   482→    // rotating restore arrow (arc + arrowhead) around the card
+   483→    final ringR = size.width * 0.42;
+   484→    final sweep = 1.4; // radians of arc
+   485→    final start = -math.pi / 2 + t * 2 * math.pi;
+   486→    canvas.drawArc(
+   487→      Rect.fromCircle(center: Offset(cx, cy), radius: ringR),
+   488→      start,
+   489→      sweep,
+   490→      false,
+   491→      Paint()
+   492→        ..color = primary
+   493→        ..style = PaintingStyle.stroke
+   494→        ..strokeWidth = size.width * 0.035
+   495→        ..strokeCap = StrokeCap.round,
+   496→    );
+   497→    // arrowhead at end of arc
+   498→    final endAngle = start + sweep;
+   499→    final tip = Offset(cx + ringR * math.cos(endAngle), cy + ringR * math.sin(endAngle));
+   500→    final ahead = Offset(
+   501→        cx + (ringR - 10) * math.cos(endAngle), cy + (ringR - 10) * math.sin(endAngle));
+   502→    final p = Paint()
+   503→      ..color = primary
+   504→      ..style = PaintingStyle.fill;
+   505→    canvas.drawCircle(tip, size.width * 0.03, p);
+   506→    canvas.drawLine(
+   507→        tip, ahead, Paint()..color = primary..strokeWidth = size.width * 0.035..strokeCap = StrokeCap.round);
+   508→  }
+   509→
+   510→  @override
+   511→  bool shouldRepaint(covariant _RestorePainter old) =>
+   512→      old.t != t || old.primary != primary;
+   513→}
+   514→
+   515→// ============================================================================
+   516→// FORMAT — warning mark with a wobbling badge (kept "good" per spec)
+   517→// ============================================================================
+   518→
+   519→class FormatVisual extends StatefulWidget {
+   520→  final Color primary;
+   521→  final Color onPrimary;
+   522→  final double size;
+   523→  const FormatVisual({
+   524→    super.key,
+   525→    required this.primary,
+   526→    required this.onPrimary,
+   527→    this.size = 150,
+   528→  });
+   529→
+   530→  @override
+   531→  State<FormatVisual> createState() => _FormatVisualState();
+   532→}
+   533→
+   534→class _FormatVisualState extends State<FormatVisual>
+   535→    with TickerProviderStateMixin {
+   536→  late final AnimationController _c;
+   537→
+   538→  @override
+   539→  void initState() {
+   540→    super.initState();
+   541→    _c = AnimationController(
+   542→      vsync: this,
+   543→      duration: const Duration(milliseconds: 3000),
+   544→    )..repeat(reverse: true);
+   545→  }
+   546→
+   547→  @override
+   548→  void dispose() {
+   549→    _c.dispose();
+   550→    super.dispose();
+   551→  }
+   552→
+   553→  @override
+   554→  Widget build(BuildContext context) {
+   555→    return AnimatedBuilder(
+   556→      animation: _c,
+   557→      builder: (context, _) {
+   558→        return Transform.translate(
+   559→          offset: Offset(0, 6 * math.sin(_c.value * math.pi)),
+   560→          child: SizedBox(
+   561→            width: widget.size,
+   562→            height: widget.size,
+   563→            child: CustomPaint(
+   564→              painter: _FormatPainter(
+   565→                primary: widget.primary,
+   566→                onPrimary: widget.onPrimary,
+   567→              ),
+   568→            ),
+   569→          ),
+   570→        );
+   571→      },
+   572→    );
+   573→  }
+   574→}
+   575→
+   576→class _FormatPainter extends CustomPainter {
+   577→  final Color primary;
+   578→  final Color onPrimary;
+   579→  _FormatPainter({required this.primary, required this.onPrimary});
+   580→
+   581→  @override
+   582→  void paint(Canvas canvas, Size size) {
+   583→    final cx = size.width / 2;
+   584→    final cy = size.height / 2;
+   585→    final r = size.width * 0.40;
+   586→    // rounded badge
+   587→    canvas.drawRRect(
+   588→      RRect.fromRectAndRadius(
+   589→        Rect.fromCenter(center: Offset(cx, cy), width: r * 2, height: r * 2),
+   590→        Radius.circular(r * 0.32),
+   591→      ),
+   592→      Paint()..color = primary.withOpacity(0.16),
+   593→    );
+   594→    // exclamation
+   595→    canvas.drawRRect(
+   596→      RRect.fromRectAndRadius(
+   597→        Rect.fromCenter(center: Offset(cx, cy - r * 0.28), width: r * 0.16, height: r * 0.5),
+   598→        Radius.circular(r * 0.08),
+   599→      ),
+   600→      Paint()..color = primary,
+   601→    );
+   602→    canvas.drawCircle(Offset(cx, cy + r * 0.34), r * 0.10, Paint()..color = primary);
+   603→  }
+   604→
+   605→  @override
+   606→  bool shouldRepaint(covariant _FormatPainter old) => old.primary != primary;
+   607→}
+   608→
+   609→// ============================================================================
+   610→// PROCESSING — file unfolding into data rows being parsed
+   611→// ============================================================================
+   612→
+   613→class ProcessingVisual extends StatefulWidget {
+   614→  final Color primary;
+   615→  final Color surface;
+   616→  final double size;
+   617→  const ProcessingVisual({
+   618→    super.key,
+   619→    required this.primary,
+   620→    required this.surface,
+   621→    this.size = 150,
+   622→  });
+   623→
+   624→  @override
+   625→  State<ProcessingVisual> createState() => _ProcessingVisualState();
+   626→}
+   627→
+   628→class _ProcessingVisualState extends State<ProcessingVisual>
+   629→    with TickerProviderStateMixin {
+   630→  late final AnimationController _c;
+   631→
+   632→  @override
+   633→  void initState() {
+   634→    super.initState();
+   635→    _c = AnimationController(
+   636→      vsync: this,
+   637→      duration: const Duration(milliseconds: 2400),
+   638→    )..repeat();
+   639→  }
+   640→
+   641→  @override
+   642→  void dispose() {
+   643→    _c.dispose();
+   644→    super.dispose();
+   645→  }
+   646→
+   647→  @override
+   648→  Widget build(BuildContext context) {
+   649→    return AnimatedBuilder(
+   650→      animation: _c,
+   651→      builder: (context, _) {
+   652→        return SizedBox(
+   653→          width: widget.size,
+   654→          height: widget.size,
+   655→          child: CustomPaint(
+   656→            painter: _ProcessingPainter(
+   657→              primary: widget.primary,
+   658→              surface: widget.surface,
+   659→              t: _c.value,
+   660→            ),
+   661→          ),
+   662→        );
+   663→      },
+   664→    );
+   665→  }
+   666→}
+   667→
+   668→class _ProcessingPainter extends CustomPainter {
+   669→  final Color primary;
+   670→  final Color surface;
+   671→  final double t;
+   672→  _ProcessingPainter({required this.primary, required this.surface, required this.t});
+   673→
+   674→  @override
+   675→  void paint(Canvas canvas, Size size) {
+   676→    final cx = size.width / 2;
+   677→    final w = size.width * 0.66;
+   678→    final rowH = size.width * 0.10;
+   679→    final gap = size.width * 0.03;
+   680→    final rows = 4;
+   681→    final totalH = rows * rowH + (rows - 1) * gap;
+   682→    final top = (size.height - totalH) / 2;
+   683→    for (int i = 0; i < rows; i++) {
+   684→      final y = top + i * (rowH + gap);
+   685→      final reveal = ((t * rows) - i).clamp(0.0, 1.0);
+   686→      final filled = reveal * w;
+   687→      canvas.drawRRect(
+   688→        RRect.fromRectAndRadius(
+   689→          Rect.fromLTWH(cx - w / 2, y, w, rowH),
+   690→          Radius.circular(rowH * 0.3),
+   691→        ),
+   692→        Paint()..color = surface,
+   693→      );
+   694→      if (filled > 0) {
+   695→        canvas.drawRRect(
+   696→          RRect.fromRectAndRadius(
+   697→            Rect.fromLTWH(cx - w / 2, y, filled, rowH),
+   698→            Radius.circular(rowH * 0.3),
+   699→          ),
+   700→          Paint()..color = primary.withOpacity(0.85),
+   701→        );
+   702→      }
+   703→    }
+   704→  }
+   705→
+   706→  @override
+   707→  bool shouldRepaint(covariant _ProcessingPainter old) =>
+   708→      old.t != t || old.primary != primary;
+   709→}
+   710→
+   711→// ============================================================================
+   712→// FINISH / SUCCESS — bold check-in-circle that draws smoothly + calm glow
+   713→// ============================================================================
+   714→
+   715→class CheckCircleVisual extends StatefulWidget {
+   716→  final Color primary;
+   717→  final Color onPrimary;
+   718→  final double size;
+   719→  final bool withConfetti;
+   720→  const CheckCircleVisual({
+   721→    super.key,
+   722→    required this.primary,
+   723→    required this.onPrimary,
+   724→    this.size = 150,
+   725→    this.withConfetti = false,
+   726→  });
+   727→
+   728→  @override
+   729→  State<CheckCircleVisual> createState() => _CheckCircleVisualState();
+   730→}
+   731→
+   732→class _CheckCircleVisualState extends State<CheckCircleVisual>
+   733→    with TickerProviderStateMixin {
+   734→  late final AnimationController _c;
+   735→
+   736→  @override
+   737→  void initState() {
+   738→    super.initState();
+   739→    _c = AnimationController(
+   740→      vsync: this,
+   741→      duration: const Duration(milliseconds: 1100),
+   742→    )..forward();
+   743→  }
+   744→
+   745→  @override
+   746→  void dispose() {
+   747→    _c.dispose();
+   748→    super.dispose();
+   749→  }
+   750→
+   751→  @override
+   752→  Widget build(BuildContext context) {
+   753→    return AnimatedBuilder(
+   754→      animation: _c,
+   755→      builder: (context, _) {
+   756→        return SizedBox(
+   757→          width: widget.size,
+   758→          height: widget.size,
+   759→          child: CustomPaint(
+   760→            painter: _CheckCirclePainter(
+   761→              primary: widget.primary,
+   762→              onPrimary: widget.onPrimary,
+   763→              progress: _c.value,
+   764→              confetti: widget.withConfetti,
+   765→            ),
+   766→          ),
+   767→        );
+   768→      },
+   769→    );
+   770→  }
+   771→}
+   772→
+   773→class _CheckCirclePainter extends CustomPainter {
+   774→  final Color primary;
+   775→  final Color onPrimary;
+   776→  final double progress; // 0..1
+   777→  final bool confetti;
+   778→  _CheckCirclePainter({
+   779→    required this.primary,
+   780→    required this.onPrimary,
+   781→    required this.progress,
+   782→    required this.confetti,
+   783→  });
+   784→
+   785→  @override
+   786→  void paint(Canvas canvas, Size size) {
+   787→    final cx = size.width / 2;
+   788→    final cy = size.height / 2;
+   789→    final r = size.width * 0.36;
+   790→    // glow
+   791→    canvas.drawCircle(
+   792→        Offset(cx, cy), r * 1.25, Paint()..color = primary.withOpacity(0.22));
+   793→    // circle (draws in)
+   794→    final circleSweep = (progress * 1.2).clamp(0.0, 1.0);
+   795→    canvas.drawArc(
+   796→      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+   797→      -math.pi / 2,
+   798→      circleSweep * 2 * math.pi,
+   799→      false,
+   800→      Paint()
+   801→        ..color = primary
+   802→        ..style = PaintingStyle.stroke
+   803→        ..strokeWidth = size.width * 0.05
+   804→        ..strokeCap = StrokeCap.round,
+   805→    );
+   806→    // fill once drawn
+   807→    if (circleSweep >= 1.0) {
+   808→      canvas.drawCircle(Offset(cx, cy), r, Paint()..color = primary);
+   809→    }
+   810→    // check (draws after circle)
+   811→    final checkP = (progress * 1.6 - 0.6).clamp(0.0, 1.0);
+   812→    if (checkP > 0) {
+   813→      final p1 = Offset(cx - r * 0.30, cy);
+   814→      final p2 = Offset(cx - r * 0.05, cy + r * 0.28);
+   815→      final p3 = Offset(cx + r * 0.34, cy - r * 0.28);
+   816→      final mid = Offset(p1.dx + (p2.dx - p1.dx) * checkP.clamp(0.0, 0.5) * 2,
+   817→          p1.dy + (p2.dy - p1.dy) * checkP.clamp(0.0, 0.5) * 2);
+   818→      final paint = Paint()
+   819→        ..color = onPrimary
+   820→        ..style = PaintingStyle.stroke
+   821→        ..strokeWidth = size.width * 0.06
+   822→        ..strokeCap = StrokeCap.round
+   823→        ..strokeJoin = StrokeJoin.round;
+   824→      if (checkP <= 0.5) {
+   825→        canvas.drawLine(p1, mid, paint);
+   826→      } else {
+   827→        canvas.drawLine(p1, p2, paint);
+   828→        final k = (checkP - 0.5) * 2;
+   829→        canvas.drawLine(p2, Offset(p2.dx + (p3.dx - p2.dx) * k, p2.dy + (p3.dy - p2.dy) * k), paint);
+   830→      }
+   831→    }
+   832→    // confetti
+   833→    if (confetti && progress > 0.6) {
+   834→      final rng = math.Random(42);
+   835→      for (int i = 0; i < 18; i++) {
+   836→        final a = rng.nextDouble() * 2 * math.pi;
+   837→        final dist = r * (1.3 + 0.5 * rng.nextDouble()) * progress;
+   838→        final dx = cx + dist * math.cos(a);
+   839→        final dy = cy + dist * math.sin(a);
+   840→        canvas.drawCircle(
+   841→            Offset(dx, dy), size.width * 0.012, Paint()..color = primary.withOpacity(0.6));
+   842→      }
+   843→    }
+   844→  }
+   845→
+   846→  @override
+   847→  bool shouldRepaint(covariant _CheckCirclePainter old) =>
+   848→      old.progress != progress || old.primary != primary;
+   849→}
+   850→
+   851→// ============================================================================
+   852→// GENERIC PROGRESS RING (restore-processing)
+   853→// ============================================================================
+   854→
+   855→class ProgressRingVisual extends StatefulWidget {
+   856→  final Color primary;
+   857→  final Color track;
+   858→  final IconData icon;
+   859→  final double size;
+   860→  const ProgressRingVisual({
+   861→    super.key,
+   862→    required this.primary,
+   863→    required this.track,
+   864→    required this.icon,
+   865→    this.size = 150,
+   866→  });
+   867→
+   868→  @override
+   869→  State<ProgressRingVisual> createState() => _ProgressRingVisualState();
+   870→}
+   871→
+   872→class _ProgressRingVisualState extends State<ProgressRingVisual>
+   873→    with TickerProviderStateMixin {
+   874→  late final AnimationController _c;
+   875→
+   876→  @override
+   877→  void initState() {
+   878→    super.initState();
+   879→    _c = AnimationController(
+   880→      vsync: this,
+   881→      duration: const Duration(milliseconds: 1600),
+   882→    )..repeat();
+   883→  }
+   884→
+   885→  @override
+   886→  void dispose() {
+   887→    _c.dispose();
+   888→    super.dispose();
+   889→  }
+   890→
+   891→  @override
+   892→  Widget build(BuildContext context) {
+   893→    return AnimatedBuilder(
+   894→      animation: _c,
+   895→      builder: (context, _) {
+   896→        return SizedBox(
+   897→          width: widget.size,
+   898→          height: widget.size,
+   899→          child: Stack(
+   900→            alignment: Alignment.center,
+   901→            children: [
+   902→              CustomPaint(
+   903→                size: Size(widget.size, widget.size),
+   904→                painter: _ProgressRingPainter(
+   905→                  primary: widget.primary,
+   906→                  track: widget.track,
+   907→                  progress: _c.value,
+   908→                ),
+   909→              ),
+   910→              Icon(widget.icon, color: widget.primary, size: widget.size * 0.30),
+   911→            ],
+   912→          ),
+   913→        );
+   914→      },
+   915→    );
+   916→  }
+   917→}
+   918→
+   919→class _ProgressRingPainter extends CustomPainter {
+   920→  final Color primary;
+   921→  final Color track;
+   922→  final double progress;
+   923→  _ProgressRingPainter({
+   924→    required this.primary,
+   925→    required this.track,
+   926→    required this.progress,
+   927→  });
+   928→
+   929→  @override
+   930→  void paint(Canvas canvas, Size size) {
+   931→    final cx = size.width / 2;
+   932→    final cy = size.height / 2;
+   933→    final r = size.width * 0.38;
+   934→    canvas.drawCircle(
+   935→        Offset(cx, cy), r, Paint()..color = track..style = PaintingStyle.stroke..strokeWidth = size.width * 0.05);
+   936→    canvas.drawArc(
+   937→      Rect.fromCircle(center: Offset(cx, cy), radius: r),
+   938→      -math.pi / 2,
+   939→      progress * 2 * math.pi,
+   940→      false,
+   941→      Paint()
+   942→        ..color = primary
+   943→        ..style = PaintingStyle.stroke
+   944→        ..strokeWidth = size.width * 0.05
+   945→        ..strokeCap = StrokeCap.round,
+   946→    );
+   947→  }
+   948→
+   949→  @override
+   950→  bool shouldRepaint(covariant _ProgressRingPainter old) =>
+   951→      old.progress != progress || old.primary != primary;
+   952→}
+   953→

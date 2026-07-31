@@ -1,0 +1,599 @@
+     1→========== linking-screen.tsx ==========
+     2→
+     3→========== manual-screen.tsx ==========
+     4→
+     5→========== restore-summary-screen.tsx ==========
+     6→"use client";
+     7→
+     8→/**
+     9→ * setup-wizard / screens / restore-summary-screen — Step 10 (#restore-summary).
+    10→ *
+    11→ * v2.1 refinements:
+    12→ *  - Cleaner, more proper UI redesign (rs-card + rs-stats grid).
+    13→ *  - "Restore Backup" heading top-left.
+    14→ *  - Restore Now → #restore-processing.
+    15→ */
+    16→import type { ThemePalette } from "../lib/themes";
+    17→import type { LinkedAnime } from "../hooks/use-wizard-state";
+    18→
+    19→interface RestoreSummaryScreenProps {
+    20→  active: boolean;
+    21→  onNext: () => void;
+    22→  onBack: () => void;
+    23→  palette: ThemePalette;
+    24→  linkedAnime: LinkedAnime[];
+    25→}
+    26→
+    27→export function RestoreSummaryScreen({ active, onNext, onBack, palette, linkedAnime }: RestoreSummaryScreenProps) {
+    28→  const linkedCount = linkedAnime.filter((a) => a.linked).length;
+    29→  const manuallyLinked = Math.max(0, linkedCount - 5);
+    30→  const episodes = 1432;
+    31→  const toRestore = linkedCount + 239;
+    32→
+    33→  return (
+    34→    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+    35→      <div className="wizard-content">
+    36→        <h1 className="wizard-page-heading">Restore Backup</h1>
+    37→
+    38→        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+    39→          <h2 className="wizard-descriptive-title">Restore summary</h2>
+    40→          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>Ready to restore. Review the details below.</p>
+    41→        </div>
+    42→
+    43→        <div className="wizard-body">
+    44→          <div className="rs-card">
+    45→            <div className="rs-card__header">
+    46→              <span className="rs-card__icon">
+    47→                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    48→                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><path d="M7 10l5 5 5-5" /><path d="M12 15V3" />
+    49→                </svg>
+    50→              </span>
+    51→              <div>
+    52→                <p className="rs-card__title">Ready to restore</p>
+    53→                <p className="rs-card__sub">Your library will be overwritten with the backup data.</p>
+    54→              </div>
+    55→            </div>
+    56→
+    57→            <div className="rs-stats">
+    58→              <div className="rs-stat">
+    59→                <span className="rs-stat__value">{toRestore}</span>
+    60→                <span className="rs-stat__label">Anime to restore</span>
+    61→              </div>
+    62→              <div className="rs-stat">
+    63→                <span className="rs-stat__value">{linkedCount}</span>
+    64→                <span className="rs-stat__label">Auto-linked</span>
+    65→              </div>
+    66→              <div className="rs-stat">
+    67→                <span className="rs-stat__value">{manuallyLinked}</span>
+    68→                <span className="rs-stat__label">Manually linked</span>
+    69→              </div>
+    70→              <div className="rs-stat">
+    71→                <span className="rs-stat__value">{episodes.toLocaleString()}</span>
+    72→                <span className="rs-stat__label">Episodes</span>
+    73→              </div>
+    74→            </div>
+    75→          </div>
+    76→
+    77→          <div
+    78→            style={{
+    79→              padding: "11px 14px",
+    80→              borderRadius: "var(--r-md)",
+    81→              background: `${palette.primary}11`,
+    82→              border: `1px solid ${palette.primary}33`,
+    83→              display: "flex",
+    84→              gap: "10px",
+    85→              alignItems: "flex-start",
+    86→            }}
+    87→          >
+    88→            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={palette.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "0 0 auto", marginTop: 1 }} aria-hidden="true">
+    89→              <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
+    90→            </svg>
+    91→            <p style={{ fontSize: 12, color: "var(--color-text-muted)", lineHeight: 1.5, margin: 0 }}>
+    92→              This will overwrite any existing library data. The restore process may take a few moments.
+    93→            </p>
+    94→          </div>
+    95→        </div>
+    96→      </div>
+    97→      <div className="wizard-actions">
+    98→        <button className="wizard-btn wizard-btn--secondary" onClick={onBack} style={{ fontWeight: 800 }}>
+    99→          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+   100→            <path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+   101→          </svg>
+   102→          Back
+   103→        </button>
+   104→        <button className="wizard-btn wizard-btn--primary" onClick={onNext} style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}>
+   105→          Restore Now
+   106→          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+   107→            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+   108→          </svg>
+   109→        </button>
+   110→      </div>
+   111→    </div>
+   112→  );
+   113→}
+   114→
+   115→========== restore-processing-screen.tsx ==========
+   116→"use client";
+   117→
+   118→/**
+   119→ * setup-wizard / screens / restore-processing-screen — Step 11 (#restore-processing).
+   120→ *
+   121→ * NEW screen (added per user request): when the user clicks "Restore Now" on
+   122→ * the restore-summary screen, this screen shows a proper processing animation
+   123→ * (previously there was NO animation), then auto-advances to #restore-success.
+   124→ */
+   125→import { useEffect, useState } from "react";
+   126→import type { ThemePalette } from "../lib/themes";
+   127→import type { LinkedAnime } from "../hooks/use-wizard-state";
+   128→import { RestoreProcessingVisual } from "../components/restore-processing-visual";
+   129→
+   130→interface RestoreProcessingScreenProps {
+   131→  active: boolean;
+   132→  onNext: () => void;
+   133→  palette: ThemePalette;
+   134→  linkedAnime: LinkedAnime[];
+   135→}
+   136→
+   137→const STATUS_MESSAGES = [
+   138→  "Writing anime to your library…",
+   139→  "Restoring watch history…",
+   140→  "Applying settings…",
+   141→  "Finalizing restore…",
+   142→];
+   143→
+   144→export function RestoreProcessingScreen({ active, onNext, palette, linkedAnime }: RestoreProcessingScreenProps) {
+   145→  const sgIdx, setMsgIdx] = useState(0);
+   146→
+   147→  useEffect(() => {
+   148→    if (!active) {
+   149→      setMsgIdx(0);
+   150→      return;
+   151→    }
+   152→    // Cycle through status messages.
+   153→    const msgTimer = setInterval(() => {
+   154→      setMsgIdx((i) => Math.min(i + 1, STATUS_MESSAGES.length - 1));
+   155→    }, 900);
+   156→    // Auto-advance after the full sequence (~3.2s).
+   157→    const doneTimer = setTimeout(() => onNext(), 3200);
+   158→    return () => {
+   159→      clearInterval(msgTimer);
+   160→      clearTimeout(doneTimer);
+   161→    };
+   162→  }, [active, onNext]);
+   163→
+   164→  const restoredCount = linkedAnime.filter((a) => a.linked).length + 239;
+   165→
+   166→  return (
+   167→    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+   168→      <div className="wizard-content">
+   169→        <h1 className="wizard-page-heading">Restore Backup</h1>
+   170→
+   171→        <div className="restore-processing-visual" key={active ? "on" : "off"}>
+   172→          <RestoreProcessingVisual palette={palette} />
+   173→        </div>
+   174→
+   175→        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+   176→          <h2 className="wizard-descriptive-title">Restoring your library</h2>
+   177→          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>Please wait while we restore {restoredCount} anime to your library.</p>
+   178→        </div>
+   179→
+   180→        <div className="wizard-body">
+   181→          <span className="scanning-pill" style={{ background: `${palette.primary}22`, color: palette.primary, alignSelf: "center", transition: "opacity 0.4s ease" }}>
+   182→            <span className="scanning-dots"><span /><span /><span /></span>
+   183→            {STATUS_MESSAGESsgIdx]}
+   184→          </span>
+   185→        </div>
+   186→      </div>
+   187→      <div className="wizard-actions">
+   188→        <span className="wizard-btn wizard-btn--ghost" style={{ cursor: "default", color: "var(--color-text-muted)", fontWeight: 800 }}>
+   189→          Restoring…
+   190→        </span>
+   191→      </div>
+   192→    </div>
+   193→  );
+   194→}
+   195→
+   196→========== restore-successful-screen.tsx ==========
+   197→"use client";
+   198→
+   199→/**
+   200→ * setup-wizard / screens / restore-successful-screen — Step 12 (#restore-success).
+   201→ *
+   202→ * v2.4: Better restore-themed animation (a database cylinder with data flowing
+   203→ * into a library, + a success check). Statistics REMOVED per user request.
+   204→ * Continue → #poison.
+   205→ */
+   206→import { useId } from "react";
+   207→import type { ThemePalette } from "../lib/themes";
+   208→import type { LinkedAnime } from "../hooks/use-wizard-state";
+   209→
+   210→interface RestoreSuccessfulScreenProps {
+   211→  active: boolean;
+   212→  onNext: () => void;
+   213→  palette: ThemePalette;
+   214→  linkedAnime: LinkedAnime[];
+   215→}
+   216→
+   217→export function RestoreSuccessfulScreen({ active, onNext, palette, linkedAnime }: RestoreSuccessfulScreenProps) {
+   218→  void linkedAnime;
+   219→  const raw = useId();
+   220→  const id = raw.replace(/:/g, "");
+   221→  const p = palette.primary;
+   222→
+   223→  return (
+   224→    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+   225→      <div className="wizard-content" style={{ justifyContent: "center" }}>
+   226→        <h1 className="wizard-page-heading">Restore Backup</h1>
+   227→
+   228→        <div className="wizard-visual wizard-visual--lg" key={active ? "on" : "off"}>
+   229→          <svg viewBox="0 0 200 200" width="100%" height="100%" style={{ overflow: "visible" }} aria-hidden="true">
+   230→            <style>{`
+   231→              @keyframes rs-${id}-glow { 0%,100% { opacity: 0.25; transform: scale(1); } 50% { opacity: 0.45; transform: scale(1.1); } }
+   232→              @keyframes rs-${id}-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+   233→              @keyframes rs-${id}-flow { 0% { transform: translateY(-30px); opacity: 0; } 25% { opacity: 1; } 75% { opacity: 1; } 100% { transform: translateY(30px); opacity: 0; } }
+   234→              @keyframes rs-${id}-draw { 0%,50% { stroke-dashoffset: 30; } 80%,100% { stroke-dashoffset: 0; } }
+   235→              @keyframes rs-${id}-pop { 0%,45% { transform: scale(0); opacity: 0; } 65% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+   236→              .rs-${id}-glow { transform-origin: 100px 100px; animation: rs-${id}-glow 2.6s ease-in-out infinite; }
+   237→              .rs-${id}-db { transform-origin: 100px 100px; animation: rs-${id}-float 3.4s ease-in-out infinite; }
+   238→              .rs-${id}-flow { animation: rs-${id}-flow 2s ease-in infinite; }
+   239→              .rs-${id}-check { stroke-dasharray: 30; animation: rs-${id}-draw 1.2s var(--ease-emphasized-decel, cubic-bezier(.05,.7,.1,1)) 1.4s both; }
+   240→              .rs-${id}-badge { transform-origin: 142px 58px; animation: rs-${id}-pop 0.6s var(--ease-emphasized-decel, cubic-bezier(.05,.7,.1,1)) 1.2s both; }
+   241→              @media (prefers-reduced-motion: reduce) { .rs-${id}-glow,.rs-${id}-db,.rs-${id}-flow,.rs-${id}-badge { animation: none !important; } .rs-${id}-check { stroke-dashoffset: 0 !important; animation: none !important; } }
+   242→            `}</style>
+   243→            {/* glow */}
+   244→            <circle className={`rs-${id}-glow`} cx="100" cy="100" r="62" fill={p} opacity="0.25" style={{ filter: "blur(16px)" }} />
+   245→
+   246→            {/* Database cylinder (restore source) */}
+   247→            <g className={`rs-${id}-db`}>
+   248→              {/* top ellipse */}
+   249→              <ellipse cx="100" cy="56" rx="44" ry="12" fill="var(--color-primary-container)" stroke={p} strokeWidth="2.5" />
+   250→              {/* body */}
+   251→              <path d="M56 56 L56 120 Q56 132 100 132 Q144 132 144 120 L144 56" fill="var(--color-primary-container)" stroke={p} strokeWidth="2.5" strokeLinejoin="round" />
+   252→              {/* middle rings (database tiers) */}
+   253→              <ellipse cx="100" cy="78" rx="44" ry="12" fill="none" stroke={p} strokeWidth="1.5" opacity="0.5" />
+   254→              <ellipse cx="100" cy="100" rx="44" ry="12" fill="none" stroke={p} strokeWidth="1.5" opacity="0.4" />
+   255→              {/* top highlight */}
+   256→              <ellipse cx="100" cy="54" rx="36" ry="8" fill="none" stroke={p} strokeWidth="1" opacity="0.6" />
+   257→            </g>
+   258→
+   259→            {/* Flowing data particles (data being restored) */}
+   260→            <circle className={`rs-${id}-flow`} cx="80" cy="100" r="3" fill={p} style={{ animationDelay: "0s" }} />
+   261→            <circle className={`rs-${id}-flow`} cx="100" cy="100" r="3.5" fill={p} style={{ animationDelay: "0.5s" }} />
+   262→            <circle className={`rs-${id}-flow`} cx="120" cy="100" r="3" fill={p} style={{ animationDelay: "1s" }} />
+   263→            <circle className={`rs-${id}-flow`} cx="90" cy="100" r="2.5" fill="var(--color-tertiary, #ccc)" style={{ animationDelay: "1.5s" }} />
+   264→            <circle className={`rs-${id}-flow`} cx="110" cy="100" r="2.5" fill={p} style={{ animationDelay: "0.3s" }} />
+   265→
+   266→            {/* Success check badge (pops in after data flows) */}
+   267→            <g className={`rs-${id}-badge`}>
+   268→              <circle cx="142" cy="58" r="22" fill={p} />
+   269→              <circle cx="142" cy="58" r="22" fill="none" stroke={p} strokeWidth="1" opacity="0.5" />
+   270→              <path className={`rs-${id}-check`} d="M132 58 L139 65 L153 51" fill="none" stroke={palette.onPrimary} strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
+   271→            </g>
+   272→          </svg>
+   273→        </div>
+   274→
+   275→        <div className="wizard-heading" style={{ alignItems: "center", textAlign: "center" }}>
+   276→          <h2 className="wizard-descriptive-title">Restore successful!</h2>
+   277→          <p className="wizard-screen-sub" style={{ alignSelf: "center", textAlign: "center" }}>
+   278→            Your library has been restored and is ready to go.
+   279→          </p>
+   280→        </div>
+   281→      </div>
+   282→      <div className="wizard-actions">
+   283→        <button className="wizard-btn wizard-btn--primary" onClick={onNext} style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}>
+   284→          Continue
+   285→          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+   286→            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+   287→          </svg>
+   288→        </button>
+   289→      </div>
+   290→    </div>
+   291→  );
+   292→}
+   293→
+   294→========== poison-screen.tsx ==========
+   295→"use client";
+   296→
+   297→/**
+   298→ * setup-wizard / screens / poison-screen — Step 13 (#poison).
+   299→ *
+   300→ * v2.2:
+   301→ *  - Fixed text colors (bright/readable on dark red via .wizard-step--poison CSS).
+   302→ *  - Bottle→pills: when name === 'pills', show pills instead of a bottle.
+   303→ *  - Frequency = count: show N bottles or N pills (N = selected frequency).
+   304→ *  - Better bottle animation (more life).
+   305→ */
+   306→import { useState } from "react";
+   307→import type { AdSettings, AdName, AdTiming } from "../lib/ad-settings";
+   308→import { AD_NAME_LABELS, AD_TIMING_LABELS, adSummary } from "../lib/ad-settings";
+   309→
+   310→interface PoisonScreenProps {
+   311→  active: boolean;
+   312→  onNext: () => void;
+   313→  onBack: () => void;
+   314→  adSettings: AdSettings;
+   315→  updateAdSettings: (patch: Partial<AdSettings>) => void;
+   316→}
+   317→
+   318→const TOTAL_STEPS = 3;
+   319→
+   320→/** A single poison bottle SVG (v3: bubbles rise to cap + pop, skull with bones, random motion per idx). */
+   321→function PoisonBottle({ delay = "0s", idx = 0 }: { delay?: string; idx?: number }) {
+   322→  const clipId = `poison-clip-${idx}`;
+   323→  const bubbleId = `poison-bubble-anim-${idx}`;
+   324→  const spinId = `poison-bottle-spin-${idx}`;
+   325→  // 3 different spin animations for random motion
+   326→  const spins = [
+   327→    `@keyframes ${spinId} { 0% { transform: rotate(-6deg) translateY(0); } 25% { transform: rotate(8deg) translateY(-3px); } 50% { transform: rotate(-10deg) translateY(-1px); } 75% { transform: rotate(5deg) translateY(-4px); } 100% { transform: rotate(-6deg) translateY(0); } }`,
+   328→    `@keyframes ${spinId} { 0% { transform: rotate(4deg) translateY(0); } 20% { transform: rotate(-12deg) translateY(-4px); } 45% { transform: rotate(7deg) translateY(-2px); } 70% { transform: rotate(-3deg) translateY(-5px); } 100% { transform: rotate(4deg) translateY(0); } }`,
+   329→    `@keyframes ${spinId} { 0% { transform: rotate(-2deg) translateY(0); } 30% { transform: rotate(10deg) translateY(-3px); } 55% { transform: rotate(-8deg) translateY(-5px); } 80% { transform: rotate(3deg) translateY(-1px); } 100% { transform: rotate(-2deg) translateY(0); } }`,
+   330→  ];
+   331→  return (
+   332→    <div style={{ position: "relative", animation: `${spinId} ${4 + idx * 0.5}s ease-in-out infinite`, animationDelay: delay }} className="poison-bottle-v2">
+   333→      <svg viewBox="0 0 100 140" width="100%" height="100%" aria-hidden="true" style={{ overflow: "visible" }}>
+   334→        <defs>
+   335→          {/* Clip includes neck + body so bubbles can rise to the cap */}
+   336→          <clipPath id={clipId}>
+   337→            <path d="M38 14 L38 44 Q30 50 30 62 L30 120 Q30 130 40 130 L60 130 Q70 130 70 120 L70 62 Q70 50 62 44 L62 14 Z" />
+   338→          </clipPath>
+   339→        </defs>
+   340→        <style>{`
+   341→          ${spins[idx % 3]}
+   342→          @keyframes ${bubbleId} {
+   343→            0% { transform: translate(0, 0) scale(0.4); opacity: 0; }
+   344→            8% { opacity: 0.9; transform: translate(0, -8px) scale(1); }
+   345→            72% { opacity: 0.9; transform: translate(0, -78px) scale(1); }
+   346→            82% { opacity: 0.9; transform: translate(0, -90px) scale(1.1); }
+   347→            88% { opacity: 0; transform: translate(0, -92px) scale(2.2); }
+   348→            100% { opacity: 0; transform: translate(0, -92px) scale(2.2); }
+   349→          }
+   350→          .${bubbleId}-b1 { animation: ${bubbleId} 3.2s ease-out infinite; }
+   351→          .${bubbleId}-b2 { animation: ${bubbleId} 3.2s ease-out infinite 0.8s; }
+   352→          .${bubbleId}-b3 { animation: ${bubbleId} 3.2s ease-out infinite 1.6s; }
+   353→          .${bubbleId}-b4 { animation: ${bubbleId} 3.2s ease-out infinite 2.4s; }
+   354→          @media (prefers-reduced-motion: reduce) { .${bubbleId}-b1, .${bubbleId}-b2, .${bubbleId}-b3, .${bubbleId}-b4 { animation: none !important; opacity: 0.7 !important; } }
+   355→        `}</style>
+   356→        {/* bottle body */}
+   357→        <path d="M38 30 L38 44 Q30 50 30 62 L30 120 Q30 130 40 130 L60 130 Q70 130 70 120 L70 62 Q70 50 62 44 L62 30 Z" fill="var(--color-primary-container)" stroke="var(--color-primary)" strokeWidth="2.5" strokeLinejoin="round" />
+   358→        {/* neck + cap */}
+   359→        <rect x="38" y="14" width="24" height="18" rx="2" fill="var(--color-surface-4)" stroke="var(--color-primary)" strokeWidth="1.5" />
+   360→        <rect x="36" y="8" width="28" height="8" rx="2" fill="var(--color-primary)" />
+   361→        {/* liquid + bubbles INSIDE the bottle (clipped to neck+body so bubbles rise to cap) */}
+   362→        <g clipPath={`url(#${clipId})`}>
+   363→          <rect x="28" y="72" width="44" height="60" fill="var(--color-primary)" opacity="0.55" />
+   364→          {/* liquid surface wave */}
+   365→          <path d="M28 72 Q38 68 50 72 Q62 76 72 72 L72 78 L28 78 Z" fill="var(--color-primary)" opacity="0.75" />
+   366→          {/* bubbles rise from liquid through neck to cap, then pop */}
+   367→          <circle className={`${bubbleId}-b1`} cx="42" cy="118" r="3" fill="white" opacity="0.9" />
+   368→          <circle className={`${bubbleId}-b2`} cx="55" cy="120" r="2.5" fill="white" opacity="0.9" />
+   369→          <circle className={`${bubbleId}-b3`} cx="48" cy="116" r="3.5" fill="white" opacity="0.85" />
+   370→          <circle className={`${bubbleId}-b4`} cx="57" cy="122" r="2" fill="white" opacity="0.85" />
+   371→        </g>
+   372→        {/* label */}
+   373→        <rect x="34" y="74" width="32" height="38" rx="3" fill="var(--color-bg)" opacity="0.94" />
+   374→        {/* crossed bones behind skull */}
+   375→        <g stroke="var(--color-primary)" strokeWidth="2.5" strokeLinecap="round" fill="var(--color-primary)">
+   376→          <line x1="40" y1="106" x2="60" y2="82" />
+   377→          <line x1="60" y1="106" x2="40" y2="82" />
+   378→          {/* bone ends (small circles) */}
+   379→          <circle cx="40" cy="106" r="2.5" fill="var(--color-primary)" />
+   380→          <circle cx="60" cy="82" r="2.5" fill="var(--color-primary)" />
+   381→          <circle cx="60" cy="106" r="2.5" fill="var(--color-primary)" />
+   382→          <circle cx="40" cy="82" r="2.5" fill="var(--color-primary)" />
+   383→        </g>
+   384→        {/* skull on top of bones */}
+   385→        <circle cx="50" cy="92" r="8" fill="var(--color-primary)" />
+   386→        <rect x="44" y="99" width="12" height="6" rx="2" fill="var(--color-primary)" />
+   387→        {/* skull eye sockets */}
+   388→        <circle cx="47" cy="91" r="2" fill="var(--color-bg)" />
+   389→        <circle cx="53" cy="91" r="2" fill="var(--color-bg)" />
+   390→        {/* skull nose */}
+   391→        <path d="M50 95 L49 97 L51 97 Z" fill="var(--color-bg)" />
+   392→        {/* skull teeth lines */}
+   393→        <line x1="46" y1="101" x2="46" y2="104" stroke="var(--color-bg)" strokeWidth="0.6" />
+   394→        <line x1="50" y1="101" x2="50" y2="104" stroke="var(--color-bg)" strokeWidth="0.6" />
+   395→        <line x1="54" y1="101" x2="54" y2="104" stroke="var(--color-bg)" strokeWidth="0.6" />
+   396→      </svg>
+   397→    </div>
+   398→  );
+   399→}
+   400→
+   401→/** A single poison pill (v3: wider/stretched, plus on RED half, random rotation). */
+   402→function PoisonPill({ delay = "0s", idx = 0 }: { delay?: string; idx?: number }) {
+   403→  return (
+   404→    <div className="poison-pill-v2" style={{ animationDelay: delay }} aria-hidden="true">
+   405→      <div className="poison-pill-v2__half poison-pill-v2__half--left" />
+   406→      <div className="poison-pill-v2__half poison-pill-v2__half--right" />
+   407→      {/* plus icon on the RED (left) half */}
+   408→      <svg className="poison-pill-v2__plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" aria-hidden="true" style={{ left: "25%" }}>
+   409→        <path d="M12 5v14M5 12h14" />
+   410→      </svg>
+   411→    </div>
+   412→  );
+   413→}
+   414→
+   415→/** Renders the appropriate visual: N bottles or N pills (with z-index hierarchy). */
+   416→function PoisonVisual({ name, count }: { name: AdName; count: number }) {
+   417→  const items = Array.from({ length: count });
+   418→  return (
+   419→    <div className="poison-hero" key={`${name}-${count}`} aria-hidden="true">
+   420→      <span className="poison-glow" />
+   421→      <div className="poison-visual-row--v2">
+   422→        {name === "poison"
+   423→          ? items.map((_, i) => <PoisonBottle key={i} delay={`${i * 0.4}s`} idx={i} />)
+   424→          : items.map((_, i) => <PoisonPill key={i} delay={`${i * 0.4}s`} idx={i} />)}
+   425→      </div>
+   426→    </div>
+   427→  );
+   428→}
+   429→
+   430→export function PoisonScreen({ active, onNext, onBack, adSettings, updateAdSettings }: PoisonScreenProps) {
+   431→  const [step, setStep] = useState(0);
+   432→
+   433→  function handleNext() {
+   434→    if (step < TOTAL_STEPS - 1) {
+   435→      setStep((s) => s + 1);
+   436→    } else {
+   437→      onNext();
+   438→    }
+   439→  }
+   440→
+   441→  // The visual count: on step 0 (name) show 1; on step 1+2 show N (frequency).
+   442→  const visualCount = step === 0 ? 1 : adSettings.frequency;
+   443→  // On step 0, show the currently-selected name's visual (bottle or pills).
+   444→  const visualName = adSettings.name;
+   445→
+   446→  return (
+   447→    <div className={`wizard-step wizard-step--v2 wizard-step--poison ${active ? "wizard-step--active" : ""}`}>
+   448→      <div className="wizard-content">
+   449→        <h1 className="wizard-page-heading">Choose Your Poison</h1>
+   450→
+   451→        <p className="wizard-screen-sub" style={{ alignSelf: "flex-start" }}>
+   452→          Ads keep the app free. Let&apos;s make them non-intrusive — pick your daily dose.
+   453→        </p>
+   454→
+   455→        {/* Poison visual: bottles or pills, count = frequency (or 1 on name step) */}
+   456→        <PoisonVisual name={visualName} count={visualCount} />
+   457→
+   458→        {/* Step progress dots */}
+   459→        <div className="poison-steps">
+   460→          {Array.from({ length: TOTAL_STEPS }).map((_, i) => (
+   461→            <span key={i} className={`poison-step-dot ${i <= step ? "poison-step-dot--active" : ""}`} />
+   462→          ))}
+   463→        </div>
+   464→
+   465→        <div className="wizard-body">
+   466→          {step === 0 && (
+   467→            <div className="poison-option-group" style={{ animationDelay: "0.1s" }}>
+   468→              <p className="poison-option-group__label">What should we call it?</p>
+   469→              <div className="poison-segmented">
+   470→                <button
+   471→                  className={`poison-segmented__btn ${adSettings.name === "poison" ? "poison-segmented__btn--active" : ""}`}
+   472→                  onClick={() => updateAdSettings({ name: "poison" as AdName })}
+   473→                >
+   474→                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+   475→                    <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" /><path d="m8.5 8.5 7 7" />
+   476→                  </svg>
+   477→                  {AD_NAME_LABELS.poison}
+   478→                </button>
+   479→                <button
+   480→                  className={`poison-segmented__btn ${adSettings.name === "pills" ? "poison-segmented__btn--active" : ""}`}
+   481→                  onClick={() => updateAdSettings({ name: "pills" as AdName })}
+   482→                >
+   483→                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+   484→                    <path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z" /><path d="m8.5 8.5 7 7" />
+   485→                  </svg>
+   486→                  {AD_NAME_LABELS.pills}
+   487→                </button>
+   488→              </div>
+   489→              <p className="poison-summary">Your daily ads will be shown as your <b>{AD_NAME_LABELS[adSettings.name]}</b>.</p>
+   490→            </div>
+   491→          )}
+   492→
+   493→          {step === 1 && (
+   494→            <div className="poison-option-group" style={{ animationDelay: "0.1s" }}>
+   495→              <p className="poison-option-group__label">How many per day?</p>
+   496→              <div className="poison-segmented">
+   497→                {[1, 2, 3].map((n) => (
+   498→                  <button
+   499→                    key={n}
+   500→                    className={`poison-segmented__btn ${adSettings.frequency === n ? "poison-segmented__btn--active" : ""}`}
+   501→                    onClick={() => updateAdSettings({ frequency: n })}
+   502→                  >
+   503→                    {n} {n === 1 ? "ad" : "ads"}
+   504→                  </button>
+   505→                ))}
+   506→              </div>
+   507→              <p className="poison-summary">You&apos;ll see at most <b>{adSettings.frequency} {adSettings.frequency === 1 ? "ad" : "ads"}</b> per day.</p>
+   508→            </div>
+   509→          )}
+   510→
+   511→          {step === 2 && (
+   512→            <div className="poison-option-group" style={{ animationDelay: "0.1s" }}>
+   513→              <p className="poison-option-group__label">When should they appear?</p>
+   514→              <div className="poison-chips">
+   515→                {(["app-open", "episode-start", "both"] as AdTiming[]).map((t) => (
+   516→                  <button
+   517→                    key={t}
+   518→                    className={`poison-chip ${adSettings.timing === t ? "poison-chip--active" : ""}`}
+   519→                    onClick={() => updateAdSettings({ timing: t })}
+   520→                  >
+   521→                    {AD_TIMING_LABELS[t]}
+   522→                  </button>
+   523→                ))}
+   524→              </div>
+   525→              <p className="poison-summary">Summary: <b>{adSummary(adSettings)}</b></p>
+   526→            </div>
+   527→          )}
+   528→        </div>
+   529→      </div>
+   530→      <div className="wizard-actions">
+   531→        {step > 0 ? (
+   532→          <button className="wizard-btn wizard-btn--secondary" onClick={() => setStep((s) => s - 1)} style={{ fontWeight: 800, color: "var(--color-text-muted)" }}>
+   533→            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+   534→              <path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+   535→            </svg>
+   536→            Back
+   537→          </button>
+   538→        ) : (
+   539→          <button className="wizard-btn wizard-btn--secondary" onClick={onBack} style={{ fontWeight: 800, color: "var(--color-text-muted)" }}>
+   540→            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+   541→              <path d="M19 12H5M11 18l-6-6 6-6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+   542→            </svg>
+   543→            Back
+   544→          </button>
+   545→        )}
+   546→        <button className="wizard-btn wizard-btn--primary" onClick={handleNext} style={{ fontWeight: 800 }}>
+   547→          {step < TOTAL_STEPS - 1 ? "Next" : "Confirm"}
+   548→          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+   549→            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+   550→          </svg>
+   551→        </button>
+   552→      </div>
+   553→    </div>
+   554→  );
+   555→}
+   556→
+   557→========== finish-screen.tsx ==========
+   558→"use client";
+   559→
+   560→/**
+   561→ * setup-wizard / screens / finish-screen — Step 14 (#finish).
+   562→ *
+   563→ * v2 redesign:
+   564→ *  - Restructured animation completely: a clean check-in-circle that draws
+   565→ *    smoothly, with refined (calmer) confetti + soft glow. Replaces the old
+   566→ *    "ugly" celebration.
+   567→ *  - Removed the "API URL" card entirely (user said don't show it).
+   568→ *  - Fixed the green-rectangle bug: the old finish-badge background
+   569→ *    (${palette.primary}22) overlapped the URL card; with the URL card gone
+   570→ *    and the badge restyled, the overlap is gone.
+   571→ *  - Shows a summary of what was configured (theme, folder, ads) — not minimal.
+   572→ *  - "Start Exploring" → restart → #welcome.
+   573→ */
+   574→import type { ThemePalette } from "../lib/themes";
+   575→import type { ThemeMode } from "../lib/themes";
+   576→import type { AdSettings } from "../lib/ad-settings";
+   577→import { AD_NAME_LABELS, AD_TIMING_LABELS } from "../lib/ad-settings";
+   578→import type { LinkedAnime } from "../hooks/use-wizard-state";
+   579→import { FinishVisual } from "../components/visuals";
+   580→
+   581→interface FinishScreenProps {
+   582→  active: boolean;
+   583→  onRestart: () => void;
+   584→  palette: ThemePalette;
+   585→  themeMode: ThemeMode;
+   586→  folderSelected: boolean;
+   587→  adSettings: AdSettings;
+   588→  linkedAnime: LinkedAnime[];
+   589→}
+   590→
+   591→export function FinishScreen({ active, onRestart, palette, themeMode, folderSelected, adSettings, linkedAnime }: FinishScreenProps) {
+   592→  const restoredCount = linkedAnime.filter((a) => a.linked).length + 239;
+   593→
+   594→  return (
+   595→    <div className={`wizard-step wizard-step--v2 ${active ? "wizard-step--active" : ""}`}>
+   596→      <div className="wizard-content" style={{ position: "relative", zIndex: 2, justifyContent: "center" }}>
+   597→        <div className="wizard-visual wizard-visual--lg" key={active ? "on" : "off"} style={{ animation: "scaleIn 0.6s var(--ease-emphasized-decel) 0.2s backwards, float 4s ease-in-out 0.8s infinite" }}>
+   598→          <FinishVisual />
+   599→        </div>
