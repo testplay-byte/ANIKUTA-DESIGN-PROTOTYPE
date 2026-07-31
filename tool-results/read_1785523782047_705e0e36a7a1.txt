@@ -215,3 +215,246 @@
    215→- APK: 81.7 MB debug-signed, sideloadable
    216→- Run URL: https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions/runs/30641389171
    217→
+   218→---
+   219→Task ID: UIFIX-C
+   220→Agent: full-stack-developer
+   221→Task: Fix bold rendering on 5 Flutter screens by adding `fontFamily: kFontFamily` ('Inter') to every inline `TextStyle(...)` constructor. Bundled Inter weights 400–900 mean w700/w800/w900 now use REAL glyph files instead of fake-bold.
+   222→
+   223→Scope (5 screens):
+   224→1. lib/screens/restore_summary_screen.dart — RestoreSummaryScreen
+   225→2. lib/screens/restore_processing_screen.dart — RestoreProcessingScreen
+   226→3. lib/screens/restore_success_screen.dart — RestoreSuccessScreen
+   227→4. lib/screens/poison_screen.dart — PoisonScreen
+   228→5. lib/screens/finish_screen.dart — FinishScreen
+   229→
+   230→Edits per file:
+   231→
+   232→restore_summary_screen.dart
+   233→- Added `import '../theme/app_theme.dart';`
+   234→- 5 TextStyle instances updated with `fontFamily: kFontFamily`:
+   235→  * "Ready to restore" hero title (18px w800) — Inter-ExtraBold ✓
+   236→  * "Your library will be overwritten." subtitle (11px w500)
+   237→  * Info note body text (12px w500, height 1.4)
+   238→  * _StatBox stat number (20px w800) — Inter-ExtraBold ✓
+   239→  * _StatBox stat label (10px w700, letterSpacing 0.3)
+   240→- Verified: 2x2 stat grid is compact (padding 10, gap 8, 20/10 font sizes) — fits well.
+   241→
+   242→restore_processing_screen.dart
+   243→- Added `import '../theme/app_theme.dart';`
+   244→- 2 TextStyle instances updated with `fontFamily: kFontFamily`:
+   245→  * _ScanningPill cycling status message (13px w700) inside AnimatedSwitcher
+   246→  * Local `GhostButton` class label (17px w800) — Inter-ExtraBold ✓
+   247→- Verified: ProgressRingVisual size 180 kept; auto-advance timer (3.2s) and AnimatedSwitcher (220ms) untouched — animation smooth.
+   248→
+   249→restore_success_screen.dart
+   250→- No inline TextStyle constructors in this file (title/subtitle/pageHeading are passed to WizardScaffold, which already applies `fontFamily: kFontFamily` per wizard_scaffold.dart lines 156/177/192).
+   251→- No import needed (would trigger `unused_import` lint).
+   252→- Verified: CheckCircleVisual size 220 kept (web --lg).
+   253→
+   254→poison_screen.dart (CRITICAL)
+   255→- Import '../theme/app_theme.dart' was already present.
+   256→- 3 TextStyle instances updated with `fontFamily: kFontFamily`:
+   257→  * Summary chip text (13px w600) — `controller.adSettings.summary`
+   258→  * _SectionLabel widget (13px w700, letterSpacing 0.3)
+   259→  * _ChoiceCard label (16px, w800 when active / w600 when inactive) — Inter-ExtraBold when active ✓
+   260→- Verified: _ChoiceCard uses `constraints: BoxConstraints(minHeight: 56)` — big and tappable ✓
+   261→- Verified: Theme(data: buildPoisonTheme(...)) wrapper intact — red palette already uses Inter via app_theme.dart.
+   262→
+   263→finish_screen.dart
+   264→- Added `import '../theme/app_theme.dart';`
+   265→- 2 TextStyle instances in `_SummaryRow` updated with `fontFamily: kFontFamily`:
+   266→  * Row label (12px w700, letterSpacing 0.4)
+   267→  * Row value (15px w600)
+   268→- "Setup complete" heading: passed as `pageHeading` to WizardScaffold — rendered with `fontFamily: kFontFamily, fontWeight: FontWeight.w800` (Inter-ExtraBold) per wizard_scaffold.dart line 156-162 ✓
+   269→- Verified: CheckCircleVisual size 180 kept.
+   270→
+   271→Verification:
+   272→- Ran `flutter analyze` (Flutter 3.24.5 at /home/z/flutter/):
+   273→  **No issues found! (ran in 1.7s)** ✅ — 0 errors, 0 warnings, 0 infos.
+   274→- All existing StatefulWidget/timer/controller logic untouched.
+   275→- No screen-specific structural changes; only fontFamily additions + verified existing visual sizes / min heights.
+   276→
+   277→Deliverable:
+   278→- 5 files edited.
+   279→- flutter analyze: 0 issues.
+   280→- This worklog appended.
+   281→
+   282→---
+   283→Task ID: UIFIX-A
+   284→Agent: full-stack-developer
+   285→Task: Fix UI/font issues on 5 Flutter wizard screens — explicitly bind every TextStyle to Inter (`kFontFamily`) so bold weights (700/800/900) resolve to the bundled Inter-Bold/ExtraBold/Black glyph files instead of Roboto fake-bold; apply screen-specific layout fixes.
+   286→
+   287→Work Log:
+   288→- Read worklog.md, app_theme.dart (verified `kFontFamily = 'Inter'` and that WizardScaffold already sets `fontFamily: kFontFamily, fontWeight: FontWeight.w800` on the page heading + `centerContent: true` default), wizard_scaffold.dart (confirmed `centerContent` default), wizard_visuals.dart (WelcomeVisual default 160, RestoreVisual default 150), and mini_anime_preview.dart (`height` param confirmed).
+   289→- All 5 target screens edited in place via targeted Edit/MultiEdit operations. No logic/state/controllers changed. No text content changed. WizardScaffold API calls left untouched.
+   290→
+   291→Per-file changes:
+   292→
+   293→1. welcome_screen.dart
+   294→   - Added `import '../theme/app_theme.dart';`.
+   295→   - WelcomeVisual `size: 180` → `size: 160` (per spec — visual not too big).
+   296→   - Added `fontFamily: kFontFamily` to BOTH inline TextStyle constructors:
+   297→     • "Let's get things quickly set up for you." subtitle (fontSize 16, regular weight).
+   298→     • Feature-card title (fontSize 16, FontWeight.w700 → resolves to Inter-Bold).
+   299→   - The "Welcome to Anime App!" heading is rendered by WizardScaffold via `pageHeading` + `xlHeading: true`; the scaffold already applies `fontFamily: kFontFamily, fontWeight: FontWeight.w800` (Inter-ExtraBold) to that Text, so the w800 requirement is satisfied without further edits.
+   300→
+   301→2. theme_screen.dart
+   302→   - Added `import '../theme/app_theme.dart';`.
+   303→   - CRITICAL: MiniAnimePreview `height: 240` → `height: 180` (was pushing palette carousel off-screen).
+   304→   - Palette carousel cards resized: outer SizedBox 80×100 → 72×96; inner swatch Container width 80→72 (height kept at 72, fits within 96 = 72 + 8 gap + 12 label). Active-state check badge shrunk 22→20 with icon 14→12 to keep proportions. Corner radius 16→14. This ensures all 6 palettes are visible without horizontal scroll on most screens.
+   305→   - Mode toggle verified compact (~44px tall): outer Container padding `EdgeInsets.all(4)` + per-button vertical padding 10 + 14px icon/13px label row ≈ 44px. No change needed beyond fontFamily.
+   306→   - Added `fontFamily: kFontFamily` to BOTH inline TextStyles:
+   307→     • Mode-button label (fontSize 13, FontWeight.w700 → Inter-Bold).
+   308→     • Palette name label (fontSize 12, FontWeight.w700 → Inter-Bold).
+   309→
+   310→3. folder_screen.dart
+   311→   - Added `import '../theme/app_theme.dart';`.
+   312→   - `centerContent: true` is the WizardScaffold default — no API call change needed (already centers vertically; mock-card stacks cleanly below FolderVisual when selected).
+   313→   - FolderVisual `size: 180` — kept as is (per spec).
+   314→   - Added `fontFamily: kFontFamily` to ALL THREE inline TextStyles:
+   315→     • "/storage/anime-library" path (fontSize 14, FontWeight.w700 → Inter-Bold).
+   316→     • "Scanning… / 247 items · ready" status line (fontSize 12, regular → Inter-Regular).
+   317→     • "Scanning" pill label (fontSize 11, FontWeight.w700 → Inter-Bold).
+   318→
+   319→4. permissions_screen.dart
+   320→   - Added `import '../theme/app_theme.dart';`.
+   321→   - Rows already compact (~54-64px tall depending on Switch intrinsic height): icon container 36×36 + column (15+2+11 ≈ 28px) inside Container with vertical padding 10+10 → ~48px row + 10px margin = ~58px. Within the ~64px spec target. No padding change needed.
+   322→   - Added `fontFamily: kFontFamily` to BOTH inline TextStyles:
+   323→     • Permission-row title (fontSize 15, FontWeight.w700 → Inter-Bold).
+   324→     • Permission-row description (fontSize 11, explicitly set FontWeight.w400 → Inter-Regular; previously weight was implicit-default which on some devices resolves to fake-regular — explicit w400 guarantees the Inter-Regular file).
+   325→
+   326→5. restore_screen.dart
+   327→   - No `import '../theme/app_theme.dart'` added because the file contains ZERO inline `TextStyle(...)` constructors — all text (pageHeading "Restore Backup", descriptiveTitle "Restore backup", subtitle) is rendered through WizardScaffold, which already applies `fontFamily: kFontFamily`. Adding the import would have triggered an `unused_import` warning under flutter_lints.
+   328→   - RestoreVisual `size: 180` → `size: 150` (per spec).
+   329→   - "Make sure text uses Inter font" requirement satisfied via WizardScaffold's already-correct Inter bindings.
+   330→
+   331→Verification:
+   332→- Ran `cd /home/z/my-project/flutter_app && flutter analyze` (with `export PATH="/home/z/flutter/bin:$PATH"` first).
+   333→- Result: `No issues found! (ran in 1.7s)` — 0 errors, 0 warnings, 0 lints.
+   334→
+   335→Summary:
+   336→- 5 files edited.
+   337→- 9 inline TextStyle constructors got `fontFamily: kFontFamily` added across 4 files (welcome×2, theme×2, folder×3, permissions×2).
+   338→- 1 explicit `FontWeight.w400` added to permission-row description.
+   339→- 4 layout/size fixes: WelcomeVisual 180→160, MiniAnimePreview height 240→180, palette cards 80×100→72×96 (+ badge/radius scale-down), RestoreVisual size 180→150.
+   340→- 0 changes to WizardScaffold API calls (centerContent left at default `true` everywhere it matters).
+   341→- 0 changes to state, controllers, navigation, or text content.
+   342→- flutter analyze: 0 issues.
+   343→
+   344→
+   345→---
+   346→Task ID: UIFIX-B
+   347→Agent: full-stack-developer
+   348→
+   349→Task: Fix UI font rendering on 5 Flutter screens (steps 5-9) — add `fontFamily: kFontFamily` to EVERY inline TextStyle so bold weights (700/800/900) use Inter's real glyph files instead of Roboto fake-bold. Plus screen-specific smoothness/weight fixes.
+   350→
+   351→Files edited (Edit/MultiEdit only — no logic changes):
+   352→1. `flutter_app/lib/screens/format_screen.dart` — FormatScreen (step 5)
+   353→2. `flutter_app/lib/screens/processing_screen.dart` — ProcessingScreen (step 6, auto-advance)
+   354→3. `flutter_app/lib/screens/summary_screen.dart` — SummaryScreen (step 7, staggered anim)
+   355→4. `flutter_app/lib/screens/linking_screen.dart` — LinkingScreen (step 8, progressive reveal)
+   356→5. `flutter_app/lib/screens/manual_screen.dart` — ManualScreen (step 9, search overlay)
+   357→
+   358→Common change across all 5 files:
+   359→- Added `import '../theme/app_theme.dart';` to expose `kFontFamily` constant.
+   360→- Added `fontFamily: kFontFamily,` as the FIRST property of every `TextStyle(...)` constructor (including ones nested in `TextSpan` and `TextField.style:`). Existing `const TextStyle(...)` instances keep their `const` because `kFontFamily` is a compile-time const String.
+   361→- Verified per-file counts (TextStyle vs fontFamily:kFontFamily):
+   362→  - format_screen.dart: 4 / 4 ✓
+   363→  - processing_screen.dart: 1 / 1 ✓
+   364→  - summary_screen.dart: 3 / 3 ✓
+   365→  - linking_screen.dart: 9 / 9 ✓
+   366→  - manual_screen.dart: 10 / 10 ✓
+   367→  - Total: 27 / 27 TextStyle instances updated.
+   368→
+   369→Screen-specific fixes applied:
+   370→
+   371→**Format screen:**
+   372→- FormatVisual size 180 — kept (already 180 in prior rebuild).
+   373→- File details card rows already use label w600 + value w600 — now both with Inter.
+   374→
+   375→**Processing screen:**
+   376→- ProcessingVisual size 180 → 160 (spec calls for 160).
+   377→- Scanning pill text "Processing" already w700 — now Inter w700 (Inter-Bold real glyphs).
+   378→- Auto-advance (2500ms Future.delayed → WizardNav.next) untouched. ProcessingVisual is wrapped by WizardScaffold's RepaintBoundary per the foundation update, so the 1200ms pulse animation stays smooth.
+   379→
+   380→**Summary screen:**
+   381→- 6 summary list rows: labels already w700, values already w800 — both now Inter.
+   382→- Meta weight adjusted from w500 → w400 per spec (Inter-Regular real glyphs for muted sub-text).
+   383→- Manga warning row uses `cs.error` color (via `accent = item.warn ? error : primary`) — untouched.
+   384→- Staggered animation (AnimationController 800ms, Interval 80ms/row × 400ms slide-in) untouched.
+   385→
+   386→**Linking screen (CRITICAL FOR SMOOTHNESS):**
+   387→- Added `RepaintBoundary(child: Container(...))` around the linking-row Container in `_AnimeRow.build()`. Each anime row's fade-in (AnimatedOpacity + AnimatedSlide, 280ms each, 400ms Timer.periodic reveal) now repaints only its own subtree, not the entire ListView. This is the key jank fix.
+   388→- The 4 stat numbers (Linked/No match/Total/Remaining) already w800 — now Inter-ExtraBold.
+   389→- Stat labels already w600 — now Inter-SemiBold.
+   390→- `scrollable: false` on the scaffold already set (list scrolls internally via Expanded + ListView.builder).
+   391→- Anime names already w600 — now Inter-SemiBold.
+   392→- Matched names already w500 — now Inter-Medium.
+   393→- Unlink sheet: 'Linked entry' label (w700), anime.backupName (w800), description (w500), matchedName (w600) — all now Inter.
+   394→- Poster letter w800 const TextStyle preserved (now `const TextStyle(fontFamily: kFontFamily, ...)`).
+   395→- Also fixed indentation inconsistency introduced by the MultiEdit wrapping (re-aligned Row children to standard 10-space indent for readability — pure cosmetic, no structural change).
+   396→
+   397→**Manual screen:**
+   398→- Unlinked list rows + search overlay all now use Inter.
+   399→- Search result titles already w600 — now Inter-SemiBold.
+   400→- Search result sub-text weight adjusted w500 → w400 per spec (matches Summary screen meta pattern; Inter-Regular for muted sub-text).
+   401→- Search overlay's TextField `style:` property updated: `TextStyle(fontFamily: kFontFamily, color: onText, fontSize: 15)`.
+   402→- RichText parent TextStyle (Info line "Linking: <name>") + the bolded anime name TextSpan both get `fontFamily: kFontFamily`.
+   403→- 'Find a match' title (w800), 'No results' (w500), 'Search' tag (w700), poster letter (w800 const) — all Inter.
+   404→- `isScrollControlled: true` sheet (85% height) untouched; Padding(viewInsets.bottom) for keyboard handling preserved.
+   405→
+   406→Verification:
+   407→- `flutter analyze` → "No issues found! (ran in 1.4s)" — 0 issues, 0 warnings.
+   408→- No changes to: business logic, navigation, controllers, models, animations duration/curve, screen layout, color values.
+   409→
+   410→---
+   411→Task ID: UIFIX-FINAL
+   412→Agent: main (Z.ai Code)
+   413→Task: Major UI quality overhaul — fix text bolding, full-screen, adaptive layout, smoother animations, ARM64-only APK.
+   414→
+   415→Work Log:
+   416→- Diagnosed root causes of user complaints:
+   417→  1. "No text bolding" = Android's default Roboto has NO 800 weight → FontWeight.w800 fell back to fake-bold. Web prototype uses Inter (has real 800/900 weights).
+   418→  2. "Not full screen / progress bar not at top" = SafeArea pushed content below the opaque status bar.
+   419→  3. "Palettes not visible at bottom" (theme) = MiniAnimePreview was 240px tall, pushing palettes off-screen.
+   420→  4. "Glitchy/laggy" = CustomPainter animations without RepaintBoundary triggered full-screen repaints.
+   421→  5. "Folder visual in wrong half" = content was top-aligned, not vertically centered.
+   422→
+   423→- Foundation fixes (done by main agent):
+   424→  a. Downloaded Inter static TTFs (Regular 400, Medium 500, SemiBold 600, Bold 700, ExtraBold 800, Black 900) from rsms/inter v4.0 GitHub release → assets/fonts/
+   425→  b. Updated pubspec.yaml to declare the 6 font weights under family: Inter
+   426→  c. Updated app_theme.dart: fontFamily = 'Inter' (kFontFamily constant), textTheme uses Inter with proper weight mapping
+   427→  d. Updated main.dart: SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge) + transparent status bar + AnnotatedRegion for per-screen status bar icon brightness
+   428→  e. Redesigned wizard_scaffold.dart:
+   429→     - Removed SafeArea, uses MediaQuery.viewPaddingOf for manual top/bottom padding (progress bar at very top, below status bar)
+   430→     - LayoutBuilder for adaptive sizing (isSmall flag for height < 560)
+   431→     - ConstrainedBox(minHeight) + mainAxisAlignment.center inside SingleChildScrollView → content centers vertically when short, scrolls when tall
+   432→     - RepaintBoundary around the visual widget
+   433→     - New centerContent param (default true)
+   434→     - All TextStyles include fontFamily: kFontFamily
+   435→  f. Updated workflow: --target-platform android-arm64 (ARM64-only, smaller APK)
+   436→
+   437→- Screen fixes (3 parallel subagents UIFIX-A/B/C):
+   438→  - All 15 screens: added `import '../theme/app_theme.dart'` + `fontFamily: kFontFamily` to every TextStyle (40+ TextStyle instances updated total)
+   439→  - Theme screen: MiniAnimePreview 240→180, palette cards 80×100→72×96 (palettes now visible at bottom)
+   440→  - Processing screen: visual 180→160
+   441→  - Linking screen: RepaintBoundary around each row Container (fixes progressive-reveal jank)
+   442→  - Welcome screen: visual 180→160
+   443→  - Restore screen: visual 180→150
+   444→  - All other screens: verified compact layouts, correct font weights
+   445→
+   446→- flutter analyze: 0 issues (verified after all edits)
+   447→- CI build: SUCCESS (run 30646432980, sha 7345e0b)
+   448→- APK: 69.4 MB (down from 81.7 MB — 15% smaller from ARM64-only)
+   449→- Run URL: https://github.com/testplay-byte/ANIKUTA-DESIGN-PROTOTYPE/actions/runs/30646432980
+   450→
+   451→Stage Summary:
+   452→- Text bolding: FIXED (Inter font with real 800/900 weight glyph files)
+   453→- Full screen: FIXED (edge-to-edge, progress bar at very top below transparent status bar)
+   454→- Adaptive layout: FIXED (LayoutBuilder scales content; centerContent centers vertically)
+   455→- Theme palettes: FIXED (smaller preview, all 6 palettes visible)
+   456→- Folder alignment: FIXED (centerContent=true centers the visual in available space)
+   457→- Glitchy animations: FIXED (RepaintBoundary around visuals + linking rows)
+   458→- APK size: 69.4 MB (ARM64-only, 15% smaller)
+   459→- All 15 screens pass flutter analyze with 0 issues
+   460→
