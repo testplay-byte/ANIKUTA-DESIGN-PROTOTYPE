@@ -992,7 +992,9 @@ class _LinkingScreenState extends State<_LinkingScreen> {
                   const SizedBox(width: 12),
                   Expanded(child: ElevatedButton(onPressed: () { widget.onUnlink(_popupId!); setState(() => _popupId = null); }, style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFF2B8B5), foregroundColor: Colors.white, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999))), child: const Text('Mark as not linked', style: TextStyle(fontWeight: FontWeight.bold)))),
                 ]),
-              ])),
+              ]),
+              ]),
+            ),
             ),
           )),
     ]);
