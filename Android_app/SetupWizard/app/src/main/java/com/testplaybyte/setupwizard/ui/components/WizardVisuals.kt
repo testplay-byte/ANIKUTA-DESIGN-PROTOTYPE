@@ -717,7 +717,7 @@ fun AllLinkedVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
     val pulse by t.animateFloat(0f, 1f, infiniteRepeatable(tween(2500, easing = LinearEasing), RepeatMode.Restart), "alv-p")
     val draw by t.animateFloat(0f, 1f, infiniteRepeatable(tween(2000, easing = FastOutSlowInEasing), RepeatMode.Restart), "alv-d")
     val glow by t.animateFloat(0.18f, 0.30f, infiniteRepeatable(tween(3000, easing = FastOutSlowInEasing), RepeatMode.Reverse), "alv-g")
-    val orbit by t.animateFloat(0f, 360f, infiniteRepeatable(tween(8000, easing = LinearEasing)), RepeatMode.Restart), "alv-o")
+    val orbit by t.animateFloat(0f, 360f, infiniteRepeatable(tween(8000, easing = LinearEasing), RepeatMode.Restart), "alv-o")
 
     Canvas(modifier.fillMaxSize()) {
         val u = minOf(size.width, size.height) / 200f
