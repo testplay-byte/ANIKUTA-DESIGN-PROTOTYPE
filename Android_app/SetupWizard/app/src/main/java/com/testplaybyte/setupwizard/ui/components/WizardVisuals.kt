@@ -486,7 +486,7 @@ fun RestoreProcessingVisual(palette: WizardPalette, modifier: Modifier = Modifie
         drawArc(
             palette.primary, -90f, progress * 360f, false,
             Offset(cx - r, cy - r), Size(r * 2, r * 2),
-            Stroke(10f * u, cap = StrokeCap.Round),
+            style = Stroke(10f * u, cap = StrokeCap.Round),
         )
 
         // 6 flowing particles orbiting just inside the ring
