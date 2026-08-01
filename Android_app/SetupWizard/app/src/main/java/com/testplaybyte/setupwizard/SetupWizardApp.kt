@@ -155,7 +155,8 @@ fun SetupWizardApp() {
                     AnimatedContent(
                         targetState = state.step,
                         transitionSpec = {
-                            fadeIn(tween(400)) togetherWith fadeOut(tween(300))
+                            (slideInHorizontally(tween(350, easing = FastOutSlowInEasing)) { it / 6 } + fadeIn(tween(350))) togetherWith
+                            (slideOutHorizontally(tween(300, easing = FastOutSlowInEasing)) { -it / 6 } + fadeOut(tween(300)))
                         },
                         label = "screen"
                     ) { step ->
@@ -899,20 +900,21 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
         // Fixed footer
         ActionRow(back = onBack, next = onNext, palette = palette, nextEnabled = allRevealed)
     }
-    // Popup
+    // Popup — centered with frosted-glass style overlay
     if (popupId != null) {
         val anime = linkedAnime.find { it.id == popupId }
         if (anime != null) {
-            Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.5f)).clickable { popupId = null }, contentAlignment = Alignment.BottomCenter) {
+            Box(
+                modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.6f)).clickable { popupId = null },
+                contentAlignment = Alignment.Center
+            ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth().padding(20.dp).padding(bottom = 32.dp).clip(RoundedCornerShape(20.dp)).background(palette.surface2).border(1.dp, palette.surface4, RoundedCornerShape(20.dp)).padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).clip(RoundedCornerShape(24.dp)).background(palette.surface2).border(1.dp, palette.surface4, RoundedCornerShape(24.dp)).padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Text("Linked entry", color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.ExtraBold)
-                    Text("This entry was auto-linked. If the match is wrong, mark it as not linked — you'll be able to link it manually.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 12.sp)
-                    Text(anime.backupName, color = MaterialTheme.colorScheme.onBackground, fontSize = 13.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(palette.surface3).padding(8.dp))
+                    Text("Linked entry", color = MaterialTheme.colorScheme.onBackground, fontSize = 18.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.ExtraBold)
+                    Text("This entry was auto-linked. If the match is wrong, mark it as not linked — you'll be able to link it manually.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 12.sp, fontFamily = RobotoFamily)
+                    Text(anime.backupName, color = MaterialTheme.colorScheme.onBackground, fontSize = 13.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold, modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).background(palette.surface3).padding(10.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         WizardButton("Keep linked", { popupId = null }, palette, isPrimary = false, enabled = true, modifier = Modifier.weight(1f))
                         WizardButton("Mark as not linked", { onUnlink(anime.id); popupId = null }, palette, isPrimary = true, enabled = true, modifier = Modifier.weight(1f))
@@ -948,6 +950,10 @@ fun ManualScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onLink:
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Top animation — search magnifying glass
+            Box(modifier = Modifier.size(120.dp).padding(vertical = 8.dp)) {
+                SearchVisual(palette)
+            }
             DescriptiveTitle("Manual linking", modifier = Modifier.fillMaxWidth())
             Subtitle(
                 if (unlinked.isEmpty()) "All anime are linked! You're ready to continue." else "${unlinked.size} anime need your help. Tap any entry to search for a match.",
@@ -976,9 +982,11 @@ fun ManualScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onLink:
     if (searchOpen) {
         Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background).padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
-                IconButton(onClick = { searchOpen = false; selectedId = null }) { Icon(Icons.Default.ArrowBack, null) }
-                Text("Find a match", color = MaterialTheme.colorScheme.onBackground, fontSize = 22.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.ExtraBold)
+                Box(modifier = Modifier.size(40.dp).clip(CircleShape).background(palette.surface3).clickable { searchOpen = false; selectedId = null }, contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.ArrowBack, null, tint = MaterialTheme.colorScheme.onBackground, modifier = Modifier.size(20.dp))
+                }
+                Spacer(Modifier.width(12.dp))
+                Text("Find a match", color = MaterialTheme.colorScheme.onBackground, fontSize = 20.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.ExtraBold)
             }
             Text("Linking: ${selectedAnime?.backupName ?: ""}", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 12.sp, modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp))
             // Search bar with X + search icon
@@ -988,9 +996,10 @@ fun ManualScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onLink:
             ) {
                 BasicTextField(value = query, onValueChange = { query = it }, textStyle = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground, fontSize = 14.sp), modifier = Modifier.weight(1f), singleLine = true)
                 if (query.isNotEmpty()) {
-                    IconButton(onClick = { query = "" }, modifier = Modifier.size(32.dp)) {
-                        Icon(Icons.Default.Close, null, tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
+                    Box(modifier = Modifier.size(32.dp).clip(CircleShape).background(palette.surface3).clickable { query = "" }, contentAlignment = Alignment.Center) {
+                        Icon(Icons.Default.Close, null, tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), modifier = Modifier.size(16.dp))
                     }
+                    Spacer(Modifier.width(4.dp))
                 }
                 Box(modifier = Modifier.size(38.dp).clip(CircleShape).background(palette.primary), contentAlignment = Alignment.Center) {
                     Icon(Icons.Default.Search, null, tint = palette.onPrimary, modifier = Modifier.size(18.dp))
@@ -1062,33 +1071,26 @@ fun RestoreSummaryScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>,
                         Text("Your library will be overwritten with the backup data.", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 11.sp)
                     }
                 }
-                // 2x2 stats grid
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(1.dp)) {
-                    Column(Modifier.weight(1f).background(palette.surface3).padding(10.dp)) {
-                        Text("$toRestore", color = palette.primary, fontSize = 20.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.ExtraBold)
-                        Text("Anime to restore", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+                // 2x2 stats grid — rounded cards with proper spacing
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).background(palette.surface3).padding(12.dp)) {
+                        Text("$toRestore", color = palette.primary, fontSize = 22.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.ExtraBold)
+                        Text("Anime to restore", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold)
                     }
-                    Column(Modifier.weight(1f).background(palette.surface3).padding(10.dp)) {
-                        Text("$linked", color = palette.primary, fontSize = 20.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.ExtraBold)
-                        Text("Auto-linked", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+                    Column(Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).background(palette.surface3).padding(12.dp)) {
+                        Text("$linked", color = palette.primary, fontSize = 22.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.ExtraBold)
+                        Text("Auto-linked", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold)
                     }
                 }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(1.dp)) {
-                    Column(Modifier.weight(1f).background(palette.surface3).padding(10.dp)) {
-                        Text("0", color = palette.primary, fontSize = 20.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.ExtraBold)
-                        Text("Manually linked", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+                Spacer(Modifier.height(8.dp))
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).background(palette.surface3).padding(12.dp)) {
+                        Text("0", color = palette.primary, fontSize = 22.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.ExtraBold)
+                        Text("Manually linked", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold)
                     }
-                    Column(Modifier.weight(1f).background(palette.surface3).padding(10.dp)) {
-                        Text("$episodes", color = palette.primary, fontSize = 20.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.ExtraBold)
-                        Text("Episodes", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+                    Column(Modifier.weight(1f).clip(RoundedCornerShape(14.dp)).background(palette.surface3).padding(12.dp)) {
+                        Text("$episodes", color = palette.primary, fontSize = 22.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.ExtraBold)
+                        Text("Episodes", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 10.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold)
                     }
                 }
             }
@@ -1151,7 +1153,7 @@ fun RestoreSuccessScreen(palette: WizardPalette, onNext: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { DatabaseVisual(palette) }
+            Box(modifier = Modifier.size(200.dp).padding(vertical = 8.dp)) { DatabaseVisual(palette) }
             DescriptiveTitle("Restore successful!", modifier = Modifier.fillMaxWidth())
             Subtitle("Your library has been restored and is ready to go.", modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
         }
@@ -1163,11 +1165,25 @@ fun RestoreSuccessScreen(palette: WizardPalette, onNext: () -> Unit) {
 @Composable
 fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSettings) -> Unit, step: Int, onStepChange: (Int) -> Unit, onBack: () -> Unit, onNext: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
-        // Fixed header (poison red heading + subtitle)
+        // Fixed header — consistent 28sp heading with proper spacing
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            Text("Choose Your Poison", color = Color(0xFFFF6B6B), fontSize = 42.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(top = 16.dp))
-            Text("Ads keep the app free. Let's make them non-intrusive — pick your daily dose.", color = Color(0xFFD9A0A0), fontSize = 14.sp, modifier = Modifier.padding(top = 2.dp))
+            Text(
+                "Choose Your Poison",
+                color = Color(0xFFFF6B6B),
+                fontSize = 28.sp,
+                fontFamily = RobotoFamily,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = (-0.5).sp,
+                lineHeight = 34.sp,
+                modifier = Modifier.padding(top = 8.dp),
+            )
+            Text(
+                "Ads keep the app free. Let's make them non-intrusive — pick your daily dose.",
+                color = Color(0xFFD9A0A0),
+                fontSize = 14.sp,
+                fontFamily = RobotoFamily,
+                modifier = Modifier.padding(top = 4.dp),
+            )
         }
         // Scrollable content
         Column(
@@ -1175,18 +1191,28 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Poison visual — taller area so bottles don't get cut off
+            // Poison visual — centered when 1, spaced when 2-3
             val visualCount = if (step == 0) 1 else adSettings.frequency
+            // Pill colors: red, blue, yellow for variety
+            val pillColors = listOf(
+                Color(0xFFE85D5D) to Color.White,  // red
+                Color(0xFF5B8DEF) to Color.White,  // blue
+                Color(0xFFE8C84B) to Color.White,  // yellow
+            )
             Row(
-                modifier = Modifier.fillMaxWidth().height(200.dp).padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth().height(180.dp).padding(vertical = 8.dp),
+                horizontalArrangement = if (visualCount == 1) Arrangement.Center else Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 repeat(visualCount) { i ->
-                    val offsetY = when (i) { 0 -> (-20).dp; 1 -> 20.dp; 2 -> (-6).dp; else -> 0.dp }
-                    // Use fixed width instead of weight so all bottles stay the same size
-                    Box(modifier = Modifier.size(100.dp).offset(y = offsetY)) {
-                        if (adSettings.name == AdName.POISON) PoisonBottleVisual(palette, i) else PoisonPillVisual(palette, i)
+                    val offsetY = when (i) { 0 -> (-16).dp; 1 -> 16.dp; 2 -> (-8).dp; else -> 0.dp }
+                    Box(modifier = Modifier.size(110.dp).offset(y = offsetY)) {
+                        if (adSettings.name == AdName.POISON) {
+                            PoisonBottleVisual(palette, i)
+                        } else {
+                            val (c1, c2) = pillColors[i % 3]
+                            PoisonPillVisual(palette, i, pillColor = c1, pillColor2 = c2)
+                        }
                     }
                 }
             }
@@ -1199,8 +1225,7 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
             // Step content
             when (step) {
                 0 -> {
-                    Text("What should we call it?", color = Color(0xFFD9A0A0), fontSize = 11.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+                    Text("What should we call it?", color = Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
                     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(999.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(999.dp)).padding(4.dp)) {
                         AdName.values().forEach { name ->
                             Row(
@@ -1208,16 +1233,15 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(name.label, color = if (adSettings.name == name) palette.onPrimary else Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+                                Text(name.label, color = if (adSettings.name == name) palette.onPrimary else Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
-                    Text("Your daily ads will be shown as your ${adSettings.name.label}.", color = Color(0xFFFFEAEA), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(palette.primary.copy(alpha = 0.12f)).border(1.dp, palette.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp)).padding(11.dp))
+                    // Simpler summary
+                    Text(adSettings.name.label, color = Color(0xFFFFEAEA), fontSize = 13.sp, fontFamily = RobotoFamily, modifier = Modifier.padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(palette.primary.copy(alpha = 0.12f)).border(1.dp, palette.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp)).padding(horizontal = 14.dp, vertical = 10.dp))
                 }
                 1 -> {
-                    Text("How many per day?", color = Color(0xFFD9A0A0), fontSize = 11.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+                    Text("How many per day?", color = Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
                     Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(999.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(999.dp)).padding(4.dp)) {
                         listOf(1, 2, 3).forEach { n ->
                             Row(
@@ -1225,28 +1249,27 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("$n ${if (n == 1) "ad" else "ads"}", color = if (adSettings.frequency == n) palette.onPrimary else Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+                                Text("$n ${if (n == 1) "ad" else "ads"}", color = if (adSettings.frequency == n) palette.onPrimary else Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
-                    Text("You'll see at most ${adSettings.frequency} ${if (adSettings.frequency == 1) "ad" else "ads"} per day.", color = Color(0xFFFFEAEA), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(palette.primary.copy(alpha = 0.12f)).border(1.dp, palette.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp)).padding(11.dp))
+                    // Simpler summary
+                    Text("${adSettings.frequency} ${if (adSettings.frequency == 1) "ad" else "ads"} per day", color = Color(0xFFFFEAEA), fontSize = 13.sp, fontFamily = RobotoFamily, modifier = Modifier.padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(palette.primary.copy(alpha = 0.12f)).border(1.dp, palette.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp)).padding(horizontal = 14.dp, vertical = 10.dp))
                 }
                 2 -> {
-                    Text("When should they appear?", color = Color(0xFFD9A0A0), fontSize = 11.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
+                    Text("When should they appear?", color = Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 8.dp))
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         AdTiming.values().forEach { t ->
                             Box(
                                 Modifier.clip(RoundedCornerShape(999.dp)).background(if (adSettings.timing == t) palette.primary else palette.surface2).border(1.dp, if (adSettings.timing == t) palette.primary else palette.surface3, RoundedCornerShape(999.dp)).clickable { onUpdate(adSettings.copy(timing = t)) }.padding(horizontal = 14.dp, vertical = 8.dp)
                             ) {
-                                Text(t.label, color = if (adSettings.timing == t) palette.onPrimary else Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+                                Text(t.label, color = if (adSettings.timing == t) palette.onPrimary else Color(0xFFD9A0A0), fontSize = 12.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold)
                             }
                         }
                     }
-                    val summary = "${adSettings.frequency} ${if (adSettings.frequency == 1) "ad" else "ads"}/day · ${adSettings.timing.label} · ${adSettings.name.label}"
-                    Text("Summary: $summary", color = Color(0xFFFFEAEA), fontSize = 12.sp, modifier = Modifier.padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(palette.primary.copy(alpha = 0.12f)).border(1.dp, palette.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp)).padding(11.dp))
+                    // Simpler summary: just frequency + timing (drop the name)
+                    val summary = "${adSettings.frequency} ${if (adSettings.frequency == 1) "ad" else "ads"}/day · ${adSettings.timing.label}"
+                    Text(summary, color = Color(0xFFFFEAEA), fontSize = 13.sp, fontFamily = RobotoFamily, modifier = Modifier.padding(top = 8.dp).clip(RoundedCornerShape(16.dp)).background(palette.primary.copy(alpha = 0.12f)).border(1.dp, palette.primary.copy(alpha = 0.35f), RoundedCornerShape(16.dp)).padding(horizontal = 14.dp, vertical = 10.dp))
                 }
             }
         }
@@ -1265,7 +1288,7 @@ fun FinishScreen(palette: WizardPalette, state: WizardState, onRestart: () -> Un
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { FinishVisual(palette) }
+            Box(modifier = Modifier.size(180.dp).padding(vertical = 8.dp)) { FinishVisual(palette) }
             // Badge
             Row(
                 modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(palette.primary.copy(alpha = 0.16f)).padding(horizontal = 14.dp, vertical = 6.dp),
