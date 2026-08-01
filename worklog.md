@@ -892,3 +892,20 @@ Stage Summary:
 - RestoreSummary: rounded stat boxes with better spacing
 - Screen transitions: slide+fade (was fade only)
 - APK: 15.9 MB, ARM64-only, builds successfully
+
+---
+Task ID: ANDROID-UI-OVERHAUL-V2
+Agent: main (Z.ai Code)
+Task: Comprehensive UI improvements per user feedback — bigger headings, welcome animation, animated theme preview, bigger visuals, tall bottle, improved finish screen.
+
+Work Log:
+1. HEADING 50% BIGGER: PageHeading 28sp→42sp on ALL screens. Top padding 8dp→2dp. Welcome 32sp→42sp. Poison 28sp→42sp. Finish 28sp→42sp. All with lineHeight 46sp.
+2. WELCOME ANIMATION: added FloatingShapes — 6 floating geometric shapes with independent float+alpha animations behind the feature cards.
+3. THEME SCREEN ANIMATED PREVIEW: replaced static mini phone with MiniAnimePreview that cycles through 4 screen states (Home/Library/Search/Settings) every 2.5s with fade transitions + screen label.
+4. ALL VISUALS BIGGER: Folder 150→200, Shield 150→180, Restore 150→180, Warning 150→200, Processing 150→180, Clipboard 150→180, RestoreProcessing 150→180, Search 120→150, Finish 180→200. RestoreSuccess replaced DatabaseVisual with FinishVisual (check circle + confetti) at 220dp.
+5. POISON BOTTLE TALL + EQUAL: PoisonBottleVisual uses height-based scaling (size.height/160f), body height 80u→100u. All 3 bottles/pills use Modifier.weight(1f) for equal sizing. PoisonPillVisual also uses height-based scaling.
+6. LINKING DEDICATED SECTION: wrapped LazyColumn in surface card (rounded 16dp, surface2 bg, surface3 border) with 'Entries' label.
+7. FINISH SCREEN IMPROVED: 200dp animation, 42sp heading, config summary with icon+label+dividers.
+8. Fixed compilation: added missing imports (clip, RoundedCornerShape, Text, FontWeight, FontFamily, sp, CircleShape, background, border) to WizardVisuals.kt for MiniAnimePreview.
+
+CI run 30688429555: SUCCESS. Artifact: setup-wizard-apk, 15.9 MB, ARM64-only.
