@@ -39,10 +39,7 @@ private fun DrawScope.rr(color: Color, x: Float, y: Float, w: Float, h: Float, c
 }
 
 private fun DrawScope.rrGradient(brush: Brush, x: Float, y: Float, w: Float, h: Float, cr: Float) {
-    val path = Path().apply {
-        addRoundRect(RoundRect(Rect(x, y, x + w, y + h), CornerRadius(cr, cr)))
-    }
-    drawPath(path, brush)
+    drawRoundRect(brush, topLeft = Offset(x, y), size = Size(w, h), cornerRadius = CornerRadius(cr, cr))
 }
 
 // ============================================================================
@@ -116,7 +113,7 @@ fun FolderVisual(palette: WizardPalette, selected: Boolean = false, modifier: Mo
             val fh = 38f * u
             // Card body with gradient
             rrGradient(
-                Brush.verticalGradient(listOf(palette.surface5, palette.surface4), start = Offset(fx, fy), end = Offset(fx, fy + fh)),
+                Brush.verticalGradient(listOf(palette.surface5, palette.surface4)),
                 fx, fy, fw, fh, 4f * u,
             )
             // Colored top strip
@@ -141,7 +138,7 @@ fun FolderVisual(palette: WizardPalette, selected: Boolean = false, modifier: Mo
 
         // --- Folder front pocket (gradient body) ---
         rrGradient(
-            Brush.verticalGradient(listOf(palette.surface3, palette.surface5), start = Offset(32f * u, 110f * u), end = Offset(32f * u, 174f * u)),
+            Brush.verticalGradient(listOf(palette.surface3, palette.surface5)),
             32f * u, 110f * u + bob * u, 136f * u, 64f * u, 10f * u,
         )
         // Primary border
@@ -211,22 +208,21 @@ fun ShieldVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
             lineTo(cx - w / 2, cy - h / 2 + w * 0.35f)
             close()
         }
-        drawPath(shieldPath, Brush.verticalGradient(listOf(palette.primary, palette.primary.copy(alpha = 0.8f)), start = Offset(cx, cy - h/2), end = Offset(cx, cy + h/2)))
+        drawPath(shieldPath, palette.primary)
 
         // Drawing check mark (animated)
         val p1 = Offset(cx - w * 0.14f, cy)
         val p2 = Offset(cx - w * 0.02f, cy + h * 0.12f)
         val p3 = Offset(cx + w * 0.20f, cy - h * 0.12f)
-        val checkPaint = Stroke(width = 5f * u, cap = StrokeCap.Round, join = StrokeJoin.Round)
         if (draw <= 0.5f) {
             val k = draw * 2f
             val end = Offset(p1.x + (p2.x - p1.x) * k, p1.y + (p2.y - p1.y) * k)
-            drawLine(palette.onPrimary, p1, end, checkPaint.width, checkPaint.cap)
+            drawLine(palette.onPrimary, p1, end, 5f * u, StrokeCap.Round)
         } else {
-            drawLine(palette.onPrimary, p1, p2, checkPaint.width, checkPaint.cap)
+            drawLine(palette.onPrimary, p1, p2, 5f * u, StrokeCap.Round)
             val k = (draw - 0.5f) * 2f
             val end = Offset(p2.x + (p3.x - p2.x) * k, p2.y + (p3.y - p2.y) * k)
-            drawLine(palette.onPrimary, p2, end, checkPaint.width, checkPaint.cap)
+            drawLine(palette.onPrimary, p2, end, 5f * u, StrokeCap.Round)
         }
     }
 }
@@ -254,7 +250,7 @@ fun RestoreVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
         val fw = 76f * u
         val fh = 96f * u
         rrGradient(
-            Brush.verticalGradient(listOf(palette.surface2, palette.surface4), start = Offset(cx - fw/2, cy - fh/2), end = Offset(cx - fw/2, cy + fh/2)),
+            Brush.verticalGradient(listOf(palette.surface2, palette.surface4)),
             cx - fw/2, cy - fh/2, fw, fh, fw * 0.14f,
         )
         // File fold corner
@@ -375,8 +371,8 @@ fun ProcessingVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
         radialGlow(cx, cy, 70f * u, palette.primary, glowA)
 
         // Rotating dashed rings (outer + inner, opposite directions)
-        drawArc(palette.primary.copy(alpha = 0.5f), spin, 120f, false, Offset(cx - 76f * u, cy - 76f * u), Size(152f * u, 152f * u), Stroke(2f * u, cap = StrokeCap.Round))
-        drawArc(palette.primary.copy(alpha = 0.35f), -spin, 90f, false, Offset(cx - 62f * u, cy - 62f * u), Size(124f * u, 124f * u), Stroke(1.5f * u, cap = StrokeCap.Round))
+        drawArc(palette.primary.copy(alpha = 0.5f), spin, 120f, false, Offset(cx - 76f * u, cy - 76f * u), Size(152f * u, 152f * u), style = Stroke(2f * u, cap = StrokeCap.Round))
+        drawArc(palette.primary.copy(alpha = 0.35f), -spin, 90f, false, Offset(cx - 62f * u, cy - 62f * u), Size(124f * u, 124f * u), style = Stroke(1.5f * u, cap = StrokeCap.Round))
 
         // Central file card
         val fw = 56f * u
@@ -428,7 +424,7 @@ fun ClipboardVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
         val cw = 80f * u
         val ch = 100f * u
         rrGradient(
-            Brush.verticalGradient(listOf(palette.surface3, palette.surface5), start = Offset(cx - cw/2, cy - ch/2), end = Offset(cx, cy + ch/2)),
+            Brush.verticalGradient(listOf(palette.surface3, palette.surface5)),
             cx - cw/2, cy - ch/2, cw, ch, 10f * u,
         )
         rr(palette.primary.copy(alpha = 0.4f), cx - cw/2, cy - ch/2, cw, ch, 10f * u, 1.5f * u)
@@ -529,7 +525,7 @@ fun DatabaseVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
         // Database cylinder top (ellipse)
         val ew = 88f * u
         val eh = 24f * u
-        drawOval(Brush.verticalGradient(listOf(palette.primaryContainer, palette.primary.copy(alpha = 0.3f))), Offset(cx - ew/2, (44f + float) * u), Size(ew, eh))
+        drawOval(palette.primaryContainer, Offset(cx - ew/2, (44f + float) * u), Size(ew, eh))
         drawOval(palette.primary, Offset(cx - ew/2, (44f + float) * u), Size(ew, eh), style = Stroke(2.5f * u))
 
         // Body
@@ -537,7 +533,7 @@ fun DatabaseVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
         drawLine(palette.primary, Offset(cx - ew/2, (56f + float) * u), Offset(cx - ew/2, (132f + float) * u), 2.5f * u)
         drawLine(palette.primary, Offset(cx + ew/2, (56f + float) * u), Offset(cx + ew/2, (132f + float) * u), 2.5f * u)
         // Bottom curve
-        drawArc(palette.primary, 0f, 180f, false, Offset(cx - ew/2, (108f + float) * u), Size(ew, 48f * u), Stroke(2.5f * u))
+        drawArc(palette.primary, 0f, 180f, false, Offset(cx - ew/2, (108f + float) * u), Size(ew, 48f * u), style = Stroke(2.5f * u))
 
         // Rings (database layers)
         drawOval(palette.primary.copy(alpha = 0.5f), Offset(cx - ew/2, (66f + float) * u), Size(ew, eh), style = Stroke(1.5f * u))
@@ -628,7 +624,7 @@ fun PoisonBottleVisual(palette: WizardPalette, idx: Int = 0, modifier: Modifier 
             close()
         }
         // Body fill with gradient
-        drawPath(bodyPath, Brush.verticalGradient(listOf(palette.primaryContainer, palette.surface5), start = Offset(cx, bodyTop), end = Offset(cx, bodyTop + bodyH)))
+        drawPath(bodyPath, palette.primaryContainer)
         // Body outline
         drawPath(bodyPath, palette.primary, style = Stroke(2.5f * u))
 
@@ -751,7 +747,7 @@ fun FinishVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
 
         // Circle (draws in)
         val circleSweep = (draw * 1.3f).coerceIn(0f, 1f)
-        drawArc(palette.primary, -90f, circleSweep * 360f, false, Offset(cx - r, cy - r), Size(r * 2, r * 2), Stroke(6f * u, cap = StrokeCap.Round))
+        drawArc(palette.primary, -90f, circleSweep * 360f, false, Offset(cx - r, cy - r), Size(r * 2, r * 2), style = Stroke(6f * u, cap = StrokeCap.Round))
         // Fill once drawn
         if (circleSweep >= 1f) {
             drawCircle(palette.primary, r, Offset(cx, cy))
@@ -763,14 +759,13 @@ fun FinishVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
             val p1 = Offset(cx - r * 0.32f, cy)
             val p2 = Offset(cx - r * 0.05f, cy + r * 0.30f)
             val p3 = Offset(cx + r * 0.36f, cy - r * 0.28f)
-            val checkPaint = Stroke(width = 7f * u, cap = StrokeCap.Round, join = StrokeJoin.Round)
             if (checkP <= 0.5f) {
                 val k = checkP * 2f
-                drawLine(palette.onPrimary, p1, Offset(p1.x + (p2.x - p1.x) * k, p1.y + (p2.y - p1.y) * k), checkPaint.width, checkPaint.cap)
+                drawLine(palette.onPrimary, p1, Offset(p1.x + (p2.x - p1.x) * k, p1.y + (p2.y - p1.y) * k), 5f * u, StrokeCap.Round)
             } else {
-                drawLine(palette.onPrimary, p1, p2, checkPaint.width, checkPaint.cap)
+                drawLine(palette.onPrimary, p1, p2, 5f * u, StrokeCap.Round)
                 val k = (checkP - 0.5f) * 2f
-                drawLine(palette.onPrimary, p2, Offset(p2.x + (p3.x - p2.x) * k, p2.y + (p3.y - p2.y) * k), checkPaint.width, checkPaint.cap)
+                drawLine(palette.onPrimary, p2, Offset(p2.x + (p3.x - p2.x) * k, p2.y + (p3.y - p2.y) * k), 5f * u, StrokeCap.Round)
             }
         }
 
