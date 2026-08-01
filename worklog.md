@@ -909,3 +909,23 @@ Work Log:
 8. Fixed compilation: added missing imports (clip, RoundedCornerShape, Text, FontWeight, FontFamily, sp, CircleShape, background, border) to WizardVisuals.kt for MiniAnimePreview.
 
 CI run 30688429555: SUCCESS. Artifact: setup-wizard-apk, 15.9 MB, ARM64-only.
+
+---
+Task ID: ANDROID-UI-OVERHAUL-V3
+Agent: main (Z.ai Code)
+Task: Complete UI improvements per detailed user feedback — recreate folder/shield/finish animations, bigger visuals, linking top section, poison bottle top, manual linking success state.
+
+Work Log:
+1. HEADINGS: top padding 2dp→0dp on ALL screens (moved up more, closer to status bar).
+2. THEME PREVIEW: removed "Home/Library/Search/Settings" label at bottom, made preview MUCH bigger (140x260→180x340).
+3. FOLDER VISUAL — COMPLETELY RECREATED from scratch: new concept with 3D-perspective folder, anime cards descending into it (staggered), lid opens/closes, scanning beam sweeps, check badge on select.
+4. SHIELD VISUAL — COMPLETELY RECREATED from scratch: new biometric scanning badge concept — circular badge with pulse rings, scanning line sweeping top-to-bottom, grid lines appearing, checkmark drawing in after scan.
+5. FORMAT VISUAL: 200dp→280dp (much bigger).
+6. PROCESSING VISUAL: 180dp→260dp (~100% bigger).
+7. LINKING TOP SECTION: wrapped heading+title+subtitle+stats in dedicated surface card (rounded 16dp, surface2 bg, border). Heading upgraded to 42sp. Stats use surface3 bg.
+8. MANUAL LINKING: added AllLinkedVisual — when all anime linked, shows orbiting checkmarks + center check circle celebration. Replaces SearchVisual when unlinked.isEmpty().
+9. RESTORE SUCCESS: new RestoreSuccessVisual — slower (2.5s draw), pulse rings, breathing glow, rising sparkles. No longer reuses FinishVisual.
+10. POISON BOTTLE: cap rounded (40% corner radius), neck 30u long (was 22u) with 3u rounded corners, body starts lower.
+11. FINISH VISUAL — COMPLETELY RECREATED: premium celebration with 8 star burst rays + 6 orbiting sparkles + slow 3s draw-in + scale breathing + gentle falling confetti.
+
+CI run 30689575133: SUCCESS. Artifact: setup-wizard-apk, 15.9 MB, ARM64-only.
