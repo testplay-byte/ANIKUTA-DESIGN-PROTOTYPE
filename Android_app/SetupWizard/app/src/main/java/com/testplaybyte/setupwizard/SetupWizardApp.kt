@@ -318,7 +318,7 @@ fun PageHeading(text: String, palette: WizardPalette, modifier: Modifier = Modif
         lineHeight = 46.sp,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
-        modifier = modifier.padding(start = 20.dp, top = 2.dp, end = 20.dp)
+        modifier = modifier.padding(start = 20.dp, top = 0.dp, end = 20.dp)
     )
 }
 
@@ -394,7 +394,7 @@ fun WelcomeScreen(palette: WizardPalette, onNext: () -> Unit) {
                 fontFamily = RobotoFamily,
                 letterSpacing = (-0.75).sp,
                 lineHeight = 46.sp,
-                modifier = Modifier.padding(top = 2.dp)
+                modifier = Modifier.padding(top = 0.dp)
             )
             Text(
                 "Let's get things quickly set up for you.",
@@ -452,10 +452,10 @@ fun ThemeScreen(palette: WizardPalette, paletteIndex: Int, onPaletteChange: (Int
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Mini preview — animated phone that cycles through screen states
+            // Mini preview — animated phone that cycles through screen states (MUCH bigger)
             MiniAnimePreview(
                 palette = palette,
-                modifier = Modifier.size(width = 140.dp, height = 260.dp).padding(vertical = 8.dp)
+                modifier = Modifier.size(width = 180.dp, height = 340.dp).padding(vertical = 4.dp)
             )
             DescriptiveTitle("Choose your theme", modifier = Modifier.fillMaxWidth())
             Text(
@@ -463,7 +463,7 @@ fun ThemeScreen(palette: WizardPalette, paletteIndex: Int, onPaletteChange: (Int
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth().padding(top = 2.dp)
+                modifier = Modifier.fillMaxWidth().padding(top = 0.dp)
             )
             Spacer(Modifier.height(12.dp))
             // Mode toggle: Dark / Light / System
@@ -601,7 +601,7 @@ fun PermissionsScreen(palette: WizardPalette, permissions: Map<String, Boolean>,
         ) {
             Box(modifier = Modifier.size(180.dp).padding(vertical = 4.dp)) { ShieldVisual(palette) }
             DescriptiveTitle("Grant permissions", modifier = Modifier.fillMaxWidth())
-            Subtitle("Optional: you can skip these", modifier = Modifier.fillMaxWidth().padding(top = 2.dp))
+            Subtitle("Optional: you can skip these", modifier = Modifier.fillMaxWidth().padding(top = 0.dp))
             Spacer(Modifier.height(8.dp))
             rows.forEach { (key, pair) ->
                 val isOn = permissions[key] ?: false
@@ -695,7 +695,7 @@ fun FormatScreen(palette: WizardPalette, onBack: () -> Unit, onNext: () -> Unit)
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(200.dp).padding(vertical = 8.dp)) { WarningVisual(palette) }
+            Box(modifier = Modifier.size(280.dp).padding(vertical = 8.dp)) { WarningVisual(palette) }
             Text(
                 "This is not the format I was expecting.",
                 color = MaterialTheme.colorScheme.onBackground,
@@ -745,7 +745,7 @@ fun ProcessingScreen(palette: WizardPalette, onNext: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(180.dp).padding(vertical = 8.dp)) { ProcessingVisual(palette) }
+            Box(modifier = Modifier.size(260.dp).padding(vertical = 8.dp)) { ProcessingVisual(palette) }
             DescriptiveTitle("Processing backup", modifier = Modifier.fillMaxWidth())
             Subtitle("Reading your backup file and extracting data…", modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
             Spacer(Modifier.height(8.dp))
@@ -824,12 +824,14 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
     val remaining = maxOf(0, total - revealed)
     val allRevealed = revealed >= total
     Column(modifier = Modifier.fillMaxSize()) {
-        // Fixed header (heading + title + subtitle + stats) — NOT scrollable
-        Column(modifier = Modifier.padding(horizontal = 20.dp)) {
-            Text("Backup Restore", color = palette.primary, fontSize = 28.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp, modifier = Modifier.padding(top = 8.dp))
+        // Fixed header (heading + title + subtitle + stats) — dedicated background card
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).clip(RoundedCornerShape(16.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(16.dp)).padding(12.dp)
+        ) {
+            Text("Backup Restore", color = palette.primary, fontSize = 42.sp, fontFamily = RobotoFamily,
+        fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.75).sp, lineHeight = 46.sp, modifier = Modifier.padding(top = 0.dp))
             DescriptiveTitle("Linking anime", modifier = Modifier.fillMaxWidth())
-            Subtitle("Matching your backup entries", modifier = Modifier.fillMaxWidth().padding(top = 2.dp))
+            Subtitle("Matching your backup entries", modifier = Modifier.fillMaxWidth().padding(top = 0.dp))
             Spacer(Modifier.height(4.dp))
             // Stats — wider (squished vertically), bigger values
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -841,7 +843,7 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
                 ).forEach { (pair, color) ->
                     val (label, value) = pair
                     Column(
-                        Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(10.dp)).padding(horizontal = 2.dp, vertical = 4.dp),
+                        Modifier.weight(1f).clip(RoundedCornerShape(10.dp)).background(palette.surface3).padding(horizontal = 2.dp, vertical = 4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text("$value", color = color, fontSize = 20.sp, fontFamily = RobotoFamily,
@@ -946,14 +948,18 @@ fun ManualScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onLink:
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top animation — search magnifying glass
+            // Top animation — search magnifying glass OR all-linked celebration
             Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) {
-                SearchVisual(palette)
+                if (unlinked.isEmpty()) {
+                    AllLinkedVisual(palette)
+                } else {
+                    SearchVisual(palette)
+                }
             }
             DescriptiveTitle("Manual linking", modifier = Modifier.fillMaxWidth())
             Subtitle(
                 if (unlinked.isEmpty()) "All anime are linked! You're ready to continue." else "${unlinked.size} anime need your help. Tap any entry to search for a match.",
-                modifier = Modifier.fillMaxWidth().padding(top = 2.dp)
+                modifier = Modifier.fillMaxWidth().padding(top = 0.dp)
             )
             Spacer(Modifier.height(8.dp))
             unlinked.forEach { anime ->
@@ -1149,7 +1155,7 @@ fun RestoreSuccessScreen(palette: WizardPalette, onNext: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(220.dp).padding(vertical = 8.dp)) { FinishVisual(palette) }
+            Box(modifier = Modifier.size(220.dp).padding(vertical = 8.dp)) { RestoreSuccessVisual(palette) }
             DescriptiveTitle("Restore successful!", modifier = Modifier.fillMaxWidth())
             Subtitle("Your library has been restored and is ready to go.", modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
         }
@@ -1171,7 +1177,7 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = (-0.75).sp,
                 lineHeight = 46.sp,
-                modifier = Modifier.padding(top = 2.dp),
+                modifier = Modifier.padding(top = 0.dp),
             )
             Text(
                 "Ads keep the app free. Let's make them non-intrusive — pick your daily dose.",

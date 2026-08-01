@@ -102,75 +102,96 @@ fun WelcomeVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
 // FOLDER — highly detailed open folder with floating file cards
 // ============================================================================
 
+// ============================================================================
+// FOLDER — completely new design: 3D-perspective folder with anime cards
+// floating above and descending into it. Lid opens slightly, cards drift
+// in with staggered timing. Scanning beam passes over. Check badge on select.
+// ============================================================================
+
 @Composable
 fun FolderVisual(palette: WizardPalette, selected: Boolean = false, modifier: Modifier = Modifier) {
-    val t = rememberInfiniteTransition(label = "fv")
-    val bob by t.animateFloat(-3f, 3f, infiniteRepeatable(tween(4000, easing = FastOutSlowInEasing), RepeatMode.Reverse), "fvb")
+    val t = rememberInfiniteTransition(label = "fv2")
+    val float by t.animateFloat(-4f, 4f, infiniteRepeatable(tween(4000, easing = FastOutSlowInEasing), RepeatMode.Reverse), "fv2-float")
+    val cardDrop by t.animateFloat(0f, 1f, infiniteRepeatable(tween(3000, easing = FastOutSlowInEasing), RepeatMode.Restart), "fv2-drop")
+    val scanLine by t.animateFloat(0f, 1f, infiniteRepeatable(tween(2500, easing = LinearEasing), RepeatMode.Restart), "fv2-scan")
+    val lidOpen by t.animateFloat(0f, 1f, infiniteRepeatable(tween(3000, easing = FastOutSlowInEasing), RepeatMode.Reverse), "fv2-lid")
 
     Canvas(modifier.fillMaxSize()) {
         val u = minOf(size.width, size.height) / 200f
         val cx = size.width / 2f
+        val cy = size.height / 2f
+        val fy = float * u
 
-        // Soft glow
-        radialGlow(cx, 120f * u, 70f * u, palette.primary, 0.16f)
+        // Soft glow behind folder
+        radialGlow(cx, cy + 20f * u + fy, 80f * u, palette.primary, 0.14f)
 
-        // --- 3 floating file cards (staggered) ---
+        // --- 3 anime cards descending into the folder (staggered) ---
         for (i in 0 until 3) {
-            val fx = (54f + i * 38f) * u
-            val fy = (48f + bob * (0.5f + i * 0.2f) + i * 3f) * u
-            val fw = 30f * u
-            val fh = 38f * u
-            // Card body with gradient
-            rrGradient(
-                Brush.verticalGradient(listOf(palette.surface5, palette.surface4)),
-                fx, fy, fw, fh, 4f * u,
-            )
-            // Colored top strip
-            rr(palette.primary.copy(alpha = 0.55f - i * 0.08f), fx, fy, fw, 9f * u, 4f * u)
-            // Content lines
+            val cardPhase = (cardDrop + i * 0.33f) % 1f
+            // Cards start above the folder and descend
+            val startX = cx + (i - 1) * 28f * u
+            val startY = cy - 70f * u + fy
+            val endY = cy - 10f * u + fy
+            val cardY = startY + (endY - startY) * cardPhase
+            val cardAlpha = if (cardPhase < 0.1f) cardPhase * 10f else if (cardPhase > 0.85f) maxOf(0f, 1f - (cardPhase - 0.85f) * 6.7f) else 1f
+            val cardW = 32f * u
+            val cardH = 44f * u
+            val cardRot = (i - 1) * 8f * (1f - cardPhase) // straighten as they descend
+
+            // Card body
+            rr(palette.surface5.copy(alpha = cardAlpha), startX - cardW / 2, cardY, cardW, cardH, 4f * u)
+            // Card top accent (poster-like)
+            rr(palette.primary.copy(alpha = 0.5f * cardAlpha), startX - cardW / 2, cardY, cardW, cardH * 0.4f, 4f * u)
+            // Card content lines
             for (j in 0 until 2) {
-                drawRect(palette.primary.copy(alpha = 0.25f), Offset(fx + 5f * u, fy + 14f * u + j * 7f * u), Size(fw - 10f * u, 2f * u))
+                drawRect(palette.primary.copy(alpha = 0.2f * cardAlpha), Offset(startX - cardW / 2 + 4f * u, cardY + cardH * 0.5f + j * 6f * u), Size(cardW - 8f * u, 2f * u))
             }
         }
 
-        // --- Folder back panel (tab) ---
+        // --- Folder back (lid) — opens slightly ---
+        val lidLift = lidOpen * 8f * u
         val backPath = Path().apply {
-            moveTo(36f * u, 88f * u + bob * u)
-            lineTo(80f * u, 88f * u + bob * u)
-            lineTo(88f * u, 80f * u + bob * u)
-            lineTo(164f * u, 80f * u + bob * u)
-            lineTo(164f * u, 116f * u + bob * u)
-            lineTo(36f * u, 116f * u + bob * u)
+            moveTo(cx - 50f * u, cy - 10f * u + fy - lidLift)
+            lineTo(cx - 20f * u, cy - 10f * u + fy - lidLift)
+            lineTo(cx - 14f * u, cy - 18f * u + fy - lidLift)
+            lineTo(cx + 14f * u, cy - 18f * u + fy - lidLift)
+            lineTo(cx + 20f * u, cy - 10f * u + fy - lidLift)
+            lineTo(cx + 50f * u, cy - 10f * u + fy - lidLift)
+            lineTo(cx + 50f * u, cy + 2f * u + fy)
+            lineTo(cx - 50f * u, cy + 2f * u + fy)
             close()
         }
         drawPath(backPath, palette.surface4)
 
-        // --- Folder front pocket (gradient body) ---
-        rrGradient(
-            Brush.verticalGradient(listOf(palette.surface3, palette.surface5)),
-            32f * u, 110f * u + bob * u, 136f * u, 64f * u, 10f * u,
-        )
-        // Primary border
-        rr(palette.primary.copy(alpha = 0.25f), 32f * u, 110f * u + bob * u, 136f * u, 64f * u, 10f * u, 1.5f * u)
+        // --- Folder front pocket ---
+        val frontTop = cy + 2f * u + fy
+        val frontH = 56f * u
+        rr(palette.surface3, cx - 52f * u, frontTop, 104f * u, frontH, 12f * u)
+        // Border
+        rr(palette.primary.copy(alpha = 0.3f), cx - 52f * u, frontTop, 104f * u, frontH, 12f * u, 2f * u)
 
-        // Inner content lines
+        // Inner content lines on folder
         for (i in 0 until 3) {
-            rr(palette.primary.copy(alpha = 0.30f - i * 0.06f), 50f * u, (124f + i * 12f + bob) * u, 100f * u, 4f * u, 2f * u)
+            val lineY = frontTop + 14f * u + i * 10f * u
+            rr(palette.primary.copy(alpha = 0.25f - i * 0.05f), cx - 36f * u, lineY, 72f * u, 3f * u, 2f * u)
         }
+
+        // --- Scanning beam (horizontal line that sweeps down) ---
+        val scanY = frontTop + scanLine * frontH
+        drawLine(palette.primary.copy(alpha = 0.4f), Offset(cx - 50f * u, scanY), Offset(cx + 50f * u, scanY), 2f * u, StrokeCap.Round)
+        // Scan glow
+        radialGlow(cx, scanY, 20f * u, palette.primary, 0.15f)
 
         // --- Selected check badge ---
         if (selected) {
-            val bx = 156f * u
-            val by = 100f * u + bob * u
-            // Glow
-            radialGlow(bx, by, 28f * u, palette.primary, 0.3f)
-            // Badge circle
-            drawCircle(palette.primary, 20f * u, Offset(bx, by))
-            // Check mark
+            val bx = cx + 42f * u
+            val by = frontTop - 8f * u
+            radialGlow(bx, by, 30f * u, palette.primary, 0.3f)
+            drawCircle(palette.primary, 22f * u, Offset(bx, by))
             val cp = Path().apply {
-                moveTo(bx - 8f * u, by)
-                lineTo(bx - 2f * u, by + 6f * u)
-                lineTo(bx + 8f * u, by - 6f * u)
+                moveTo(bx - 9f * u, by)
+                lineTo(bx - 3f * u, by + 6f * u)
+                lineTo(bx + 9f * u, by - 6f * u)
             }
             drawPath(cp, palette.background, style = Stroke(3.5f * u, cap = StrokeCap.Round, join = StrokeJoin.Round))
         }
@@ -178,60 +199,75 @@ fun FolderVisual(palette: WizardPalette, selected: Boolean = false, modifier: Mo
 }
 
 // ============================================================================
-// SHIELD — premium shield with drawing checkmark + ripple
+// SHIELD — completely new design: biometric-style scanning badge
+// A circular badge with a scanning line that sweeps top to bottom, grid
+// lines that appear as the scan passes, and a checkmark that draws in
+// after each scan cycle. Concentric rings pulse outward.
 // ============================================================================
 
 @Composable
 fun ShieldVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
-    val rippleT = rememberInfiniteTransition(label = "sv-ripple")
-    val ripple by rippleT.animateFloat(0f, 1f, infiniteRepeatable(tween(2800, easing = LinearEasing)), "sv-r")
-    val drawT = rememberInfiniteTransition(label = "sv-draw")
-    val draw by drawT.animateFloat(0f, 1f, infiniteRepeatable(tween(1400, easing = FastOutSlowInEasing), RepeatMode.Reverse), "sv-d")
-    val floatT = rememberInfiniteTransition(label = "sv-float")
-    val float by floatT.animateFloat(0f, -4f, infiniteRepeatable(tween(3400, easing = FastOutSlowInEasing), RepeatMode.Reverse), "sv-f")
+    val scanT = rememberInfiniteTransition(label = "sv3-scan")
+    val scan by scanT.animateFloat(0f, 1f, infiniteRepeatable(tween(2500, easing = LinearEasing), RepeatMode.Restart), "sv3-s")
+    val pulseT = rememberInfiniteTransition(label = "sv3-pulse")
+    val pulse by pulseT.animateFloat(0f, 1f, infiniteRepeatable(tween(2000, easing = LinearEasing), RepeatMode.Restart), "sv3-p")
+    val floatT = rememberInfiniteTransition(label = "sv3-float")
+    val float by floatT.animateFloat(0f, -4f, infiniteRepeatable(tween(3500, easing = FastOutSlowInEasing), RepeatMode.Reverse), "sv3-f")
+    val checkT = rememberInfiniteTransition(label = "sv3-check")
+    val check by checkT.animateFloat(0f, 1f, infiniteRepeatable(tween(1500, delayMillis = 1000, easing = FastOutSlowInEasing), RepeatMode.Restart), "sv3-c")
 
     Canvas(modifier.fillMaxSize()) {
         val u = minOf(size.width, size.height) / 200f
         val cx = size.width / 2f
         val cy = (100f + float) * u
+        val r = 56f * u
 
-        // Expanding ripple rings
-        for (i in 0 until 2) {
-            val phase = (ripple + i * 0.5f) % 1f
-            val r = (40f + 30f * phase) * u
-            drawCircle(palette.primary.copy(alpha = (1f - phase) * 0.20f), r, Offset(cx, cy), style = Stroke(2f * u))
+        // Concentric pulse rings
+        for (i in 0 until 3) {
+            val phase = (pulse + i * 0.33f) % 1f
+            val pr = r + 30f * u * phase
+            drawCircle(palette.primary.copy(alpha = (1f - phase) * 0.15f), pr, Offset(cx, cy), style = Stroke(2f * u))
         }
 
         // Glow
-        radialGlow(cx, cy, 60f * u, palette.primary, 0.15f)
+        radialGlow(cx, cy, r * 1.3f, palette.primary, 0.16f)
 
-        // Shield body with gradient
-        val w = 76f * u
-        val h = 92f * u
-        val shieldPath = Path().apply {
-            moveTo(cx, cy - h / 2)
-            lineTo(cx + w / 2, cy - h / 2 + w * 0.35f)
-            lineTo(cx + w / 2, cy + h * 0.10f)
-            quadraticTo(cx + w / 2, cy + h * 0.42f, cx, cy + h / 2)
-            quadraticTo(cx - w / 2, cy + h * 0.42f, cx - w / 2, cy + h * 0.10f)
-            lineTo(cx - w / 2, cy - h / 2 + w * 0.35f)
-            close()
+        // Outer circle (badge ring)
+        drawCircle(palette.surface3, r, Offset(cx, cy))
+        drawCircle(palette.primary, r, Offset(cx, cy), style = Stroke(3f * u))
+
+        // Inner circle (darker)
+        drawCircle(palette.surface2, r - 6f * u, Offset(cx, cy))
+
+        // Grid lines that appear as scan passes
+        val gridCount = 8
+        for (i in 0..gridCount) {
+            val gridY = cy - r + 6f * u + i * (r * 2 - 12f * u) / gridCount
+            val gridProgress = (scan * (r * 2) - (gridY - cy + r)) / 20f
+            if (gridProgress > 0f && gridProgress < 1f) {
+                drawLine(palette.primary.copy(alpha = 0.15f * gridProgress), Offset(cx - r + 12f * u, gridY), Offset(cx + r - 12f * u, gridY), 1f * u)
+            }
         }
-        drawPath(shieldPath, palette.primary)
 
-        // Drawing check mark (animated)
-        val p1 = Offset(cx - w * 0.14f, cy)
-        val p2 = Offset(cx - w * 0.02f, cy + h * 0.12f)
-        val p3 = Offset(cx + w * 0.20f, cy - h * 0.12f)
-        if (draw <= 0.5f) {
-            val k = draw * 2f
-            val end = Offset(p1.x + (p2.x - p1.x) * k, p1.y + (p2.y - p1.y) * k)
-            drawLine(palette.onPrimary, p1, end, 5f * u, StrokeCap.Round)
-        } else {
-            drawLine(palette.onPrimary, p1, p2, 5f * u, StrokeCap.Round)
-            val k = (draw - 0.5f) * 2f
-            val end = Offset(p2.x + (p3.x - p2.x) * k, p2.y + (p3.y - p2.y) * k)
-            drawLine(palette.onPrimary, p2, end, 5f * u, StrokeCap.Round)
+        // Scanning line (sweeps top to bottom)
+        val scanY = cy - r + 6f * u + scan * (r * 2 - 12f * u)
+        drawLine(palette.primary, Offset(cx - r + 10f * u, scanY), Offset(cx + r - 10f * u, scanY), 2.5f * u, StrokeCap.Round)
+        // Scan glow
+        radialGlow(cx, scanY, 16f * u, palette.primary, 0.2f)
+
+        // Checkmark that draws in after scan completes
+        if (check > 0f) {
+            val p1 = Offset(cx - r * 0.2f, cy)
+            val p2 = Offset(cx - r * 0.05f, cy + r * 0.2f)
+            val p3 = Offset(cx + r * 0.25f, cy - r * 0.2f)
+            if (check <= 0.5f) {
+                val k = check * 2f
+                drawLine(palette.primary, p1, Offset(p1.x + (p2.x - p1.x) * k, p1.y + (p2.y - p1.y) * k), 5f * u, StrokeCap.Round)
+            } else {
+                drawLine(palette.primary, p1, p2, 5f * u, StrokeCap.Round)
+                val k = (check - 0.5f) * 2f
+                drawLine(palette.primary, p2, Offset(p2.x + (p3.x - p2.x) * k, p2.y + (p3.y - p2.y) * k), 5f * u, StrokeCap.Round)
+            }
         }
     }
 }
@@ -597,20 +633,28 @@ fun PoisonBottleVisual(palette: WizardPalette, idx: Int = 0, modifier: Modifier 
         // Glow
         radialGlow(cx, 80f * u + fy, 55f * u, palette.primary, 0.20f)
 
-        // --- Cap ---
-        val capW = 28f * u
-        rr(palette.primary, cx - capW/2, 6f * u + fy, capW, 10f * u, 2f * u)
+        // --- Cap (rounded top, longer) ---
+        val capW = 30f * u
+        val capH = 14f * u
+        // Rounded cap using a path with rounded top corners
+        val capPath = Path().apply {
+            addRoundRect(RoundRect(
+                Rect(cx - capW/2, 4f * u + fy, cx + capW/2, 4f * u + fy + capH),
+                CornerRadius(capH * 0.4f, capH * 0.4f),
+            ))
+        }
+        drawPath(capPath, palette.primary)
 
-        // --- Bottle neck (thin) ---
+        // --- Bottle neck (thin, LONGER) ---
         val neckW = 18f * u
-        val neckH = 22f * u
-        rr(palette.surface4, cx - neckW/2, 16f * u + fy, neckW, neckH, 2f * u)
-        rr(palette.primary, cx - neckW/2, 16f * u + fy, neckW, neckH, 2f * u, 1.5f * u)
+        val neckH = 30f * u  // was 22f, now longer
+        rr(palette.surface4, cx - neckW/2, 18f * u + fy, neckW, neckH, 3f * u)  // more rounded (was 2f)
+        rr(palette.primary, cx - neckW/2, 18f * u + fy, neckW, neckH, 3f * u, 1.5f * u)
 
         // --- Bottle shoulders + body (tall, rounded) ---
         val bodyW = 50f * u
-        val bodyH = 100f * u
-        val bodyTop = 38f * u + fy
+        val bodyH = 95f * u
+        val bodyTop = 48f * u + fy  // was 38f, now lower to accommodate longer neck
         val bodyPath = Path().apply {
             // Start at left shoulder
             moveTo(cx - bodyW/2, bodyTop + 12f * u)
@@ -738,58 +782,158 @@ fun PoisonPillVisual(palette: WizardPalette, idx: Int = 0, pillColor: Color = Co
 // FINISH — bold check-in-circle with confetti + breathing glow
 // ============================================================================
 
+// ============================================================================
+// FINISH — completely new: premium celebration with star burst + orbiting
+// sparkles + a bold check that draws in slowly. Breathing glow. Confetti
+// that falls gently. Much slower and more elegant than the old version.
+// ============================================================================
+
 @Composable
 fun FinishVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
-    val drawT = rememberInfiniteTransition(label = "fv-draw")
-    val draw by drawT.animateFloat(0f, 1f, infiniteRepeatable(tween(1200, easing = FastOutSlowInEasing), RepeatMode.Restart), "fv-d")
-    val glowT = rememberInfiniteTransition(label = "fv-glow")
-    val glow by glowT.animateFloat(0.20f, 0.35f, infiniteRepeatable(tween(2800, easing = FastOutSlowInEasing), RepeatMode.Reverse), "fv-g")
-    val confettiT = rememberInfiniteTransition(label = "fv-conf")
-    val confetti by confettiT.animateFloat(0f, 1f, infiniteRepeatable(tween(2000, delayMillis = 1200, easing = LinearEasing), RepeatMode.Restart), "fv-c")
+    val t = rememberInfiniteTransition(label = "fv3")
+    val draw by t.animateFloat(0f, 1f, infiniteRepeatable(tween(3000, easing = FastOutSlowInEasing), RepeatMode.Restart), "fv3-d")
+    val glow by t.animateFloat(0.15f, 0.30f, infiniteRepeatable(tween(3500, easing = FastOutSlowInEasing), RepeatMode.Reverse), "fv3-g")
+    val orbit by t.animateFloat(0f, 360f, infiniteRepeatable(tween(10000, easing = LinearEasing)), "fv3-o")
+    val confetti by t.animateFloat(0f, 1f, infiniteRepeatable(tween(4000, delayMillis = 2000, easing = LinearEasing), RepeatMode.Restart), "fv3-c")
+    val scale by t.animateFloat(0.95f, 1.05f, infiniteRepeatable(tween(3000, easing = FastOutSlowInEasing), RepeatMode.Reverse), "fv3-s")
 
     Canvas(modifier.fillMaxSize()) {
         val u = minOf(size.width, size.height) / 200f
         val cx = size.width / 2f
         val cy = size.height / 2f
-        val r = 44f * u
+        val r = 48f * u * scale
 
-        // Glow (breathing)
-        radialGlow(cx, cy, r * (1.4f + 0.1f * glow / 0.35f), palette.primary, glow)
+        // Outer breathing glow
+        radialGlow(cx, cy, r * 1.6f, palette.primary, glow)
 
-        // Circle (draws in)
-        val circleSweep = (draw * 1.3f).coerceIn(0f, 1f)
-        drawArc(palette.primary, -90f, circleSweep * 360f, false, Offset(cx - r, cy - r), Size(r * 2, r * 2), style = Stroke(6f * u, cap = StrokeCap.Round))
+        // Star burst rays (8 rays radiating outward, subtle)
+        for (i in 0 until 8) {
+            val angle = (orbit + i * 45f) * PI.toFloat() / 180f
+            val rayLen = r * (1.3f + 0.15f * sin(orbit * PI.toFloat() / 180f + i))
+            val innerR = r * 1.1f
+            val outerR = innerR + rayLen * 0.3f
+            val x1 = cx + innerR * cos(angle)
+            val y1 = cy + innerR * sin(angle)
+            val x2 = cx + outerR * cos(angle)
+            val y2 = cy + outerR * sin(angle)
+            drawLine(palette.primary.copy(alpha = 0.15f), Offset(x1, y1), Offset(x2, y2), 2f * u, StrokeCap.Round)
+        }
+
+        // 6 orbiting sparkles
+        for (i in 0 until 6) {
+            val angle = (orbit + i * 60f) * PI.toFloat() / 180f
+            val orbR = r * 1.35f
+            val sx = cx + orbR * cos(angle)
+            val sy = cy + orbR * sin(angle)
+            val sparkleSize = (3f + 2f * sin(orbit * PI.toFloat() / 180f + i)) * u
+            drawCircle(palette.primary.copy(alpha = 0.5f), sparkleSize, Offset(sx, sy))
+        }
+
+        // Circle ring (draws in slowly)
+        val circleSweep = (draw * 1.2f).coerceIn(0f, 1f)
+        drawArc(palette.primary, -90f, circleSweep * 360f, false, Offset(cx - r, cy - r), Size(r * 2, r * 2), style = Stroke(7f * u, cap = StrokeCap.Round))
+
+        // Fill once drawn
+        if (circleSweep >= 1f) {
+            drawCircle(palette.primary, r, Offset(cx, cy))
+        }
+
+        // Check mark (draws slowly after circle completes)
+        val checkP = (draw * 1.5f - 0.5f).coerceIn(0f, 1f)
+        if (checkP > 0f) {
+            val p1 = Offset(cx - r * 0.30f, cy)
+            val p2 = Offset(cx - r * 0.05f, cy + r * 0.28f)
+            val p3 = Offset(cx + r * 0.34f, cy - r * 0.26f)
+            if (checkP <= 0.5f) {
+                val k = checkP * 2f
+                drawLine(palette.onPrimary, p1, Offset(p1.x + (p2.x - p1.x) * k, p1.y + (p2.y - p1.y) * k), 6f * u, StrokeCap.Round)
+            } else {
+                drawLine(palette.onPrimary, p1, p2, 6f * u, StrokeCap.Round)
+                val k = (checkP - 0.5f) * 2f
+                drawLine(palette.onPrimary, p2, Offset(p2.x + (p3.x - p2.x) * k, p2.y + (p3.y - p2.y) * k), 6f * u, StrokeCap.Round)
+            }
+        }
+
+        // Gentle confetti (falls slowly from top)
+        if (confetti > 0f && circleSweep >= 1f) {
+            val rng = java.util.Random(42)
+            for (i in 0 until 16) {
+                val startX = rng.nextFloat() * size.width
+                val fallY = confetti * size.height * (0.3f + 0.5f * rng.nextFloat())
+                val sz = (2f + 2f * rng.nextFloat()) * u
+                val alpha = 0.6f * (1f - confetti * 0.7f)
+                drawCircle(palette.primary.copy(alpha = alpha), sz, Offset(startX, fallY))
+            }
+        }
+    }
+}
+
+// ============================================================================
+// RESTORE SUCCESS — new, slower, more elegant animation
+// A large success circle with a checkmark, surrounded by rising sparkles
+// and a gentle pulse. Much slower than the old FinishVisual reuse.
+// ============================================================================
+
+@Composable
+fun RestoreSuccessVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
+    val t = rememberInfiniteTransition(label = "rsv")
+    val draw by t.animateFloat(0f, 1f, infiniteRepeatable(tween(2500, easing = FastOutSlowInEasing), RepeatMode.Restart), "rsv-d")
+    val pulse by t.animateFloat(0f, 1f, infiniteRepeatable(tween(3000, easing = LinearEasing), RepeatMode.Restart), "rsv-p")
+    val glow by t.animateFloat(0.18f, 0.30f, infiniteRepeatable(tween(3500, easing = FastOutSlowInEasing), RepeatMode.Reverse), "rsv-g")
+    val sparkles by t.animateFloat(0f, 1f, infiniteRepeatable(tween(3500, easing = LinearEasing), RepeatMode.Restart), "rsv-s")
+
+    Canvas(modifier.fillMaxSize()) {
+        val u = minOf(size.width, size.height) / 200f
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        val r = 50f * u
+
+        // Pulse rings (slow, expanding)
+        for (i in 0 until 2) {
+            val phase = (pulse + i * 0.5f) % 1f
+            val pr = r + 40f * u * phase
+            drawCircle(palette.primary.copy(alpha = (1f - phase) * 0.12f), pr, Offset(cx, cy), style = Stroke(2f * u))
+        }
+
+        // Breathing glow
+        radialGlow(cx, cy, r * 1.5f, palette.primary, glow)
+
+        // Circle (draws in slowly — 2.5s cycle)
+        val circleSweep = (draw * 1.2f).coerceIn(0f, 1f)
+        drawArc(palette.primary, -90f, circleSweep * 360f, false, Offset(cx - r, cy - r), Size(r * 2, r * 2), style = Stroke(7f * u, cap = StrokeCap.Round))
+
         // Fill once drawn
         if (circleSweep >= 1f) {
             drawCircle(palette.primary, r, Offset(cx, cy))
         }
 
         // Check mark (draws after circle)
-        val checkP = (draw * 1.6f - 0.6f).coerceIn(0f, 1f)
+        val checkP = (draw * 1.4f - 0.4f).coerceIn(0f, 1f)
         if (checkP > 0f) {
-            val p1 = Offset(cx - r * 0.32f, cy)
-            val p2 = Offset(cx - r * 0.05f, cy + r * 0.30f)
-            val p3 = Offset(cx + r * 0.36f, cy - r * 0.28f)
+            val p1 = Offset(cx - r * 0.28f, cy)
+            val p2 = Offset(cx - r * 0.05f, cy + r * 0.26f)
+            val p3 = Offset(cx + r * 0.32f, cy - r * 0.24f)
             if (checkP <= 0.5f) {
                 val k = checkP * 2f
-                drawLine(palette.onPrimary, p1, Offset(p1.x + (p2.x - p1.x) * k, p1.y + (p2.y - p1.y) * k), 5f * u, StrokeCap.Round)
+                drawLine(palette.onPrimary, p1, Offset(p1.x + (p2.x - p1.x) * k, p1.y + (p2.y - p1.y) * k), 6f * u, StrokeCap.Round)
             } else {
-                drawLine(palette.onPrimary, p1, p2, 5f * u, StrokeCap.Round)
+                drawLine(palette.onPrimary, p1, p2, 6f * u, StrokeCap.Round)
                 val k = (checkP - 0.5f) * 2f
-                drawLine(palette.onPrimary, p2, Offset(p2.x + (p3.x - p2.x) * k, p2.y + (p3.y - p2.y) * k), 5f * u, StrokeCap.Round)
+                drawLine(palette.onPrimary, p2, Offset(p2.x + (p3.x - p2.x) * k, p2.y + (p3.y - p2.y) * k), 6f * u, StrokeCap.Round)
             }
         }
 
-        // Confetti
-        if (confetti > 0f && circleSweep >= 1f) {
+        // Rising sparkles (float upward from bottom)
+        if (sparkles > 0f) {
             val rng = java.util.Random(42)
-            for (i in 0 until 22) {
-                val a = rng.nextFloat() * 2f * PI.toFloat()
-                val dist = r * (1.2f + 0.6f * rng.nextFloat()) * confetti
-                val dx = cx + dist * cos(a)
-                val dy = cy + dist * sin(a)
-                val sz = (1.5f + 1.5f * rng.nextFloat()) * u
-                drawCircle(palette.primary.copy(alpha = 0.7f * (1f - confetti * 0.5f)), sz, Offset(dx, dy))
+            for (i in 0 until 12) {
+                val sx = cx + (rng.nextFloat() - 0.5f) * r * 2.5f
+                val startY = cy + r * 0.8f
+                val endY = cy - r * 1.5f
+                val sy = startY + (endY - startY) * ((sparkles + rng.nextFloat() * 0.3f) % 1f)
+                val sz = (2f + 1.5f * rng.nextFloat()) * u
+                val alpha = 0.5f * (1f - ((sparkles + rng.nextFloat() * 0.3f) % 1f))
+                drawCircle(palette.primary.copy(alpha = alpha), sz, Offset(sx, sy))
             }
         }
     }
@@ -971,16 +1115,78 @@ fun MiniAnimePreview(palette: WizardPalette, modifier: Modifier = Modifier) {
                     }
                 }
             }
-            // Screen label at bottom
-            val labels = listOf("Home", "Library", "Search", "Settings")
-            Text(
-                labels[screenIndex],
-                color = palette.primary,
-                fontSize = 8.sp,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Default,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp)
-            )
+            // No screen label — the preview shows the screens visually
+        }
+    }
+}
+
+// ============================================================================
+// ALL LINKED — success animation for when all anime are linked (manual screen)
+// A circle of linked items with a big checkmark in the center
+// ============================================================================
+
+@Composable
+fun AllLinkedVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
+    val t = rememberInfiniteTransition(label = "alv")
+    val pulse by t.animateFloat(0f, 1f, infiniteRepeatable(tween(2500, easing = LinearEasing), RepeatMode.Restart), "alv-p")
+    val draw by t.animateFloat(0f, 1f, infiniteRepeatable(tween(2000, easing = FastOutSlowInEasing), RepeatMode.Restart), "alv-d")
+    val glow by t.animateFloat(0.18f, 0.30f, infiniteRepeatable(tween(3000, easing = FastOutSlowInEasing), RepeatMode.Reverse), "alv-g")
+    val orbit by t.animateFloat(0f, 360f, infiniteRepeatable(tween(8000, easing = LinearEasing)), "alv-o")
+
+    Canvas(modifier.fillMaxSize()) {
+        val u = minOf(size.width, size.height) / 200f
+        val cx = size.width / 2f
+        val cy = size.height / 2f
+        val r = 40f * u
+
+        // Pulse rings
+        for (i in 0 until 2) {
+            val phase = (pulse + i * 0.5f) % 1f
+            val pr = r + 35f * u * phase
+            drawCircle(palette.primary.copy(alpha = (1f - phase) * 0.12f), pr, Offset(cx, cy), style = Stroke(2f * u))
+        }
+
+        // Glow
+        radialGlow(cx, cy, r * 1.5f, palette.primary, glow)
+
+        // 6 orbiting check marks (representing linked anime)
+        for (i in 0 until 6) {
+            val angle = (orbit + i * 60f) * PI.toFloat() / 180f
+            val orbR = r * 1.2f
+            val sx = cx + orbR * cos(angle)
+            val sy = cy + orbR * sin(angle)
+            // Small circle for each linked item
+            drawCircle(palette.primary.copy(alpha = 0.6f), 6f * u, Offset(sx, sy))
+            // Mini check inside
+            val cp = Path().apply {
+                moveTo(sx - 2.5f * u, sy)
+                lineTo(sx - 0.5f * u, sy + 2f * u)
+                lineTo(sx + 3f * u, sy - 2f * u)
+            }
+            drawPath(cp, palette.onPrimary, style = Stroke(1.5f * u, cap = StrokeCap.Round, join = StrokeJoin.Round))
+        }
+
+        // Center circle (draws in)
+        val circleSweep = (draw * 1.2f).coerceIn(0f, 1f)
+        drawArc(palette.primary, -90f, circleSweep * 360f, false, Offset(cx - r, cy - r), Size(r * 2, r * 2), style = Stroke(5f * u, cap = StrokeCap.Round))
+        if (circleSweep >= 1f) {
+            drawCircle(palette.primary, r, Offset(cx, cy))
+        }
+
+        // Center checkmark
+        val checkP = (draw * 1.4f - 0.4f).coerceIn(0f, 1f)
+        if (checkP > 0f) {
+            val p1 = Offset(cx - r * 0.28f, cy)
+            val p2 = Offset(cx - r * 0.05f, cy + r * 0.25f)
+            val p3 = Offset(cx + r * 0.32f, cy - r * 0.22f)
+            if (checkP <= 0.5f) {
+                val k = checkP * 2f
+                drawLine(palette.onPrimary, p1, Offset(p1.x + (p2.x - p1.x) * k, p1.y + (p2.y - p1.y) * k), 5f * u, StrokeCap.Round)
+            } else {
+                drawLine(palette.onPrimary, p1, p2, 5f * u, StrokeCap.Round)
+                val k = (checkP - 0.5f) * 2f
+                drawLine(palette.onPrimary, p2, Offset(p2.x + (p3.x - p2.x) * k, p2.y + (p3.y - p2.y) * k), 5f * u, StrokeCap.Round)
+            }
         }
     }
 }
