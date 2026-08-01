@@ -311,14 +311,14 @@ fun PageHeading(text: String, palette: WizardPalette, modifier: Modifier = Modif
     Text(
         text = text,
         color = palette.primary,
-        fontSize = 28.sp,
+        fontSize = 42.sp,
         fontFamily = RobotoFamily,
         fontWeight = FontWeight.ExtraBold,
-        letterSpacing = (-0.5).sp,
-        lineHeight = 34.sp,
+        letterSpacing = (-0.75).sp,
+        lineHeight = 46.sp,
         maxLines = 2,
         overflow = TextOverflow.Ellipsis,
-        modifier = modifier.padding(start = 20.dp, top = 8.dp, end = 20.dp)
+        modifier = modifier.padding(start = 20.dp, top = 2.dp, end = 20.dp)
     )
 }
 
@@ -389,45 +389,50 @@ fun WelcomeScreen(palette: WizardPalette, onNext: () -> Unit) {
             Text(
                 "Welcome to Anime App!",
                 color = palette.primary,
-                fontSize = 32.sp,
-                                fontWeight = FontWeight.ExtraBold,
+                fontSize = 42.sp,
+                fontWeight = FontWeight.ExtraBold,
                 fontFamily = RobotoFamily,
-                letterSpacing = (-0.6).sp,
-                lineHeight = 38.sp,
-                modifier = Modifier.padding(top = 8.dp)
+                letterSpacing = (-0.75).sp,
+                lineHeight = 46.sp,
+                modifier = Modifier.padding(top = 2.dp)
             )
             Text(
                 "Let's get things quickly set up for you.",
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 fontSize = 15.sp,
                 fontFamily = RobotoFamily,
-                                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
-        // Scrollable content
-        Column(
-            modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            val items = listOf(
-                "Track what you watch" to Icons.Default.CheckCircle,
-                "Pick up anywhere" to Icons.Default.Sync,
-                "Never miss a release" to Icons.Default.Notifications
-            )
-            items.forEachIndexed { _, (title, icon) ->
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(16.dp)).background(palette.surface2).padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier.size(32.dp).clip(RoundedCornerShape(9.dp)).background(palette.primary.copy(alpha = 0.16f)),
-                        contentAlignment = Alignment.Center
+        // Scrollable content with floating shapes animation
+        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+            // Floating shapes background animation
+            FloatingShapes(palette, modifier = Modifier.fillMaxSize())
+            // Scrollable list on top
+            Column(
+                modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                val items = listOf(
+                    "Track what you watch" to Icons.Default.CheckCircle,
+                    "Pick up anywhere" to Icons.Default.Sync,
+                    "Never miss a release" to Icons.Default.Notifications
+                )
+                items.forEachIndexed { _, (title, icon) ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp).clip(RoundedCornerShape(16.dp)).background(palette.surface2).padding(8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(icon, null, tint = palette.primary, modifier = Modifier.size(18.dp))
+                        Box(
+                            modifier = Modifier.size(32.dp).clip(RoundedCornerShape(9.dp)).background(palette.primary.copy(alpha = 0.16f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(icon, null, tint = palette.primary, modifier = Modifier.size(18.dp))
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Text(title, color = MaterialTheme.colorScheme.onBackground, fontSize = 17.sp, fontWeight = FontWeight.Bold, fontFamily = RobotoFamily)
                     }
-                    Spacer(Modifier.width(12.dp))
-                    Text(title, color = MaterialTheme.colorScheme.onBackground, fontSize = 17.sp, fontWeight = FontWeight.Bold, fontFamily = RobotoFamily)
                 }
             }
         }
@@ -447,28 +452,11 @@ fun ThemeScreen(palette: WizardPalette, paletteIndex: Int, onPaletteChange: (Int
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Mini preview (smartphone shape) — smaller 130x240
-            Box(
-                modifier = Modifier
-                    .size(width = 130.dp, height = 240.dp)
-                    .padding(vertical = 8.dp)
-                    .clip(RoundedCornerShape(18.dp))
-                    .background(Color.Black)
-                    .padding(5.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(palette.background)
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxSize().padding(top = 22.dp, start = 9.dp, end = 9.dp, bottom = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    Box(Modifier.fillMaxWidth().height(42.dp).clip(RoundedCornerShape(10.dp)).background(palette.primary.copy(alpha = 0.5f)))
-                    repeat(3) { Box(Modifier.fillMaxWidth(0.7f).height(8.dp).clip(RoundedCornerShape(999.dp)).background(palette.surface3)) }
-                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                        repeat(3) { Box(Modifier.weight(1f).height(42.dp).clip(RoundedCornerShape(6.dp)).background(palette.surface4)) }
-                    }
-                }
-            }
+            // Mini preview — animated phone that cycles through screen states
+            MiniAnimePreview(
+                palette = palette,
+                modifier = Modifier.size(width = 140.dp, height = 260.dp).padding(vertical = 8.dp)
+            )
             DescriptiveTitle("Choose your theme", modifier = Modifier.fillMaxWidth())
             Text(
                 "Pick a mode and a color and we are set with it.",
@@ -533,7 +521,7 @@ fun FolderScreen(palette: WizardPalette, folderSelected: Boolean, onSelect: () -
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) {
+            Box(modifier = Modifier.size(200.dp).padding(vertical = 8.dp)) {
                 FolderVisual(palette, selected = folderSelected && !scanning)
             }
             DescriptiveTitle(if (folderSelected) "Folder connected!" else "Select your anime folder", modifier = Modifier.fillMaxWidth())
@@ -611,7 +599,7 @@ fun PermissionsScreen(palette: WizardPalette, permissions: Map<String, Boolean>,
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(150.dp).padding(vertical = 4.dp)) { ShieldVisual(palette) }
+            Box(modifier = Modifier.size(180.dp).padding(vertical = 4.dp)) { ShieldVisual(palette) }
             DescriptiveTitle("Grant permissions", modifier = Modifier.fillMaxWidth())
             Subtitle("Optional: you can skip these", modifier = Modifier.fillMaxWidth().padding(top = 2.dp))
             Spacer(Modifier.height(8.dp))
@@ -663,7 +651,7 @@ fun RestoreScreen(palette: WizardPalette, onBack: () -> Unit, onNext: () -> Unit
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { RestoreVisual(palette) }
+            Box(modifier = Modifier.size(180.dp).padding(vertical = 8.dp)) { RestoreVisual(palette) }
             DescriptiveTitle("Restore backup", modifier = Modifier.fillMaxWidth())
             Subtitle(
                 "Got a backup from a previous install? Restore your library, history, and settings in one tap.",
@@ -707,7 +695,7 @@ fun FormatScreen(palette: WizardPalette, onBack: () -> Unit, onNext: () -> Unit)
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { WarningVisual(palette) }
+            Box(modifier = Modifier.size(200.dp).padding(vertical = 8.dp)) { WarningVisual(palette) }
             Text(
                 "This is not the format I was expecting.",
                 color = MaterialTheme.colorScheme.onBackground,
@@ -757,7 +745,7 @@ fun ProcessingScreen(palette: WizardPalette, onNext: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { ProcessingVisual(palette) }
+            Box(modifier = Modifier.size(180.dp).padding(vertical = 8.dp)) { ProcessingVisual(palette) }
             DescriptiveTitle("Processing backup", modifier = Modifier.fillMaxWidth())
             Subtitle("Reading your backup file and extracting data…", modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
             Spacer(Modifier.height(8.dp))
@@ -795,7 +783,7 @@ fun SummaryScreen(palette: WizardPalette, onCancel: () -> Unit, onNext: () -> Un
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(150.dp).padding(vertical = 4.dp)) { ClipboardVisual(palette) }
+            Box(modifier = Modifier.size(180.dp).padding(vertical = 4.dp)) { ClipboardVisual(palette) }
             DescriptiveTitle("Backup summary", modifier = Modifier.fillMaxWidth())
             Spacer(Modifier.height(8.dp))
             items.forEachIndexed { i, (icon, pair) ->
@@ -865,8 +853,15 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
             }
             Spacer(Modifier.height(4.dp))
         }
-        // Scrollable list — uniform row heights, proper spacing
-        LazyColumn(modifier = Modifier.weight(1f).padding(horizontal = 20.dp), verticalArrangement = Arrangement.spacedBy(6.dp), contentPadding = PaddingValues(vertical = 4.dp)) {
+        // Scrollable list — dedicated section with surface background
+        Column(modifier = Modifier.weight(1f).padding(horizontal = 20.dp)) {
+            // Section label
+            Text("Entries", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 11.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold, letterSpacing = 0.8.sp, modifier = Modifier.padding(bottom = 4.dp))
+            // List card with surface background
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(16.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(16.dp)).padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
             items(linkedAnime.take(revealed)) { anime ->
                 Row(
                     modifier = Modifier.fillMaxWidth().height(48.dp).clip(RoundedCornerShape(12.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(12.dp)).then(if (anime.linked) Modifier.clickable { popupId = anime.id } else Modifier).padding(horizontal = 11.dp),
@@ -896,7 +891,8 @@ fun LinkingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onUnli
                     }
                 }
             }
-        }
+            } // close LazyColumn
+        } // close Column wrapper
         // Fixed footer
         ActionRow(back = onBack, next = onNext, palette = palette, nextEnabled = allRevealed)
     }
@@ -951,7 +947,7 @@ fun ManualScreen(palette: WizardPalette, linkedAnime: List<LinkedAnime>, onLink:
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Top animation — search magnifying glass
-            Box(modifier = Modifier.size(120.dp).padding(vertical = 8.dp)) {
+            Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) {
                 SearchVisual(palette)
             }
             DescriptiveTitle("Manual linking", modifier = Modifier.fillMaxWidth())
@@ -1123,7 +1119,7 @@ fun RestoreProcessingScreen(palette: WizardPalette, linkedAnime: List<LinkedAnim
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(150.dp).padding(vertical = 8.dp)) { RestoreProcessingVisual(palette) }
+            Box(modifier = Modifier.size(180.dp).padding(vertical = 8.dp)) { RestoreProcessingVisual(palette) }
             DescriptiveTitle("Restoring your library", modifier = Modifier.fillMaxWidth())
             Subtitle("Please wait while we restore $restored anime to your library.", modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
             Spacer(Modifier.height(8.dp))
@@ -1153,7 +1149,7 @@ fun RestoreSuccessScreen(palette: WizardPalette, onNext: () -> Unit) {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(200.dp).padding(vertical = 8.dp)) { DatabaseVisual(palette) }
+            Box(modifier = Modifier.size(220.dp).padding(vertical = 8.dp)) { FinishVisual(palette) }
             DescriptiveTitle("Restore successful!", modifier = Modifier.fillMaxWidth())
             Subtitle("Your library has been restored and is ready to go.", modifier = Modifier.fillMaxWidth().padding(top = 4.dp))
         }
@@ -1165,17 +1161,17 @@ fun RestoreSuccessScreen(palette: WizardPalette, onNext: () -> Unit) {
 @Composable
 fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSettings) -> Unit, step: Int, onStepChange: (Int) -> Unit, onBack: () -> Unit, onNext: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
-        // Fixed header — consistent 28sp heading with proper spacing
+        // Fixed header — 42sp heading (50% bigger, consistent with all screens)
         Column(modifier = Modifier.padding(horizontal = 20.dp)) {
             Text(
                 "Choose Your Poison",
                 color = Color(0xFFFF6B6B),
-                fontSize = 28.sp,
+                fontSize = 42.sp,
                 fontFamily = RobotoFamily,
                 fontWeight = FontWeight.ExtraBold,
-                letterSpacing = (-0.5).sp,
-                lineHeight = 34.sp,
-                modifier = Modifier.padding(top = 8.dp),
+                letterSpacing = (-0.75).sp,
+                lineHeight = 46.sp,
+                modifier = Modifier.padding(top = 2.dp),
             )
             Text(
                 "Ads keep the app free. Let's make them non-intrusive — pick your daily dose.",
@@ -1191,7 +1187,7 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Poison visual — centered when 1, spaced when 2-3
+            // Poison visual — centered when 1, equal-weight when 2-3 (all same size)
             val visualCount = if (step == 0) 1 else adSettings.frequency
             // Pill colors: red, blue, yellow for variety
             val pillColors = listOf(
@@ -1200,13 +1196,14 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
                 Color(0xFFE8C84B) to Color.White,  // yellow
             )
             Row(
-                modifier = Modifier.fillMaxWidth().height(180.dp).padding(vertical = 8.dp),
-                horizontalArrangement = if (visualCount == 1) Arrangement.Center else Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally),
+                modifier = Modifier.fillMaxWidth().height(200.dp).padding(vertical = 8.dp),
+                horizontalArrangement = if (visualCount == 1) Arrangement.Center else Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 repeat(visualCount) { i ->
-                    val offsetY = when (i) { 0 -> (-16).dp; 1 -> 16.dp; 2 -> (-8).dp; else -> 0.dp }
-                    Box(modifier = Modifier.size(110.dp).offset(y = offsetY)) {
+                    val offsetY = when (i) { 0 -> (-12).dp; 1 -> 12.dp; 2 -> (-6).dp; else -> 0.dp }
+                    // Equal weight so all bottles/pills are the same size
+                    Box(modifier = if (visualCount == 1) Modifier.size(120.dp) else Modifier.weight(1f).height(160.dp).offset(y = offsetY)) {
                         if (adSettings.name == AdName.POISON) {
                             PoisonBottleVisual(palette, i)
                         } else {
@@ -1281,14 +1278,14 @@ fun PoisonScreen(palette: WizardPalette, adSettings: AdSettings, onUpdate: (AdSe
 @Composable
 fun FinishScreen(palette: WizardPalette, state: WizardState, onRestart: () -> Unit) {
     Column(modifier = Modifier.fillMaxSize()) {
-        // No fixed heading on finish — content centered
         // Scrollable content
         Column(
             modifier = Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(modifier = Modifier.size(180.dp).padding(vertical = 8.dp)) { FinishVisual(palette) }
+            // Bigger animation (200dp)
+            Box(modifier = Modifier.size(200.dp).padding(vertical = 8.dp)) { FinishVisual(palette) }
             // Badge
             Row(
                 modifier = Modifier.clip(RoundedCornerShape(999.dp)).background(palette.primary.copy(alpha = 0.16f)).padding(horizontal = 14.dp, vertical = 6.dp),
@@ -1296,48 +1293,66 @@ fun FinishScreen(palette: WizardPalette, state: WizardState, onRestart: () -> Un
             ) {
                 Icon(Icons.Default.Star, null, tint = palette.primary, modifier = Modifier.size(14.dp))
                 Spacer(Modifier.width(6.dp))
-                Text("Setup complete", color = palette.primary, fontSize = 12.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.ExtraBold)
+                Text("Setup complete", color = palette.primary, fontSize = 12.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.ExtraBold)
             }
-            Text("You're all set!", color = palette.primary, fontSize = 28.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.ExtraBold, modifier = Modifier.padding(top = 8.dp))
+            // Big heading — 42sp (50% bigger, consistent)
+            Text("You're all set!", color = palette.primary, fontSize = 42.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.75).sp, lineHeight = 46.sp, modifier = Modifier.padding(top = 8.dp))
             Text(
                 "Hope you have a beautiful journey ahead. Explore thousands of titles, track your progress, and never miss a new episode.",
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
                 fontSize = 14.sp,
+                fontFamily = RobotoFamily,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(top = 4.dp)
             )
-            Spacer(Modifier.height(8.dp))
-            // Config summary — reduced padding
+            Spacer(Modifier.height(12.dp))
+            // Config summary — polished card with proper spacing + dividers
             Column(
-                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(16.dp)).padding(10.dp),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(20.dp)).background(palette.surface2).border(1.dp, palette.surface3, RoundedCornerShape(20.dp)).padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Theme", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 12.sp)
-                    Text("${PaletteNames[state.paletteIndex]} · ${state.themeMode.label.lowercase()}", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).background(palette.primary.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.Palette, null, tint = palette.primary, modifier = Modifier.size(16.dp))
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text("Theme", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 13.sp, fontFamily = RobotoFamily)
+                    }
+                    Text("${PaletteNames[state.paletteIndex]} · ${state.themeMode.label.lowercase()}", color = MaterialTheme.colorScheme.onBackground, fontSize = 13.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold)
                 }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Anime folder", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 12.sp)
-                    Text(if (state.folderSelected) "Connected" else "Skipped", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+                HorizontalDivider(color = palette.surface3, thickness = 1.dp)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).background(palette.primary.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.Folder, null, tint = palette.primary, modifier = Modifier.size(16.dp))
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text("Anime folder", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 13.sp, fontFamily = RobotoFamily)
+                    }
+                    Text(if (state.folderSelected) "Connected" else "Skipped", color = MaterialTheme.colorScheme.onBackground, fontSize = 13.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold)
                 }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Library restored", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 12.sp)
-                    Text("${state.linkedAnime.count { it.linked } + 239} anime", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+                HorizontalDivider(color = palette.surface3, thickness = 1.dp)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).background(palette.primary.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.LibraryBooks, null, tint = palette.primary, modifier = Modifier.size(16.dp))
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text("Library restored", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 13.sp, fontFamily = RobotoFamily)
+                    }
+                    Text("${state.linkedAnime.count { it.linked } + 239} anime", color = MaterialTheme.colorScheme.onBackground, fontSize = 13.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold)
                 }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Ads", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 12.sp)
-                    Text("${state.adSettings.frequency}/day · ${state.adSettings.timing.label}", color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
-                }
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                    Text("Daily dose", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f), fontSize = 12.sp)
-                    Text(state.adSettings.name.label, color = MaterialTheme.colorScheme.onBackground, fontSize = 12.sp, fontFamily = RobotoFamily,
-        fontWeight = FontWeight.Bold)
+                HorizontalDivider(color = palette.surface3, thickness = 1.dp)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.size(28.dp).clip(RoundedCornerShape(8.dp)).background(palette.primary.copy(alpha = 0.16f)), contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.Campaign, null, tint = palette.primary, modifier = Modifier.size(16.dp))
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        Text("Ads", color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f), fontSize = 13.sp, fontFamily = RobotoFamily)
+                    }
+                    Text("${state.adSettings.frequency}/day · ${state.adSettings.timing.label}", color = MaterialTheme.colorScheme.onBackground, fontSize = 13.sp, fontFamily = RobotoFamily, fontWeight = FontWeight.Bold)
                 }
             }
         }

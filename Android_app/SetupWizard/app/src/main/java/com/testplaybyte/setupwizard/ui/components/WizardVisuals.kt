@@ -580,27 +580,28 @@ fun PoisonBottleVisual(palette: WizardPalette, idx: Int = 0, modifier: Modifier 
     )
 
     Canvas(modifier.fillMaxSize().graphicsLayer { rotationZ = spin }) {
-        val u = minOf(size.width, size.height) / 140f
+        // Use height-based scaling so the bottle is TALL and fills the container
+        val u = size.height / 160f
         val cx = size.width / 2f
         val fy = float * u
 
         // Glow
-        radialGlow(cx, 70f * u + fy, 50f * u, palette.primary, 0.20f)
+        radialGlow(cx, 80f * u + fy, 55f * u, palette.primary, 0.20f)
+
+        // --- Cap ---
+        val capW = 28f * u
+        rr(palette.primary, cx - capW/2, 6f * u + fy, capW, 10f * u, 2f * u)
 
         // --- Bottle neck (thin) ---
-        val neckW = 20f * u
-        val neckH = 20f * u
+        val neckW = 18f * u
+        val neckH = 22f * u
         rr(palette.surface4, cx - neckW/2, 16f * u + fy, neckW, neckH, 2f * u)
         rr(palette.primary, cx - neckW/2, 16f * u + fy, neckW, neckH, 2f * u, 1.5f * u)
 
-        // --- Cap ---
-        val capW = 26f * u
-        rr(palette.primary, cx - capW/2, 8f * u + fy, capW, 10f * u, 2f * u)
-
-        // --- Bottle shoulders + body (rounded) ---
-        val bodyW = 52f * u
-        val bodyH = 80f * u
-        val bodyTop = 36f * u + fy
+        // --- Bottle shoulders + body (tall, rounded) ---
+        val bodyW = 50f * u
+        val bodyH = 100f * u
+        val bodyTop = 38f * u + fy
         val bodyPath = Path().apply {
             // Start at left shoulder
             moveTo(cx - bodyW/2, bodyTop + 12f * u)
@@ -694,11 +695,12 @@ fun PoisonPillVisual(palette: WizardPalette, idx: Int = 0, pillColor: Color = Co
     val float by floatT.animateFloat(-3f, 3f, infiniteRepeatable(tween(3000 + idx * 500, easing = FastOutSlowInEasing), RepeatMode.Reverse), "ppv-f-$idx")
 
     Canvas(modifier.fillMaxSize().graphicsLayer { rotationZ = rot }) {
-        val u = minOf(size.width, size.height) / 140f
+        // Use height-based scaling for consistent pill sizing
+        val u = size.height / 160f
         val cx = size.width / 2f
         val cy = size.height / 2f + float * u
-        val pillW = 80f * u
-        val pillH = 34f * u
+        val pillW = 90f * u
+        val pillH = 38f * u
         val r = pillH / 2f
 
         // Glow
@@ -816,5 +818,160 @@ fun SearchVisual(palette: WizardPalette, modifier: Modifier = Modifier) {
         val handleStart = Offset(cx + r * 0.70f, cy + r * 0.70f)
         val handleEnd = Offset(cx + r * 1.30f, cy + r * 1.30f)
         drawLine(palette.primary, handleStart, handleEnd, 7f * u, StrokeCap.Round)
+    }
+}
+
+// ============================================================================
+// FLOATING SHAPES — animated background of floating geometric shapes
+// for the welcome screen. Gives subtle motion without being distracting.
+// ============================================================================
+
+@Composable
+fun FloatingShapes(palette: WizardPalette, modifier: Modifier = Modifier) {
+    val t = rememberInfiniteTransition(label = "fs")
+    // 6 shapes with independent float animations
+    val data = listOf(
+        Triple(0.15f, 0.20f, 40f),   // x%, y%, size
+        Triple(0.80f, 0.15f, 30f),
+        Triple(0.85f, 0.70f, 35f),
+        Triple(0.10f, 0.75f, 28f),
+        Triple(0.50f, 0.10f, 22f),
+        Triple(0.45f, 0.85f, 25f),
+    )
+    val floats = data.mapIndexed { i, _ ->
+        t.animateFloat(
+            initialValue = -8f,
+            targetValue = 8f,
+            animationSpec = infiniteRepeatable(
+                tween(3000 + i * 500, easing = FastOutSlowInEasing),
+                RepeatMode.Reverse
+            ),
+            label = "fs-f-$i"
+        )
+    }
+    val alphas = data.mapIndexed { i, _ ->
+        t.animateFloat(
+            initialValue = 0.06f,
+            targetValue = 0.14f,
+            animationSpec = infiniteRepeatable(
+                tween(2500 + i * 400, easing = FastOutSlowInEasing),
+                RepeatMode.Reverse
+            ),
+            label = "fs-a-$i"
+        )
+    }
+
+    Canvas(modifier.fillMaxSize()) {
+        data.forEachIndexed { i, (xPct, yPct, baseSize) ->
+            val cx = size.width * xPct
+            val cy = size.height * yPct + floats[i].value * (size.height / 200f)
+            val sz = baseSize * (size.width / 400f)
+            val alpha = alphas[i].value
+            // Alternate between circles and rounded squares
+            if (i % 2 == 0) {
+                drawCircle(palette.primary.copy(alpha = alpha), sz, Offset(cx, cy))
+            } else {
+                val cr = sz * 0.3f
+                val path = Path().apply {
+                    addRoundRect(RoundRect(Rect(cx - sz, cy - sz, cx + sz, cy + sz), CornerRadius(cr, cr)))
+                }
+                drawPath(path, palette.primary.copy(alpha = alpha))
+            }
+        }
+    }
+}
+
+// ============================================================================
+// MINI ANIME PREVIEW — animated phone frame that cycles through screen states
+// Shows: Home (trending row) → Library (grid) → Search (results) → Settings (toggles)
+// ============================================================================
+
+@Composable
+fun MiniAnimePreview(palette: WizardPalette, modifier: Modifier = Modifier) {
+    val t = rememberInfiniteTransition(label = "map")
+    val cycle by t.animateFloat(0f, 4f, infiniteRepeatable(tween(10000, easing = LinearEasing)), "map-c")
+    val fade by t.animateFloat(0f, 1f, infiniteRepeatable(tween(2500, easing = FastOutSlowInEasing), RepeatMode.Reverse), "map-f")
+
+    // Current screen index (0-3) based on cycle
+    val screenIndex = (cycle.toInt()) % 4
+    // Fade transition between screens
+    val screenProgress = cycle - cycle.toInt()
+
+    Box(modifier = modifier) {
+        // Phone frame
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(20.dp))
+                .background(Color.Black)
+                .padding(4.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(palette.background)
+        ) {
+            // Notch
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 4.dp)
+                    .width(40.dp)
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(999.dp))
+                    .background(palette.surface4)
+            )
+            // Screen content — cycles through 4 mini screens
+            Column(
+                modifier = Modifier.fillMaxSize().padding(top = 16.dp, start = 8.dp, end = 8.dp, bottom = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                when (screenIndex) {
+                    0 -> { // Home — trending row + text lines
+                        Box(Modifier.fillMaxWidth().height(36.dp).clip(RoundedCornerShape(8.dp)).background(palette.primary.copy(alpha = 0.5f + fade * 0.2f)))
+                        repeat(2) { Box(Modifier.fillMaxWidth(0.7f).height(6.dp).clip(RoundedCornerShape(999.dp)).background(palette.surface3)) }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            repeat(3) { Box(Modifier.weight(1f).height(50.dp).clip(RoundedCornerShape(6.dp)).background(palette.surface4)) }
+                        }
+                    }
+                    1 -> { // Library — grid
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            repeat(3) { Box(Modifier.weight(1f).height(60.dp).clip(RoundedCornerShape(6.dp)).background(palette.primary.copy(alpha = 0.3f + fade * 0.2f))) }
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            repeat(3) { Box(Modifier.weight(1f).height(60.dp).clip(RoundedCornerShape(6.dp)).background(palette.surface4)) }
+                        }
+                    }
+                    2 -> { // Search — search bar + result rows
+                        Box(Modifier.fillMaxWidth().height(22.dp).clip(RoundedCornerShape(999.dp)).background(palette.primary.copy(alpha = 0.2f)))
+                        repeat(3) {
+                            Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                Box(Modifier.size(20.dp).clip(RoundedCornerShape(4.dp)).background(palette.primary.copy(alpha = 0.4f + fade * 0.2f)))
+                                Box(Modifier.weight(1f).height(20.dp).clip(RoundedCornerShape(4.dp)).background(palette.surface3))
+                            }
+                        }
+                    }
+                    3 -> { // Settings — toggle rows
+                        repeat(4) { i ->
+                            Row(Modifier.fillMaxWidth().padding(vertical = 2.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(Modifier.size(10.dp).clip(CircleShape).background(palette.primary.copy(alpha = 0.6f)))
+                                    Spacer(Modifier.width(4.dp))
+                                    Box(Modifier.width(50.dp).height(5.dp).clip(RoundedCornerShape(999.dp)).background(palette.surface3))
+                                }
+                                Box(Modifier.width(18.dp).height(10.dp).clip(RoundedCornerShape(999.dp)).background(if (i < 2) palette.primary.copy(alpha = 0.8f + fade * 0.2f) else palette.surface4))
+                            }
+                        }
+                    }
+                }
+            }
+            // Screen label at bottom
+            val labels = listOf("Home", "Library", "Search", "Settings")
+            Text(
+                labels[screenIndex],
+                color = palette.primary,
+                fontSize = 8.sp,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Default,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 4.dp)
+            )
+        }
     }
 }
